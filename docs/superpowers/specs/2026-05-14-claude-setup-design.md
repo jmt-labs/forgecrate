@@ -182,6 +182,122 @@ User schreibt Prompt
 
 ---
 
+## Abschnitt 4: Testing
+
+### Unit Tests (Go)
+
+Alle internen Funktionen des Binary werden unit-getestet. Schwerpunkte:
+
+| Paket | Was getestet wird |
+|---|---|
+| `compose` | Layer-Merge-Logik für CLAUDE.md (Marker-Erkennung, Section-Merge) |
+| `compose` | Deep JSON Merge für settings.json (Konfliktauflösung, Override-Precedence) |
+| `compose` | Skills-Komposition (Additiv, Override-Erkennung) |
+| `github` | GitHub-API-Client (gemockt) — Tarball-Download, Ref-Auflösung |
+| `config` | `.claude-setup.yaml` Lesen/Schreiben, Validierung |
+
+```bash
+go test ./...
+```
+
+### E2E Tests
+
+Testen den vollständigen `init`- und `update`-Zyklus gegen ein echtes (oder gemocktes) GitHub-Repo in einem temporären Verzeichnis.
+
+Szenarien:
+- `init` auf leerem Verzeichnis → korrekte Dateistruktur
+- `init` ist idempotent → zweiter Aufruf ändert nichts
+- `update` mit neuer Source-Version → Basis-Dateien aktualisiert, Overrides erhalten
+- `update --profile` wechselt Profile → neue Skills landen, alte Base-Skills bleiben
+- Overrides werden bei keinem Befehl überschrieben
+
+```bash
+go test ./e2e/...
+```
+
+---
+
+## Abschnitt 5: Technische Dokumentation
+
+Liegt unter `docs/` im Source-Repo. Alle Diagramme als SVG (produziert aus Mermaid oder draw.io-Quellen, eingecheckt als SVG).
+
+| Dokument | Inhalt |
+|---|---|
+| `docs/architecture.md` | Komponentendiagramm: Binary · Source-Repo · Ziel-Repo · GitHub-API |
+| `docs/flows.md` | Ablaufdiagramme: `init`-Flow, `update`-Flow, Layer-Komposition, Enforcement-Flow |
+| `docs/layer-system.md` | Detaillierte Erklärung des 3-Layer-Systems mit Beispielen |
+| `docs/hooks.md` | Hook-Referenz: Zeitpunkt, Payload, Beispiel-Output |
+| `docs/profiles-flavors.md` | Alle verfügbaren Profile und Flavors mit Beschreibung |
+
+Diagramme werden als SVG unter `assets/` abgelegt und in die Docs eingebettet:
+
+```markdown
+![Init Flow](../assets/flow-init.svg)
+```
+
+---
+
+## Abschnitt 6: Endbenutzerdokumentation (README.md)
+
+### Stil: forgedeck-inspiriert
+
+- SVG-Banner oben zentriert (`assets/banner.svg`) mit Tagline
+- Deutsch durchgehend, kein Sprachmix
+- Keine CI-Badges oder Shields
+- Tabellen statt Aufzählungen für Navigation und Komponenten
+- Horizontale Trennlinien (`---`) zwischen Hauptabschnitten
+- Quick Start zuerst, Details in verlinkten Docs
+
+### README-Struktur
+
+```
+<div align="center">
+  <img src="assets/banner.svg" alt="claude-setup — Reproduzierbares Claude-Setup" width="100%">
+</div>
+
+# claude-setup
+
+Kurzbeschreibung (1 Satz).
+
+Stack: Go · GitHub API · Layer-System · Hooks
+
+---
+
+## Quick Start
+
+Voraussetzungen: Go 1.22+, GitHub-Zugriff.
+
+```sh
+go install github.com/markus/claude-setup/cmd/claude-setup@latest
+claude-setup init --profile backend --flavors tdd
+```
+
+---
+
+## Dokumentation
+
+| Thema | Dokument |
+|---|---|
+| Architektur | docs/architecture.md |
+| Abläufe | docs/flows.md |
+| Profile & Flavors | docs/profiles-flavors.md |
+| Hooks | docs/hooks.md |
+| Entwicklung | docs/development.md |
+
+---
+
+## Komponenten
+
+| Pfad | Zweck |
+|---|---|
+| base/ | Basis-Layer — immer deployt |
+| profiles/ | Profil-Layer |
+| flavors/ | Flavor-Layer |
+| cmd/claude-setup/ | Go-Binary |
+```
+
+---
+
 ## Offene Entscheidungen
 
 - GitHub-Zugriff: öffentliche API (kein Token nötig für public repos) oder `git clone --depth=1` — beides valide, API bevorzugt für kleine Payloads
