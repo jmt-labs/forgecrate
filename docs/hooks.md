@@ -14,6 +14,6 @@ Wird vor `Bash`, `Edit`, `Write` ausgeführt.
 
 **Output:** Kontextabhängige Erinnerung an relevante Pflicht-Skills.
 
-## Override
+## Hooks anpassen
 
-Hooks können in `overrides/settings.override.json` ergänzt oder ersetzt werden.
+Hooks liegen nach dem Deployment unter `.claude/hooks/` im Ziel-Repo und können dort direkt bearbeitet werden. Sie werden bei `claude-setup update` überschrieben — lokale Anpassungen in `.claude/hooks/` vorher sichern.

@@ -19,7 +19,7 @@ Das Ergebnis landet im GENERATED-Block. Der CUSTOM-Block bleibt immer erhalten.
 ### settings.json
 
 Deep JSON Merge. Objekte werden rekursiv gemergt. Arrays werden ersetzt.
-`settings.override.json` im Ziel-Repo hat höchste Priorität.
+`.claude/overrides/settings.override.json` im Ziel-Repo hat höchste Priorität.
 
 ### .claude/commands/
 
