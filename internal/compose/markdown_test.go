@@ -39,3 +39,16 @@ func TestMergeMarkdownNoExistingMarkers(t *testing.T) {
 		t.Error("existing content without markers was lost")
 	}
 }
+
+func TestExtractCustomMalformedMarkers(t *testing.T) {
+	// Only END marker — must not panic
+	result := compose.MergeMarkdown([]string{"layer"}, "foo <!-- CUSTOM:END --> bar")
+	if result == "" {
+		t.Fatal("expected non-empty result")
+	}
+	// END before BEGIN — must not panic
+	result2 := compose.MergeMarkdown([]string{"layer"}, "<!-- CUSTOM:END -->text<!-- CUSTOM:BEGIN -->")
+	if result2 == "" {
+		t.Fatal("expected non-empty result")
+	}
+}

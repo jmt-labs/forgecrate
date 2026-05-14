@@ -47,7 +47,7 @@ func isUnderOverrides(destDir, path string) bool {
 	return len(rel) > 0 && rel[0] != '.'
 }
 
-func copyFile(src, dst string) error {
+func copyFile(src, dst string) (err error) {
 	if err := os.MkdirAll(filepath.Dir(dst), 0755); err != nil {
 		return fmt.Errorf("mkdir: %w", err)
 	}
@@ -61,7 +61,11 @@ func copyFile(src, dst string) error {
 	if err != nil {
 		return fmt.Errorf("create %s: %w", dst, err)
 	}
-	defer out.Close()
+	defer func() {
+		if cerr := out.Close(); cerr != nil && err == nil {
+			err = cerr
+		}
+	}()
 
 	if _, err = io.Copy(out, in); err != nil {
 		return fmt.Errorf("copy: %w", err)

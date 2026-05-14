@@ -32,8 +32,8 @@ func extractCustom(existing string) string {
 	start := strings.Index(existing, customBegin)
 	end := strings.Index(existing, customEnd)
 
-	if start == -1 && end == -1 {
-		// Keine Marker: existierende Datei als Custom behandeln
+	if start == -1 || end == -1 || end <= start {
+		// Keine Marker oder ungültige Marker: existierende Datei als Custom behandeln
 		if strings.TrimSpace(existing) != "" {
 			return existing + "\n"
 		}
