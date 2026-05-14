@@ -92,11 +92,16 @@ func composeJSON(req Request) error {
 		return fmt.Errorf("merged JSON invalid: %w", err)
 	}
 
+	out, err := json.MarshalIndent(v, "", "  ")
+	if err != nil {
+		return fmt.Errorf("marshal: %w", err)
+	}
+
 	dst := filepath.Join(req.DestDir, ".claude", "settings.json")
 	if err := os.MkdirAll(filepath.Dir(dst), 0755); err != nil {
 		return fmt.Errorf("mkdir: %w", err)
 	}
-	return os.WriteFile(dst, []byte(merged), 0644)
+	return os.WriteFile(dst, append(out, '\n'), 0644)
 }
 
 func composeSkills(req Request) error {
