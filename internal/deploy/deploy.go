@@ -1,0 +1,72 @@
+package deploy
+
+import (
+	"fmt"
+	"io"
+	"os"
+	"path/filepath"
+
+	"github.com/markus/claude-setup/internal/compose"
+	"github.com/markus/claude-setup/internal/config"
+)
+
+// Run compositioniert alle Layer und schreibt das Ergebnis ins destDir.
+func Run(sourceDir, destDir string, cfg config.Config) error {
+	req := compose.Request{
+		SourceDir: sourceDir,
+		DestDir:   destDir,
+		Profile:   cfg.Profile,
+		Flavors:   cfg.Flavors,
+	}
+	if err := compose.Run(req); err != nil {
+		return fmt.Errorf("compose: %w", err)
+	}
+
+	if err := copyHooks(sourceDir, destDir); err != nil {
+		return fmt.Errorf("hooks: %w", err)
+	}
+
+	cfgPath := filepath.Join(destDir, ".claude-setup.yaml")
+	if err := config.Write(cfgPath, cfg); err != nil {
+		return fmt.Errorf("write config: %w", err)
+	}
+
+	return nil
+}
+
+func copyHooks(src, dst string) error {
+	hooksDir := filepath.Join(src, "base", "hooks")
+	if _, err := os.Stat(hooksDir); os.IsNotExist(err) {
+		return nil
+	}
+
+	dstHooks := filepath.Join(dst, ".claude", "hooks")
+	if err := os.MkdirAll(dstHooks, 0755); err != nil {
+		return fmt.Errorf("mkdir hooks: %w", err)
+	}
+
+	return filepath.Walk(hooksDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil || info.IsDir() {
+			return err
+		}
+		rel, _ := filepath.Rel(hooksDir, path)
+		dstPath := filepath.Join(dstHooks, rel)
+
+		in, err := os.Open(path)
+		if err != nil {
+			return fmt.Errorf("open %s: %w", path, err)
+		}
+		defer in.Close()
+
+		out, err := os.OpenFile(dstPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0755)
+		if err != nil {
+			return fmt.Errorf("create %s: %w", dstPath, err)
+		}
+		defer out.Close()
+
+		if _, err = io.Copy(out, in); err != nil {
+			return fmt.Errorf("copy: %w", err)
+		}
+		return nil
+	})
+}
