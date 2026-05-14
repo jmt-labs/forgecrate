@@ -25,7 +25,11 @@ Dieser Workflow gilt für alle Features, Bugfixes und sonstigen Änderungen:
 
 ### 4. Implementierung
 - Nach jedem abgeschlossenen Task: kurzer Kommentar im Issue
-- Bei Abschluss: Issue mit `gh issue close` schließen, letzter Kommentar mit Ergebnis
+
+### 5. PR & Abschluss
+- PR erstellen (`gh pr create`), Issue im PR-Body verlinken (z.B. "Closes #1")
+- Issue wird **erst nach dem Merge des PR** geschlossen — nicht früher
+- GitHub schließt das Issue automatisch beim Merge wenn "Closes #N" im PR-Body steht
 
 ### Ticket-Kommentare
 Immer kurz halten — ein Satz reicht:
