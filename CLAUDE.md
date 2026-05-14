@@ -15,6 +15,7 @@ Dieser Workflow gilt für alle Features, Bugfixes und sonstigen Änderungen:
 - Spec wird einem GitHub-Issue zugeordnet:
   - Existierendes Issue suchen (`gh issue list`) → verlinken
   - Sonst: neues Issue anlegen (`gh issue create`) mit Spec-Pfad im Body
+- Branch-Name im Issue vermerken: "Branch: `feat/<thema>`"
 - Im Issue einen Kommentar mit kurzem Stand hinterlassen (z.B. "Spec fertig, Plan folgt")
 
 ### 3. Plan

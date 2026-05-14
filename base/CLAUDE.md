@@ -19,7 +19,7 @@ Eigene Anpassungen gehören in den CUSTOM-Abschnitt.
 Für alle Features, Bugfixes und Änderungen:
 
 1. **Brainstorming** — `superpowers:brainstorming` aufrufen, Design abstimmen
-2. **Spec** — Branch anlegen (`git checkout -b feat/<thema>`); Spec in `docs/superpowers/specs/YYYY-MM-DD-<thema>-design.md` schreiben und committen; GitHub-Issue anlegen oder verlinken; Kommentar im Issue: "Spec fertig"
+2. **Spec** — Branch anlegen (`git checkout -b feat/<thema>`); Spec in `docs/superpowers/specs/YYYY-MM-DD-<thema>-design.md` schreiben und committen; GitHub-Issue anlegen oder verlinken; Branch-Name im Issue vermerken; Kommentar im Issue: "Spec fertig"
 3. **Plan** — in `docs/superpowers/plans/YYYY-MM-DD-<thema>.md` schreiben und committen; Plan-Pfad im Issue ergänzen; Kommentar: "Plan fertig"
 4. **Implementierung** — nach jedem Task kurzer Kommentar im Issue; bei Abschluss Issue schließen
 
