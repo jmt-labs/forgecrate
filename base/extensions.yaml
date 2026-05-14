@@ -1,0 +1,3 @@
+plugins:
+  - name: superpowers
+    source: claude-plugins-official/superpowers

@@ -8,10 +8,14 @@ import (
 
 	"github.com/markus/claude-setup/internal/compose"
 	"github.com/markus/claude-setup/internal/config"
+	"github.com/markus/claude-setup/internal/extensions"
 )
 
-// Run compositioniert alle Layer und schreibt das Ergebnis ins destDir.
 func Run(sourceDir, destDir string, cfg config.Config) error {
+	return RunWithClaude(sourceDir, destDir, cfg, "claude")
+}
+
+func RunWithClaude(sourceDir, destDir string, cfg config.Config, claudeBin string) error {
 	req := compose.Request{
 		SourceDir: sourceDir,
 		DestDir:   destDir,
@@ -26,12 +30,41 @@ func Run(sourceDir, destDir string, cfg config.Config) error {
 		return fmt.Errorf("hooks: %w", err)
 	}
 
+	if err := installExtensions(sourceDir, cfg, claudeBin); err != nil {
+		return fmt.Errorf("extensions: %w", err)
+	}
+
 	cfgPath := filepath.Join(destDir, ".claude-setup.yaml")
 	if err := config.Write(cfgPath, cfg); err != nil {
 		return fmt.Errorf("write config: %w", err)
 	}
 
 	return nil
+}
+
+func installExtensions(sourceDir string, cfg config.Config, claudeBin string) error {
+	paths := []string{
+		filepath.Join(sourceDir, "base", "extensions.yaml"),
+		filepath.Join(sourceDir, "profiles", cfg.Profile, "extensions.yaml"),
+	}
+	for _, flavor := range cfg.Flavors {
+		paths = append(paths, filepath.Join(sourceDir, "flavors", flavor, "extensions.yaml"))
+	}
+
+	var layers []extensions.Extensions
+	for _, path := range paths {
+		ext, err := extensions.Load(path)
+		if os.IsNotExist(err) {
+			continue
+		}
+		if err != nil {
+			return fmt.Errorf("load %s: %w", path, err)
+		}
+		layers = append(layers, ext)
+	}
+
+	merged := extensions.Merge(layers)
+	return extensions.Installer{Claude: claudeBin}.Install(merged)
 }
 
 func copyHooks(src, dst string) error {

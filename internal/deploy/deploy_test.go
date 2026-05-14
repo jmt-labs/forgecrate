@@ -1,8 +1,10 @@
 package deploy_test
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/markus/claude-setup/internal/config"
@@ -40,6 +42,34 @@ func TestDeploy(t *testing.T) {
 
 	if _, err := os.Stat(filepath.Join(dst, ".claude", "hooks", "pre-tool.sh")); err != nil {
 		t.Errorf("pre-tool.sh missing")
+	}
+}
+
+func TestRunInstallsExtensions(t *testing.T) {
+	src := t.TempDir()
+	dst := t.TempDir()
+
+	claudeDir := t.TempDir()
+	argsFile := filepath.Join(claudeDir, "calls.txt")
+	fakeClaude := filepath.Join(claudeDir, "claude")
+	script := fmt.Sprintf("#!/bin/sh\necho \"$@\" >> %s\n", argsFile)
+	os.WriteFile(fakeClaude, []byte(script), 0755)
+
+	baseDir := filepath.Join(src, "base")
+	os.MkdirAll(baseDir, 0755)
+	os.WriteFile(filepath.Join(baseDir, "CLAUDE.md"), []byte("<!-- GENERATED:BEGIN -->\n# Claude\n<!-- GENERATED:END -->\n<!-- CUSTOM:BEGIN -->\n<!-- CUSTOM:END -->\n"), 0644)
+	os.MkdirAll(filepath.Join(baseDir, ".claude"), 0755)
+	os.WriteFile(filepath.Join(baseDir, ".claude", "settings.json"), []byte(`{"model":"claude-sonnet-4-6"}`), 0644)
+	os.WriteFile(filepath.Join(baseDir, "extensions.yaml"), []byte("plugins:\n  - name: superpowers\n    source: claude-plugins-official/superpowers\n"), 0644)
+
+	cfg := config.Config{Profile: "backend"}
+	if err := deploy.RunWithClaude(src, dst, cfg, fakeClaude); err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+
+	data, _ := os.ReadFile(argsFile)
+	if !strings.Contains(string(data), "plugin install claude-plugins-official/superpowers") {
+		t.Errorf("plugin not installed, calls: %q", string(data))
 	}
 }
 
