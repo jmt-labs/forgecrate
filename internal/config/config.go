@@ -33,6 +33,14 @@ func Write(path string, cfg Config) error {
 	if err != nil {
 		return err
 	}
-	defer f.Close()
-	return yaml.NewEncoder(f).Encode(cfg)
+	enc := yaml.NewEncoder(f)
+	if err := enc.Encode(cfg); err != nil {
+		f.Close()
+		return err
+	}
+	if err := enc.Close(); err != nil {
+		f.Close()
+		return err
+	}
+	return f.Close()
 }
