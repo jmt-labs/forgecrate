@@ -12,12 +12,27 @@ Stack: Go Binary · GitHub API · Layer-System · Hooks · Skills
 
 ## Quick Start
 
-Voraussetzungen: Go 1.22+
+**Installation (empfohlen):**
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/aidun/claude-setup/main/install.sh | bash
+```
+
+Bestimmte Version:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/aidun/claude-setup/main/install.sh | bash -s v1.0.0
+```
+
+**Alternativ via Go:**
 
 ```sh
 go install github.com/markus/claude-setup/cmd/claude-setup@latest
+```
 
-# Im Ziel-Repo:
+**Setup im Ziel-Repo:**
+
+```sh
 claude-setup init --profile backend --flavors tdd
 ```
 
