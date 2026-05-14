@@ -2,6 +2,15 @@ plugins:
   - name: superpowers
     source: claude-plugins-official/superpowers
 
+  - name: commit-commands
+    source: claude-plugins-official/commit-commands
+
+  - name: security-guidance
+    source: claude-plugins-official/security-guidance
+
+  - name: claude-md-management
+    source: claude-plugins-official/claude-md-management
+
 mcp:
   - name: github
     transport: http
