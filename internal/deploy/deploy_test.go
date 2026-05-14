@@ -73,6 +73,83 @@ func TestRunInstallsExtensions(t *testing.T) {
 	}
 }
 
+func TestRunCopiesSkillsFromBase(t *testing.T) {
+	src := t.TempDir()
+	dst := t.TempDir()
+
+	writeFile(t, src, "base/CLAUDE.md", "<!-- GENERATED:BEGIN -->\n# Base\n<!-- GENERATED:END -->\n<!-- CUSTOM:BEGIN -->\n<!-- CUSTOM:END -->\n")
+	writeFile(t, src, "base/.claude/settings.json", `{}`)
+	writeFile(t, src, "base/skills/release/SKILL.md", "# Release Skill")
+
+	cfg := config.Config{Profile: "backend"}
+	if err := deploy.Run(src, dst, cfg); err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+
+	got, err := os.ReadFile(filepath.Join(dst, ".claude", "skills", "release", "SKILL.md"))
+	if err != nil {
+		t.Fatalf("skill not copied: %v", err)
+	}
+	if string(got) != "# Release Skill" {
+		t.Errorf("content: %q", got)
+	}
+}
+
+func TestCopySkillsFirstWins(t *testing.T) {
+	src := t.TempDir()
+	dst := t.TempDir()
+
+	writeFile(t, src, "base/CLAUDE.md", "<!-- GENERATED:BEGIN -->\n# Base\n<!-- GENERATED:END -->\n<!-- CUSTOM:BEGIN -->\n<!-- CUSTOM:END -->\n")
+	writeFile(t, src, "base/.claude/settings.json", `{}`)
+	writeFile(t, src, "base/skills/release/SKILL.md", "base-content")
+	writeFile(t, src, "profiles/frontend/skills/release/SKILL.md", "profile-content")
+
+	cfg := config.Config{Profile: "frontend"}
+	if err := deploy.Run(src, dst, cfg); err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+
+	got, _ := os.ReadFile(filepath.Join(dst, ".claude", "skills", "release", "SKILL.md"))
+	if string(got) != "base-content" {
+		t.Errorf("first-wins failed: got %q, want %q", string(got), "base-content")
+	}
+}
+
+func TestCopySkillsMissingDirOK(t *testing.T) {
+	src := t.TempDir()
+	dst := t.TempDir()
+
+	writeFile(t, src, "base/CLAUDE.md", "<!-- GENERATED:BEGIN -->\n# Base\n<!-- GENERATED:END -->\n<!-- CUSTOM:BEGIN -->\n<!-- CUSTOM:END -->\n")
+	writeFile(t, src, "base/.claude/settings.json", `{}`)
+
+	cfg := config.Config{Profile: "backend"}
+	if err := deploy.Run(src, dst, cfg); err != nil {
+		t.Fatalf("no error expected when skills dir missing: %v", err)
+	}
+}
+
+func TestCopySkillsProfileAndFlavor(t *testing.T) {
+	src := t.TempDir()
+	dst := t.TempDir()
+
+	writeFile(t, src, "base/CLAUDE.md", "<!-- GENERATED:BEGIN -->\n# Base\n<!-- GENERATED:END -->\n<!-- CUSTOM:BEGIN -->\n<!-- CUSTOM:END -->\n")
+	writeFile(t, src, "base/.claude/settings.json", `{}`)
+	writeFile(t, src, "profiles/frontend/skills/frontend-tips/SKILL.md", "frontend-tips")
+	writeFile(t, src, "flavors/strict-review/skills/review-tips/SKILL.md", "review-tips")
+
+	cfg := config.Config{Profile: "frontend", Flavors: []string{"strict-review"}}
+	if err := deploy.Run(src, dst, cfg); err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+
+	if _, err := os.ReadFile(filepath.Join(dst, ".claude", "skills", "frontend-tips", "SKILL.md")); err != nil {
+		t.Errorf("frontend-tips skill missing")
+	}
+	if _, err := os.ReadFile(filepath.Join(dst, ".claude", "skills", "review-tips", "SKILL.md")); err != nil {
+		t.Errorf("review-tips skill missing")
+	}
+}
+
 func writeFile(t *testing.T, base, rel, content string) {
 	t.Helper()
 	path := filepath.Join(base, filepath.FromSlash(rel))
