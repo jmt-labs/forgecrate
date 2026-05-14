@@ -3,6 +3,7 @@ package github
 import (
 	"archive/tar"
 	"compress/gzip"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -38,17 +39,21 @@ func (c *Client) Download(owner, repo, ref, destDir string) error {
 	return extractTarGz(resp.Body, destDir)
 }
 
-func extractTarGz(r io.Reader, destDir string) error {
-	gz, err := gzip.NewReader(r)
-	if err != nil {
-		return fmt.Errorf("gzip: %w", err)
+func extractTarGz(r io.Reader, destDir string) (err error) {
+	gz, gzErr := gzip.NewReader(r)
+	if gzErr != nil {
+		return fmt.Errorf("gzip: %w", gzErr)
 	}
-	defer gz.Close()
+	defer func() {
+		if cerr := gz.Close(); cerr != nil && err == nil {
+			err = fmt.Errorf("gzip close: %w", cerr)
+		}
+	}()
 
 	tr := tar.NewReader(gz)
 	for {
 		hdr, err := tr.Next()
-		if err == io.EOF {
+		if errors.Is(err, io.EOF) {
 			break
 		}
 		if err != nil {
@@ -69,12 +74,15 @@ func extractTarGz(r io.Reader, destDir string) error {
 		}
 
 		dst := filepath.Join(destDir, filepath.FromSlash(rel))
+		if !strings.HasPrefix(dst, filepath.Clean(destDir)+string(os.PathSeparator)) {
+			return fmt.Errorf("tar: illegal path %q", hdr.Name)
+		}
 		if err := os.MkdirAll(filepath.Dir(dst), 0755); err != nil {
-			return err
+			return fmt.Errorf("mkdir: %w", err)
 		}
 		f, err := os.Create(dst)
 		if err != nil {
-			return err
+			return fmt.Errorf("create %s: %w", dst, err)
 		}
 		if _, err := io.Copy(f, tr); err != nil {
 			f.Close()

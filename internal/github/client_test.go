@@ -13,14 +13,19 @@ import (
 	gh "github.com/markus/claude-setup/internal/github"
 )
 
-func makeTarGz(files map[string]string) []byte {
+func makeTarGz(t *testing.T, files map[string]string) []byte {
+	t.Helper()
 	var buf bytes.Buffer
 	gz := gzip.NewWriter(&buf)
 	tw := tar.NewWriter(gz)
 	for name, content := range files {
 		hdr := &tar.Header{Name: "repo-prefix/" + name, Mode: 0644, Size: int64(len(content))}
-		tw.WriteHeader(hdr)
-		tw.Write([]byte(content))
+		if err := tw.WriteHeader(hdr); err != nil {
+			t.Fatalf("tar WriteHeader: %v", err)
+		}
+		if _, err := tw.Write([]byte(content)); err != nil {
+			t.Fatalf("tar Write: %v", err)
+		}
 	}
 	tw.Close()
 	gz.Close()
@@ -28,7 +33,7 @@ func makeTarGz(files map[string]string) []byte {
 }
 
 func TestDownloadAndExtract(t *testing.T) {
-	tarball := makeTarGz(map[string]string{
+	tarball := makeTarGz(t, map[string]string{
 		"base/CLAUDE.md":            "# Base",
 		"base/.claude/settings.json": `{"hooks":{}}`,
 	})
@@ -65,5 +70,23 @@ func TestDownloadHTTPError(t *testing.T) {
 	err := client.Download("markus", "claude-setup", "main", t.TempDir())
 	if err == nil {
 		t.Fatal("expected error for 404 response")
+	}
+}
+
+func TestDownloadPathTraversal(t *testing.T) {
+	tarball := makeTarGz(t, map[string]string{
+		"../../etc/passwd": "evil",
+	})
+
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/x-gzip")
+		w.Write(tarball)
+	}))
+	defer srv.Close()
+
+	client := gh.New(srv.URL)
+	err := client.Download("markus", "claude-setup", "main", t.TempDir())
+	if err == nil {
+		t.Fatal("expected error for path traversal attempt")
 	}
 }
