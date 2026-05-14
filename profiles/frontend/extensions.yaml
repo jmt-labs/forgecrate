@@ -1,0 +1,9 @@
+plugins:
+  - name: frontend-design
+    source: claude-plugins-official/frontend-design
+
+  - name: typescript-lsp
+    source: claude-plugins-official/typescript-lsp
+
+  - name: playwright
+    source: claude-plugins-official/playwright
