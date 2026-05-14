@@ -32,8 +32,15 @@ func (i Installer) Install(ext Extensions) error {
 		if scope == "" {
 			scope = "local"
 		}
-		args := []string{"mcp", "add", m.Name, "--scope", scope, m.Command}
-		args = append(args, m.Args...)
+
+		var args []string
+		if m.Transport == "http" {
+			args = []string{"mcp", "add", "--transport", "http", m.Name, m.URL, "--scope", scope}
+		} else {
+			args = []string{"mcp", "add", m.Name, "--scope", scope, m.Command}
+			args = append(args, m.Args...)
+		}
+
 		cmd := exec.Command(claude, args...)
 		cmd.Env = append(os.Environ(), envPairs(m.Env)...)
 		if out, err := cmd.CombinedOutput(); err != nil {

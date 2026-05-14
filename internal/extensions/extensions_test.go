@@ -39,6 +39,32 @@ mcp:
 	}
 }
 
+func TestLoadHTTPTransport(t *testing.T) {
+	dir := t.TempDir()
+	content := `
+mcp:
+  - name: github
+    transport: http
+    url: https://api.githubcopilot.com/mcp/
+    scope: local
+`
+	os.WriteFile(filepath.Join(dir, "extensions.yaml"), []byte(content), 0644)
+
+	ext, err := extensions.Load(filepath.Join(dir, "extensions.yaml"))
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if len(ext.MCP) != 1 {
+		t.Fatalf("expected 1 MCP, got %d", len(ext.MCP))
+	}
+	if ext.MCP[0].Transport != "http" {
+		t.Errorf("Transport: got %q, want %q", ext.MCP[0].Transport, "http")
+	}
+	if ext.MCP[0].URL != "https://api.githubcopilot.com/mcp/" {
+		t.Errorf("URL: got %q", ext.MCP[0].URL)
+	}
+}
+
 func TestLoadNotExist(t *testing.T) {
 	_, err := extensions.Load("/nonexistent/extensions.yaml")
 	if !os.IsNotExist(err) {

@@ -1,3 +1,26 @@
 plugins:
   - name: superpowers
     source: claude-plugins-official/superpowers
+
+mcp:
+  - name: github
+    transport: http
+    url: https://api.githubcopilot.com/mcp/
+    scope: local
+
+  - name: fetch
+    scope: local
+    command: npx
+    args: ["-y", "@modelcontextprotocol/server-fetch"]
+
+  - name: memory
+    scope: local
+    command: npx
+    args: ["-y", "@modelcontextprotocol/server-memory"]
+    env:
+      MEMORY_FILE_PATH: ".claude/memory.json"
+
+  - name: context-mode
+    scope: local
+    command: npx
+    args: ["-y", "context-mode"]

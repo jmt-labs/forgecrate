@@ -47,6 +47,45 @@ Der Hauptagent kann bei Bedarf eigenständig von diesen Empfehlungen abweichen.
 | Reviewer | `superpowers:requesting-code-review` | `claude-sonnet-4-6` | medium |
 | QA / Abschluss | `superpowers:verification-before-completion` | `claude-sonnet-4-6` | medium |
 | Debugger | `superpowers:systematic-debugging` | `claude-sonnet-4-6` | medium |
+## MCP Server
+
+Vier MCP-Server sind im base layer deklariert und stehen automatisch zur Verfügung.
+
+### GitHub (`github`)
+
+Für alle Operationen mit GitHub: Issues, PRs, Code-Suche, Branches, Checks, Labels.
+
+**Verwende es für:** Issues lesen/erstellen/kommentieren, PRs öffnen/reviewen/mergen, Code repo-übergreifend suchen, Workflow-Labels setzen.
+
+**Verwende es NICHT für:** Lokale Dateioperationen (→ Read/Edit/Bash), lokale Git-Kommandos (→ Bash mit git).
+
+**Voraussetzung:** `GITHUB_PERSONAL_ACCESS_TOKEN` als Umgebungsvariable.
+
+### Fetch (`fetch`)
+
+Externe Webinhalte abrufen: Dokumentation, MDN, RFCs, Changelogs, Release Notes, URLs aus Issues.
+
+**Verwende es NICHT für:** GitHub-Inhalte (→ github MCP), lokale Dateien (→ Read).
+
+### Memory (`memory`)
+
+Projektübergreifendes Wissen persistent speichern. Datei: `.claude/memory.json` (versioniert).
+
+**Schreiben nach:** Architekturentscheidungen, Begründungen für nicht-offensichtliche Lösungen, Debugging-Ergebnisse, Brainstorming-Ergebnisse.
+
+**Lesen am:** Sessionbeginn, nach Context-Kompaktierung, wenn unklar warum etwas so gebaut wurde.
+
+**Niemals speichern:** API-Keys, Tokens, Passwörter, temporärer Zwischenstand, Code-Details die direkt aus dem Code lesbar sind.
+
+### Context Mode (`context-mode`)
+
+Sandboxt Tool-Output automatisch — kein expliziter Aufruf nötig.
+
+**Explizit aufrufen:**
+- `ctx_search` — nach Context-Kompaktierung: relevante Infos aus der Session-History finden (BM25-Suche)
+- `ctx_insight` — Überblick über bisherigen Session-Verlauf
+- `ctx_stats` — gespartes Context-Budget prüfen
+- `ctx_doctor` — bei Problemen mit dem Server
 <!-- GENERATED:END -->
 
 <!-- CUSTOM:BEGIN -->

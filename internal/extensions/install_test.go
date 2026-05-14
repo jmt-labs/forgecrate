@@ -83,6 +83,58 @@ func TestInstallerMCPDefaultScope(t *testing.T) {
 	}
 }
 
+func TestInstallerMCPHTTP(t *testing.T) {
+	claude, argsFile := fakeClaude(t)
+
+	inst := extensions.Installer{Claude: claude}
+	ext := extensions.Extensions{
+		MCP: []extensions.MCP{
+			{
+				Name:      "github",
+				Transport: "http",
+				URL:       "https://api.githubcopilot.com/mcp/",
+				Scope:     "local",
+			},
+		},
+	}
+
+	if err := inst.Install(ext); err != nil {
+		t.Fatalf("Install: %v", err)
+	}
+
+	data, _ := os.ReadFile(argsFile)
+	got := string(data)
+	if !strings.Contains(got, "mcp add --transport http github https://api.githubcopilot.com/mcp/ --scope local") {
+		t.Errorf("expected http mcp add call, got: %q", got)
+	}
+}
+
+func TestInstallerMCPHTTPEnv(t *testing.T) {
+	claude, argsFile := fakeClaude(t)
+
+	inst := extensions.Installer{Claude: claude}
+	ext := extensions.Extensions{
+		MCP: []extensions.MCP{
+			{
+				Name:      "github",
+				Transport: "http",
+				URL:       "https://api.githubcopilot.com/mcp/",
+				Scope:     "local",
+				Env:       map[string]string{"GITHUB_PERSONAL_ACCESS_TOKEN": "tok"},
+			},
+		},
+	}
+
+	if err := inst.Install(ext); err != nil {
+		t.Fatalf("Install: %v", err)
+	}
+
+	data, _ := os.ReadFile(argsFile)
+	if !strings.Contains(string(data), "mcp add --transport http") {
+		t.Errorf("expected http transport call, got: %q", string(data))
+	}
+}
+
 func TestInstallerEmpty(t *testing.T) {
 	inst := extensions.Installer{Claude: "/nonexistent/claude"}
 	if err := inst.Install(extensions.Extensions{}); err != nil {

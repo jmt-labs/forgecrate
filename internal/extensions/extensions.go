@@ -12,11 +12,13 @@ type Plugin struct {
 }
 
 type MCP struct {
-	Name    string            `yaml:"name"`
-	Scope   string            `yaml:"scope"`
-	Command string            `yaml:"command"`
-	Args    []string          `yaml:"args"`
-	Env     map[string]string `yaml:"env"`
+	Name      string            `yaml:"name"`
+	Scope     string            `yaml:"scope"`
+	Transport string            `yaml:"transport"`
+	URL       string            `yaml:"url"`
+	Command   string            `yaml:"command"`
+	Args      []string          `yaml:"args"`
+	Env       map[string]string `yaml:"env"`
 }
 
 type Extensions struct {
