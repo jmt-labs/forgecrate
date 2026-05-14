@@ -1,6 +1,6 @@
 # Layer-System
 
-## Drei Ebenen
+## Ebenen
 
 | Layer | Quelle | Precedence |
 |---|---|---|
