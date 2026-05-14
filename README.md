@@ -15,13 +15,13 @@ Stack: Go Binary · GitHub API · Layer-System · Hooks · Skills
 **Installation (empfohlen):**
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/aidun/claude-setup/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/jmt-labs/claude-setup/main/install.sh | bash
 ```
 
 Bestimmte Version:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/aidun/claude-setup/main/install.sh | bash -s v1.0.0
+curl -fsSL https://raw.githubusercontent.com/jmt-labs/claude-setup/main/install.sh | bash -s v1.0.0
 ```
 
 **Alternativ via Go:**

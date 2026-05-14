@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO="aidun/claude-setup"
+REPO="jmt-labs/claude-setup"
 VERSION="${1:-latest}"
 
 # OS erkennen
