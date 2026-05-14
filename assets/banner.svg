@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 120" width="800" height="120">
+  <rect width="800" height="120" fill="#0d1117"/>
+  <text x="400" y="52" font-family="monospace" font-size="28" font-weight="bold"
+        fill="#e6edf3" text-anchor="middle" letter-spacing="2">claude-setup</text>
+  <text x="400" y="82" font-family="monospace" font-size="14"
+        fill="#8b949e" text-anchor="middle">Reproduzierbares Claude-Setup für jedes Repo</text>
+  <text x="400" y="106" font-family="monospace" font-size="11"
+        fill="#6e7681" text-anchor="middle">Go Binary · Layer System · Hooks · GitHub</text>
+</svg>
