@@ -50,23 +50,25 @@ func copyHooks(src, dst string) error {
 			return err
 		}
 		rel, _ := filepath.Rel(hooksDir, path)
-		dstPath := filepath.Join(dstHooks, rel)
-
-		in, err := os.Open(path)
-		if err != nil {
-			return fmt.Errorf("open %s: %w", path, err)
-		}
-		defer in.Close()
-
-		out, err := os.OpenFile(dstPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0755)
-		if err != nil {
-			return fmt.Errorf("create %s: %w", dstPath, err)
-		}
-		defer out.Close()
-
-		if _, err = io.Copy(out, in); err != nil {
-			return fmt.Errorf("copy: %w", err)
-		}
-		return nil
+		return copyExecutable(path, filepath.Join(dstHooks, rel))
 	})
+}
+
+func copyExecutable(src, dst string) error {
+	in, err := os.Open(src)
+	if err != nil {
+		return fmt.Errorf("open %s: %w", src, err)
+	}
+	defer in.Close()
+
+	out, err := os.OpenFile(dst, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0755)
+	if err != nil {
+		return fmt.Errorf("create %s: %w", dst, err)
+	}
+	defer out.Close()
+
+	if _, err = io.Copy(out, in); err != nil {
+		return fmt.Errorf("copy: %w", err)
+	}
+	return nil
 }
