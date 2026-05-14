@@ -9,6 +9,8 @@ Dieser Workflow gilt für alle Features, Bugfixes und sonstigen Änderungen:
 - Ergebnis: abgestimmtes Design
 
 ### 2. Spec
+- Vor dem ersten Commit: Branch anlegen (`git checkout -b feat/<thema>`)
+- Alle weiteren Arbeiten (Spec, Plan, Implementierung) laufen auf diesem Branch
 - Spec wird nach Brainstorming in `docs/superpowers/specs/YYYY-MM-DD-<thema>-design.md` geschrieben und committed
 - Spec wird einem GitHub-Issue zugeordnet:
   - Existierendes Issue suchen (`gh issue list`) → verlinken
