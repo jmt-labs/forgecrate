@@ -1,4 +1,6 @@
-.PHONY: test test-e2e quality build clean
+.PHONY: test test-e2e quality build release clean
+
+HASH := $(shell git rev-parse --short HEAD)
 
 test:
 	go test ./internal/... ./cmd/...
@@ -13,6 +15,15 @@ quality:
 build:
 	go build -o claude-setup ./cmd/claude-setup/
 
+release:
+	mkdir -p dist
+	GOOS=linux   GOARCH=amd64 go build -o dist/$(HASH)-claude-setup-linux-amd64       ./cmd/claude-setup/
+	GOOS=linux   GOARCH=arm64 go build -o dist/$(HASH)-claude-setup-linux-arm64       ./cmd/claude-setup/
+	GOOS=windows GOARCH=amd64 go build -o dist/$(HASH)-claude-setup-windows-amd64.exe ./cmd/claude-setup/
+	GOOS=windows GOARCH=arm64 go build -o dist/$(HASH)-claude-setup-windows-arm64.exe ./cmd/claude-setup/
+	GOOS=darwin  GOARCH=arm64 go build -o dist/$(HASH)-claude-setup-darwin-arm64      ./cmd/claude-setup/
+
 clean:
 	go clean -testcache
 	rm -f claude-setup
+	rm -rf dist/

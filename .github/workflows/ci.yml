@@ -16,7 +16,7 @@ jobs:
         with:
           go-version: '1.22'
           cache: true
-      - run: go test ./...
+      - run: make test
 
   build:
     name: Build (${{ matrix.goos }}/${{ matrix.goarch }})
@@ -45,4 +45,4 @@ jobs:
         env:
           GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.goarch }}
-        run: go build ./cmd/claude-setup/
+        run: make build

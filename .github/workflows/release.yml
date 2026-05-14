@@ -29,26 +29,9 @@ jobs:
           go-version: '1.22'
           cache: true
 
-      - name: Tests ausführen
-        run: go test ./...
-
-      - name: Binaries bauen
-        run: |
-          HASH=$(git rev-parse --short HEAD)
-          mkdir -p dist
-
-          build() {
-            local goos=$1 goarch=$2
-            local name="${HASH}-claude-setup-${goos}-${goarch}"
-            [ "$goos" = "windows" ] && name="${name}.exe"
-            GOOS=$goos GOARCH=$goarch go build -o "dist/${name}" ./cmd/claude-setup/
-          }
-
-          build linux  amd64
-          build linux  arm64
-          build windows amd64
-          build windows arm64
-          build darwin  arm64
+      - run: make test
+      - run: make test-e2e
+      - run: make release
 
       - name: GitHub Release erstellen
         uses: softprops/action-gh-release@v2
