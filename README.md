@@ -27,7 +27,7 @@ curl -fsSL https://raw.githubusercontent.com/jmt-labs/claude-setup/main/install.
 **Alternativ via Go:**
 
 ```sh
-go install github.com/markus/claude-setup/cmd/claude-setup@latest
+go install github.com/jmt-labs/claude-setup/cmd/claude-setup@latest
 ```
 
 **Setup im Ziel-Repo:**

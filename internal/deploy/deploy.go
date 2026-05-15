@@ -6,9 +6,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/markus/claude-setup/internal/compose"
-	"github.com/markus/claude-setup/internal/config"
-	"github.com/markus/claude-setup/internal/extensions"
+	"github.com/jmt-labs/claude-setup/internal/compose"
+	"github.com/jmt-labs/claude-setup/internal/config"
+	"github.com/jmt-labs/claude-setup/internal/extensions"
 )
 
 func Run(sourceDir, destDir string, cfg config.Config) error {
@@ -30,7 +30,7 @@ func RunWithClaude(sourceDir, destDir string, cfg config.Config, claudeBin strin
 		return fmt.Errorf("hooks: %w", err)
 	}
 
-	if err := installExtensions(sourceDir, cfg, claudeBin); err != nil {
+	if err := installExtensions(sourceDir, destDir, cfg, claudeBin); err != nil {
 		return fmt.Errorf("extensions: %w", err)
 	}
 
@@ -46,7 +46,7 @@ func RunWithClaude(sourceDir, destDir string, cfg config.Config, claudeBin strin
 	return nil
 }
 
-func installExtensions(sourceDir string, cfg config.Config, claudeBin string) error {
+func installExtensions(sourceDir, destDir string, cfg config.Config, claudeBin string) error {
 	paths := []string{
 		filepath.Join(sourceDir, "base", "extensions.yaml"),
 		filepath.Join(sourceDir, "profiles", cfg.Profile, "extensions.yaml"),
@@ -68,7 +68,7 @@ func installExtensions(sourceDir string, cfg config.Config, claudeBin string) er
 	}
 
 	merged := extensions.Merge(layers)
-	return extensions.Installer{Claude: claudeBin}.Install(merged)
+	return extensions.Installer{Claude: claudeBin, Dir: destDir}.Install(merged)
 }
 
 func copySkills(sourceDir, destDir string, cfg config.Config) error {

@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/markus/claude-setup/internal/config"
-	"github.com/markus/claude-setup/internal/deploy"
+	"github.com/jmt-labs/claude-setup/internal/config"
+	"github.com/jmt-labs/claude-setup/internal/deploy"
 )
 
 // localSource gibt den Pfad zum lokalen claude-setup Repo zurück.
@@ -24,7 +24,7 @@ func TestInitCreatesExpectedFiles(t *testing.T) {
 	dst := t.TempDir()
 	cfg := config.Config{
 		Version: "1.0",
-		Source:  "github.com/markus/claude-setup",
+		Source:  "github.com/jmt-labs/claude-setup",
 		Ref:     "main",
 		Profile: "backend",
 		Flavors: []string{"tdd"},
@@ -54,7 +54,7 @@ func TestInitIsIdempotent(t *testing.T) {
 	dst := t.TempDir()
 	cfg := config.Config{
 		Version: "1.0",
-		Source:  "github.com/markus/claude-setup",
+		Source:  "github.com/jmt-labs/claude-setup",
 		Ref:     "main",
 		Profile: "backend",
 		Flavors: []string{},
@@ -85,7 +85,7 @@ func TestUpdatePreservesOverrides(t *testing.T) {
 	dst := t.TempDir()
 	cfg := config.Config{
 		Version: "1.0",
-		Source:  "github.com/markus/claude-setup",
+		Source:  "github.com/jmt-labs/claude-setup",
 		Ref:     "main",
 		Profile: "backend",
 		Flavors: []string{},
@@ -116,7 +116,7 @@ func TestUpdatePreservesOverrides(t *testing.T) {
 func TestProfileSwitch(t *testing.T) {
 	dst := t.TempDir()
 
-	cfg := config.Config{Version: "1.0", Source: "github.com/markus/claude-setup", Ref: "main", Profile: "backend", Flavors: []string{}}
+	cfg := config.Config{Version: "1.0", Source: "github.com/jmt-labs/claude-setup", Ref: "main", Profile: "backend", Flavors: []string{}}
 	if err := deploy.Run(localSource(t), dst, cfg); err != nil {
 		t.Fatalf("init backend: %v", err)
 	}
@@ -141,7 +141,7 @@ func TestDeployIncludesBaseSkills(t *testing.T) {
 	dst := t.TempDir()
 	cfg := config.Config{
 		Version: "1.0",
-		Source:  "github.com/markus/claude-setup",
+		Source:  "github.com/jmt-labs/claude-setup",
 		Ref:     "main",
 		Profile: "backend",
 		Flavors: []string{},
@@ -162,7 +162,7 @@ func TestDeployIncludesProfileSkill(t *testing.T) {
 	dst := t.TempDir()
 	cfg := config.Config{
 		Version: "1.0",
-		Source:  "github.com/markus/claude-setup",
+		Source:  "github.com/jmt-labs/claude-setup",
 		Ref:     "main",
 		Profile: "frontend",
 		Flavors: []string{},
@@ -180,7 +180,7 @@ func TestDeployIncludesFlavorSkill(t *testing.T) {
 	dst := t.TempDir()
 	cfg := config.Config{
 		Version: "1.0",
-		Source:  "github.com/markus/claude-setup",
+		Source:  "github.com/jmt-labs/claude-setup",
 		Ref:     "main",
 		Profile: "backend",
 		Flavors: []string{"github"},

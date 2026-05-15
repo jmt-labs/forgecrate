@@ -1,4 +1,4 @@
-module github.com/markus/claude-setup
+module github.com/jmt-labs/claude-setup
 
 go 1.24.2
 

@@ -13,7 +13,6 @@ type Plugin struct {
 
 type MCP struct {
 	Name      string            `yaml:"name"`
-	Scope     string            `yaml:"scope"`
 	Transport string            `yaml:"transport"`
 	URL       string            `yaml:"url"`
 	Command   string            `yaml:"command"`

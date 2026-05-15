@@ -14,7 +14,11 @@ const (
 // MergeMarkdown compositioniert mehrere Markdown-Layer zu einem String.
 // existing ist der aktuelle Dateiinhalt (leer bei init).
 func MergeMarkdown(layers []string, existing string) string {
-	generated := strings.Join(layers, "\n\n")
+	cleaned := make([]string, len(layers))
+	for i, l := range layers {
+		cleaned[i] = stripWrapperMarkers(l)
+	}
+	generated := strings.Join(cleaned, "\n\n")
 	custom := extractCustom(existing)
 
 	var b strings.Builder
@@ -26,6 +30,14 @@ func MergeMarkdown(layers []string, existing string) string {
 	b.WriteString(custom)
 	b.WriteString(customEnd + "\n")
 	return b.String()
+}
+
+func stripWrapperMarkers(s string) string {
+	for _, marker := range []string{generatedBegin, generatedEnd, customBegin, customEnd} {
+		s = strings.ReplaceAll(s, marker+"\n", "")
+		s = strings.ReplaceAll(s, marker, "")
+	}
+	return strings.TrimSpace(s)
 }
 
 func extractCustom(existing string) string {

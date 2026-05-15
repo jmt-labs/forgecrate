@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/markus/claude-setup/internal/extensions"
+	"github.com/jmt-labs/claude-setup/internal/extensions"
 )
 
 func fakeClaude(t *testing.T) (path string, argsFile string) {
@@ -20,6 +20,18 @@ func fakeClaude(t *testing.T) (path string, argsFile string) {
 		t.Fatalf("write fake claude: %v", err)
 	}
 	return path, argsFile
+}
+
+// fakeClaudeWithOutput creates a fake claude binary that outputs a fixed message and exits with code 1.
+func fakeClaudeWithOutput(t *testing.T, output string) string {
+	t.Helper()
+	dir := t.TempDir()
+	path := filepath.Join(dir, "claude")
+	script := fmt.Sprintf("#!/bin/sh\necho %q\nexit 1\n", output)
+	if err := os.WriteFile(path, []byte(script), 0755); err != nil {
+		t.Fatalf("write fake claude: %v", err)
+	}
+	return path
 }
 
 func TestInstallerPlugin(t *testing.T) {
@@ -37,8 +49,8 @@ func TestInstallerPlugin(t *testing.T) {
 	}
 
 	data, _ := os.ReadFile(argsFile)
-	if !strings.Contains(string(data), "plugin install claude-plugins-official/superpowers") {
-		t.Errorf("expected plugin install call, got: %q", string(data))
+	if !strings.Contains(string(data), "plugin install --scope project claude-plugins-official/superpowers") {
+		t.Errorf("expected project-scoped plugin install call, got: %q", string(data))
 	}
 }
 
@@ -48,7 +60,7 @@ func TestInstallerMCP(t *testing.T) {
 	inst := extensions.Installer{Claude: claude}
 	ext := extensions.Extensions{
 		MCP: []extensions.MCP{
-			{Name: "github", Scope: "local", Command: "npx", Args: []string{"-y", "@modelcontextprotocol/server-github"}},
+			{Name: "github", Command: "npx", Args: []string{"-y", "@modelcontextprotocol/server-github"}},
 		},
 	}
 
@@ -58,8 +70,8 @@ func TestInstallerMCP(t *testing.T) {
 
 	data, _ := os.ReadFile(argsFile)
 	got := string(data)
-	if !strings.Contains(got, "mcp add github --scope local npx -y @modelcontextprotocol/server-github") {
-		t.Errorf("expected mcp add call, got: %q", got)
+	if !strings.Contains(got, "mcp add github --scope project npx -- -y @modelcontextprotocol/server-github") {
+		t.Errorf("expected mcp add call with -- separator, got: %q", got)
 	}
 }
 
@@ -78,8 +90,8 @@ func TestInstallerMCPDefaultScope(t *testing.T) {
 	}
 
 	data, _ := os.ReadFile(argsFile)
-	if !strings.Contains(string(data), "--scope local") {
-		t.Errorf("expected default scope local, got: %q", string(data))
+	if !strings.Contains(string(data), "--scope project") {
+		t.Errorf("expected default scope project, got: %q", string(data))
 	}
 }
 
@@ -93,7 +105,6 @@ func TestInstallerMCPHTTP(t *testing.T) {
 				Name:      "github",
 				Transport: "http",
 				URL:       "https://api.githubcopilot.com/mcp/",
-				Scope:     "local",
 			},
 		},
 	}
@@ -104,7 +115,7 @@ func TestInstallerMCPHTTP(t *testing.T) {
 
 	data, _ := os.ReadFile(argsFile)
 	got := string(data)
-	if !strings.Contains(got, "mcp add --transport http github https://api.githubcopilot.com/mcp/ --scope local") {
+	if !strings.Contains(got, "mcp add --transport http github https://api.githubcopilot.com/mcp/ --scope project") {
 		t.Errorf("expected http mcp add call, got: %q", got)
 	}
 }
@@ -119,7 +130,6 @@ func TestInstallerMCPHTTPEnv(t *testing.T) {
 				Name:      "github",
 				Transport: "http",
 				URL:       "https://api.githubcopilot.com/mcp/",
-				Scope:     "local",
 				Env:       map[string]string{"GITHUB_PERSONAL_ACCESS_TOKEN": "tok"},
 			},
 		},
@@ -139,5 +149,61 @@ func TestInstallerEmpty(t *testing.T) {
 	inst := extensions.Installer{Claude: "/nonexistent/claude"}
 	if err := inst.Install(extensions.Extensions{}); err != nil {
 		t.Fatalf("Install empty: %v", err)
+	}
+}
+
+func TestInstallerMCPWithoutArgs(t *testing.T) {
+	claude, argsFile := fakeClaude(t)
+
+	inst := extensions.Installer{Claude: claude}
+	ext := extensions.Extensions{
+		MCP: []extensions.MCP{
+			{Name: "mytool", Command: "mytool-bin"},
+		},
+	}
+
+	if err := inst.Install(ext); err != nil {
+		t.Fatalf("Install: %v", err)
+	}
+
+	data, _ := os.ReadFile(argsFile)
+	got := string(data)
+	if strings.Contains(got, " -- ") {
+		t.Errorf("no standalone -- separator expected when no args: %q", got)
+	}
+	if !strings.Contains(got, "mcp add mytool --scope project mytool-bin") {
+		t.Errorf("unexpected call: %q", got)
+	}
+}
+
+func TestInstallerMCPAlreadyExistsNoWarn(t *testing.T) {
+	claude := fakeClaudeWithOutput(t, "MCP server github already exists in local config")
+
+	inst := extensions.Installer{Claude: claude}
+	ext := extensions.Extensions{
+		MCP: []extensions.MCP{
+			{Name: "github", Transport: "http", URL: "https://api.githubcopilot.com/mcp/"},
+		},
+	}
+
+	// Must not return an error — "already exists" is handled silently.
+	if err := inst.Install(ext); err != nil {
+		t.Fatalf("Install: %v", err)
+	}
+}
+
+func TestInstallerPluginNotFoundNoWarn(t *testing.T) {
+	claude := fakeClaudeWithOutput(t, `Plugin "claude-plugins-official/superpowers" not found in any configured marketplace`)
+
+	inst := extensions.Installer{Claude: claude}
+	ext := extensions.Extensions{
+		Plugins: []extensions.Plugin{
+			{Name: "superpowers", Source: "claude-plugins-official/superpowers"},
+		},
+	}
+
+	// Must not return an error — marketplace misses are handled silently.
+	if err := inst.Install(ext); err != nil {
+		t.Fatalf("Install: %v", err)
 	}
 }

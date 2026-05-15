@@ -1,4 +1,3 @@
-<!-- GENERATED:BEGIN -->
 # Claude-Konfiguration
 
 Dieses Repository verwendet ein reproduzierbares Claude-Setup.
@@ -86,7 +85,3 @@ Sandboxt Tool-Output automatisch — kein expliziter Aufruf nötig.
 - `ctx_insight` — Überblick über bisherigen Session-Verlauf
 - `ctx_stats` — gespartes Context-Budget prüfen
 - `ctx_doctor` — bei Problemen mit dem Server
-<!-- GENERATED:END -->
-
-<!-- CUSTOM:BEGIN -->
-<!-- CUSTOM:END -->
