@@ -8,10 +8,11 @@ import (
 )
 
 type Request struct {
-	SourceDir string
-	DestDir   string
-	Profile   string
-	Flavors   []string
+	SourceDir    string
+	DestDir      string
+	Profile      string
+	Flavors      []string
+	SkipSettings bool
 }
 
 func Run(req Request) error {
@@ -63,11 +64,12 @@ func collectMarkdownLayers(req Request, filename string) []string {
 	return layers
 }
 
-func composeJSON(req Request) error {
+// ComposeSettings berechnet den gemergten settings.json-Inhalt ohne ihn zu schreiben.
+func ComposeSettings(req Request) ([]byte, error) {
 	basePath := filepath.Join(req.SourceDir, "base", ".claude", "settings.json")
 	data, err := os.ReadFile(basePath)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	merged := string(data)
 
@@ -75,7 +77,7 @@ func composeJSON(req Request) error {
 	if override, err := os.ReadFile(profilePath); err == nil {
 		merged, err = DeepMergeJSON(merged, string(override))
 		if err != nil {
-			return err
+			return nil, err
 		}
 	}
 
@@ -83,25 +85,34 @@ func composeJSON(req Request) error {
 	if override, err := os.ReadFile(overridePath); err == nil {
 		merged, err = DeepMergeJSON(merged, string(override))
 		if err != nil {
-			return err
+			return nil, err
 		}
 	}
 
 	var v any
 	if err := json.Unmarshal([]byte(merged), &v); err != nil {
-		return fmt.Errorf("merged JSON invalid: %w", err)
+		return nil, fmt.Errorf("merged JSON invalid: %w", err)
 	}
-
 	out, err := json.MarshalIndent(v, "", "  ")
 	if err != nil {
-		return fmt.Errorf("marshal: %w", err)
+		return nil, fmt.Errorf("marshal: %w", err)
 	}
+	return append(out, '\n'), nil
+}
 
+func composeJSON(req Request) error {
+	if req.SkipSettings {
+		return nil
+	}
+	content, err := ComposeSettings(req)
+	if err != nil {
+		return err
+	}
 	dst := filepath.Join(req.DestDir, ".claude", "settings.json")
 	if err := os.MkdirAll(filepath.Dir(dst), 0755); err != nil {
 		return fmt.Errorf("mkdir: %w", err)
 	}
-	return os.WriteFile(dst, append(out, '\n'), 0644)
+	return os.WriteFile(dst, content, 0644)
 }
 
 func composeSkills(req Request) error {
