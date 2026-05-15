@@ -1,0 +1,153 @@
+package deploy
+
+import (
+	"os"
+	"path/filepath"
+	"strings"
+	"testing"
+
+	"github.com/jmt-labs/claude-setup/internal/config"
+)
+
+func writeTestFile(t *testing.T, path, content string) {
+	t.Helper()
+	os.MkdirAll(filepath.Dir(path), 0755)
+	os.WriteFile(path, []byte(content), 0644)
+}
+
+// Fall 1: disk == stored, new == disk → nichts tun
+func TestDeployFileNoChange(t *testing.T) {
+	dir := t.TempDir()
+	dst := filepath.Join(dir, "file.txt")
+	writeTestFile(t, dst, "original")
+
+	cfg := &config.Config{
+		DeployedFiles: map[string]string{"file.txt": hashBytes([]byte("original"))},
+	}
+
+	err := deployFile(dst, "file.txt", []byte("original"), cfg, &strings.Builder{}, strings.NewReader(""))
+	if err != nil {
+		t.Fatalf("deployFile: %v", err)
+	}
+	data, _ := os.ReadFile(dst)
+	if string(data) != "original" {
+		t.Errorf("file should be unchanged: %q", data)
+	}
+}
+
+// Fall 2: disk == stored, new != disk → einfach überschreiben (kein Prompt)
+func TestDeployFileCleanUpdate(t *testing.T) {
+	dir := t.TempDir()
+	dst := filepath.Join(dir, "file.txt")
+	writeTestFile(t, dst, "original")
+
+	cfg := &config.Config{
+		DeployedFiles: map[string]string{"file.txt": hashBytes([]byte("original"))},
+	}
+
+	out := &strings.Builder{}
+	err := deployFile(dst, "file.txt", []byte("updated"), cfg, out, strings.NewReader(""))
+	if err != nil {
+		t.Fatalf("deployFile: %v", err)
+	}
+	data, _ := os.ReadFile(dst)
+	if string(data) != "updated" {
+		t.Errorf("expected updated content, got %q", data)
+	}
+	if strings.Contains(out.String(), "KONFLIKT") {
+		t.Error("clean update should not show conflict")
+	}
+	if cfg.DeployedFiles["file.txt"] != hashBytes([]byte("updated")) {
+		t.Error("hash not updated in cfg")
+	}
+}
+
+// Fall 3: disk != stored, new == disk → Nutzer hat geändert, neue Version identisch → nichts tun
+func TestDeployFileUserChangedSameAsNew(t *testing.T) {
+	dir := t.TempDir()
+	dst := filepath.Join(dir, "file.txt")
+	writeTestFile(t, dst, "user-modified")
+
+	cfg := &config.Config{
+		DeployedFiles: map[string]string{"file.txt": hashBytes([]byte("original"))},
+	}
+
+	err := deployFile(dst, "file.txt", []byte("user-modified"), cfg, &strings.Builder{}, strings.NewReader(""))
+	if err != nil {
+		t.Fatalf("deployFile: %v", err)
+	}
+	data, _ := os.ReadFile(dst)
+	if string(data) != "user-modified" {
+		t.Errorf("file should be preserved: %q", data)
+	}
+}
+
+// Fall 4a: Konflikt → Nutzer wählt behalten
+func TestDeployFileConflictKeep(t *testing.T) {
+	dir := t.TempDir()
+	dst := filepath.Join(dir, "file.txt")
+	writeTestFile(t, dst, "user-modified")
+
+	cfg := &config.Config{
+		DeployedFiles: map[string]string{"file.txt": hashBytes([]byte("original"))},
+	}
+
+	out := &strings.Builder{}
+	err := deployFile(dst, "file.txt", []byte("remote-new"), cfg, out, strings.NewReader("b\n"))
+	if err != nil {
+		t.Fatalf("deployFile: %v", err)
+	}
+	data, _ := os.ReadFile(dst)
+	if string(data) != "user-modified" {
+		t.Errorf("file should be kept: %q", data)
+	}
+	if !strings.Contains(out.String(), "KONFLIKT") {
+		t.Error("conflict should be reported")
+	}
+}
+
+// Fall 4b: Konflikt → Nutzer wählt überschreiben mit "ü"
+func TestDeployFileConflictOverwrite(t *testing.T) {
+	dir := t.TempDir()
+	dst := filepath.Join(dir, "file.txt")
+	writeTestFile(t, dst, "user-modified")
+
+	cfg := &config.Config{
+		DeployedFiles: map[string]string{"file.txt": hashBytes([]byte("original"))},
+	}
+
+	out := &strings.Builder{}
+	err := deployFile(dst, "file.txt", []byte("remote-new"), cfg, out, strings.NewReader("ü\n"))
+	if err != nil {
+		t.Fatalf("deployFile: %v", err)
+	}
+	data, _ := os.ReadFile(dst)
+	if string(data) != "remote-new" {
+		t.Errorf("file should be overwritten: %q", data)
+	}
+	if cfg.DeployedFiles["file.txt"] != hashBytes([]byte("remote-new")) {
+		t.Error("hash not updated after overwrite")
+	}
+}
+
+// Migration: kein stored hash → einfach überschreiben
+func TestDeployFileMissingStoredHash(t *testing.T) {
+	dir := t.TempDir()
+	dst := filepath.Join(dir, "file.txt")
+	writeTestFile(t, dst, "user-modified")
+
+	cfg := &config.Config{DeployedFiles: map[string]string{}}
+
+	out := &strings.Builder{}
+	err := deployFile(dst, "file.txt", []byte("remote-new"), cfg, out, strings.NewReader(""))
+	if err != nil {
+		t.Fatalf("deployFile: %v", err)
+	}
+	data, _ := os.ReadFile(dst)
+	if string(data) != "remote-new" {
+		t.Errorf("migration: expected overwrite, got %q", data)
+	}
+	if strings.Contains(out.String(), "KONFLIKT") {
+		t.Error("migration should not show conflict")
+	}
+}
