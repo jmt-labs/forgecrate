@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/markus/claude-setup/internal/config"
-	"github.com/markus/claude-setup/internal/deploy"
-	gh "github.com/markus/claude-setup/internal/github"
+	"github.com/jmt-labs/claude-setup/internal/config"
+	"github.com/jmt-labs/claude-setup/internal/deploy"
+	gh "github.com/jmt-labs/claude-setup/internal/github"
 	"github.com/spf13/cobra"
 )
 
@@ -16,8 +16,9 @@ func newInitCmd() *cobra.Command {
 	var flavors []string
 
 	cmd := &cobra.Command{
-		Use:   "init",
-		Short: "Initialisiert Claude-Setup im aktuellen Repo",
+		Use:     "init",
+		Aliases: []string{"run"},
+		Short:   "Initialisiert Claude-Setup im aktuellen Repo",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cwd, err := os.Getwd()
 			if err != nil {
@@ -29,7 +30,7 @@ func newInitCmd() *cobra.Command {
 			if errors.Is(err, os.ErrNotExist) {
 				cfg = config.Config{
 					Version: "1.0",
-					Source:  "github.com/markus/claude-setup",
+					Source:  "github.com/jmt-labs/claude-setup",
 					Ref:     "main",
 					Profile: profile,
 					Flavors: flavors,
@@ -45,7 +46,7 @@ func newInitCmd() *cobra.Command {
 				cfg.Flavors = flavors
 			}
 
-			owner, repo := "markus", "claude-setup"
+			owner, repo := "jmt-labs", "claude-setup"
 			fmt.Printf("Fetching %s/%s@%s ...\n", owner, repo, cfg.Ref)
 
 			srcDir, err := os.MkdirTemp("", "claude-setup-*")

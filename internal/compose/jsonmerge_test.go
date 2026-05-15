@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/markus/claude-setup/internal/compose"
+	"github.com/jmt-labs/claude-setup/internal/compose"
 )
 
 func TestDeepMergeJSON(t *testing.T) {

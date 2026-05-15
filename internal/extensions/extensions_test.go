@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/markus/claude-setup/internal/extensions"
+	"github.com/jmt-labs/claude-setup/internal/extensions"
 )
 
 func TestLoad(t *testing.T) {
@@ -16,7 +16,6 @@ plugins:
     source: claude-plugins-official/superpowers
 mcp:
   - name: github
-    scope: local
     command: npx
     args: ["-y", "@modelcontextprotocol/server-github"]
     env:

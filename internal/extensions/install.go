@@ -4,10 +4,12 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 type Installer struct {
 	Claude string
+	Dir    string // git repo root of the target project
 }
 
 func NewInstaller() Installer {
@@ -21,30 +23,36 @@ func (i Installer) Install(ext Extensions) error {
 	}
 
 	for _, p := range ext.Plugins {
-		cmd := exec.Command(claude, "plugin", "install", p.Source)
+		cmd := exec.Command(claude, "plugin", "install", "--scope", "project", p.Source)
+		cmd.Dir = i.Dir
 		if out, err := cmd.CombinedOutput(); err != nil {
-			log.Printf("warn: plugin install %s: %v: %s", p.Name, err, out)
+			msg := string(out)
+			if !strings.Contains(msg, "not found in any configured marketplace") {
+				log.Printf("warn: plugin install %s: %v: %s", p.Name, err, msg)
+			}
 		}
 	}
 
 	for _, m := range ext.MCP {
-		scope := m.Scope
-		if scope == "" {
-			scope = "local"
-		}
-
 		var args []string
 		if m.Transport == "http" {
-			args = []string{"mcp", "add", "--transport", "http", m.Name, m.URL, "--scope", scope}
+			args = []string{"mcp", "add", "--transport", "http", m.Name, m.URL, "--scope", "project"}
 		} else {
-			args = []string{"mcp", "add", m.Name, "--scope", scope, m.Command}
+			args = []string{"mcp", "add", m.Name, "--scope", "project", m.Command}
+			if len(m.Args) > 0 {
+				args = append(args, "--")
+			}
 			args = append(args, m.Args...)
 		}
 
 		cmd := exec.Command(claude, args...)
+		cmd.Dir = i.Dir
 		cmd.Env = append(os.Environ(), envPairs(m.Env)...)
 		if out, err := cmd.CombinedOutput(); err != nil {
-			log.Printf("warn: mcp add %s: %v: %s", m.Name, err, out)
+			msg := string(out)
+			if !strings.Contains(msg, "already exists") {
+				log.Printf("warn: mcp add %s: %v: %s", m.Name, err, msg)
+			}
 		}
 	}
 	return nil

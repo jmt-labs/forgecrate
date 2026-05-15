@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/markus/claude-setup/internal/config"
+	"github.com/jmt-labs/claude-setup/internal/config"
 )
 
 func TestReadWrite(t *testing.T) {
@@ -15,7 +15,7 @@ func TestReadWrite(t *testing.T) {
 
 	want := config.Config{
 		Version: "1.0",
-		Source:  "github.com/markus/claude-setup",
+		Source:  "github.com/jmt-labs/claude-setup",
 		Ref:     "main",
 		Profile: "backend",
 		Flavors: []string{"tdd", "strict-review"},

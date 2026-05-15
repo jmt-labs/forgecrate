@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/markus/claude-setup/internal/config"
-	"github.com/markus/claude-setup/internal/deploy"
+	"github.com/jmt-labs/claude-setup/internal/config"
+	"github.com/jmt-labs/claude-setup/internal/deploy"
 )
 
 func TestDeploy(t *testing.T) {
@@ -22,7 +22,7 @@ func TestDeploy(t *testing.T) {
 
 	cfg := config.Config{
 		Version: "1.0",
-		Source:  "github.com/markus/claude-setup",
+		Source:  "github.com/jmt-labs/claude-setup",
 		Ref:     "main",
 		Profile: "backend",
 		Flavors: []string{},
@@ -68,7 +68,7 @@ func TestRunInstallsExtensions(t *testing.T) {
 	}
 
 	data, _ := os.ReadFile(argsFile)
-	if !strings.Contains(string(data), "plugin install claude-plugins-official/superpowers") {
+	if !strings.Contains(string(data), "plugin install --scope project claude-plugins-official/superpowers") {
 		t.Errorf("plugin not installed, calls: %q", string(data))
 	}
 }

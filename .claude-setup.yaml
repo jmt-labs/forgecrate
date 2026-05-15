@@ -1,0 +1,7 @@
+version: "1.0"
+source: github.com/jmt-labs/claude-setup
+ref: main
+profile: backend
+flavors:
+    - strict-review
+    - tdd

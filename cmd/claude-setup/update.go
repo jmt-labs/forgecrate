@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/markus/claude-setup/internal/config"
-	"github.com/markus/claude-setup/internal/deploy"
-	gh "github.com/markus/claude-setup/internal/github"
+	"github.com/jmt-labs/claude-setup/internal/config"
+	"github.com/jmt-labs/claude-setup/internal/deploy"
+	gh "github.com/jmt-labs/claude-setup/internal/github"
 	"github.com/spf13/cobra"
 )
 
@@ -34,7 +34,7 @@ func newUpdateCmd() *cobra.Command {
 				cfg.Profile = profile
 			}
 
-			owner, repo := "markus", "claude-setup"
+			owner, repo := "jmt-labs", "claude-setup"
 			fmt.Printf("Fetching %s/%s@%s ...\n", owner, repo, cfg.Ref)
 
 			srcDir, err := os.MkdirTemp("", "claude-setup-*")
