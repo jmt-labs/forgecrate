@@ -136,3 +136,60 @@ func TestProfileSwitch(t *testing.T) {
 		t.Error("frontend profile content missing in CLAUDE.md")
 	}
 }
+
+func TestDeployIncludesBaseSkills(t *testing.T) {
+	dst := t.TempDir()
+	cfg := config.Config{
+		Version: "1.0",
+		Source:  "github.com/markus/claude-setup",
+		Ref:     "main",
+		Profile: "backend",
+		Flavors: []string{},
+	}
+	if err := deploy.Run(localSource(t), dst, cfg); err != nil {
+		t.Fatalf("deploy.Run: %v", err)
+	}
+	skills := []string{"release", "repo-onboarding", "repo-health", "claude-setup-advisor"}
+	for _, s := range skills {
+		path := filepath.Join(dst, ".claude", "skills", s, "SKILL.md")
+		if _, err := os.Stat(path); err != nil {
+			t.Errorf("base skill missing: %s", s)
+		}
+	}
+}
+
+func TestDeployIncludesProfileSkill(t *testing.T) {
+	dst := t.TempDir()
+	cfg := config.Config{
+		Version: "1.0",
+		Source:  "github.com/markus/claude-setup",
+		Ref:     "main",
+		Profile: "frontend",
+		Flavors: []string{},
+	}
+	if err := deploy.Run(localSource(t), dst, cfg); err != nil {
+		t.Fatalf("deploy.Run: %v", err)
+	}
+	path := filepath.Join(dst, ".claude", "skills", "accessibility-audit", "SKILL.md")
+	if _, err := os.Stat(path); err != nil {
+		t.Errorf("frontend profile skill missing: accessibility-audit")
+	}
+}
+
+func TestDeployIncludesFlavorSkill(t *testing.T) {
+	dst := t.TempDir()
+	cfg := config.Config{
+		Version: "1.0",
+		Source:  "github.com/markus/claude-setup",
+		Ref:     "main",
+		Profile: "backend",
+		Flavors: []string{"github"},
+	}
+	if err := deploy.Run(localSource(t), dst, cfg); err != nil {
+		t.Fatalf("deploy.Run: %v", err)
+	}
+	path := filepath.Join(dst, ".claude", "skills", "github-release", "SKILL.md")
+	if _, err := os.Stat(path); err != nil {
+		t.Errorf("github flavor skill missing: github-release")
+	}
+}
