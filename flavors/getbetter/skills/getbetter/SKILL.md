@@ -6,10 +6,9 @@ Reflektiert die aktuelle Session und aktualisiert `.claude/GETBETTER.md` mit syn
 
 1. **Bestehende Erkenntnisse laden**
 
-   Prüfe ob `.claude/GETBETTER.md` existiert:
-   ```bash
-   cat .claude/GETBETTER.md 2>/dev/null || echo "(keine bisherigen Erkenntnisse)"
-   ```
+   Lies `.claude/GETBETTER.md` mit dem Read-Tool. Falls die Datei nicht existiert, starte mit einer leeren Basis.
+
+   Falls keine verwertbare Session-History vorhanden ist (z.B. direkt nach Sessionbeginn oder nach Kompaktierung): kurze Meldung ausgeben und Skill beenden — keine Erkenntnisse erzwingen.
 
 2. **Aktuelle Session reflektieren**
 
@@ -24,7 +23,7 @@ Reflektiert die aktuelle Session und aktualisiert `.claude/GETBETTER.md` mit syn
 3. **Synthetisieren und schreiben**
 
    Führe bestehende und neue Erkenntnisse zusammen:
-   - Bestehende Punkte bleiben erhalten, sofern sie nicht durch neue überholt werden
+   - Bestehende Punkte bleiben erhalten; ein Punkt gilt als überholt wenn ein neuer denselben Sachverhalt präziser beschreibt oder ihn explizit widerlegt
    - Überschneidende Punkte werden verdichtet, nicht doppelt geführt
    - Neue Erkenntnisse werden eingearbeitet
 
@@ -33,7 +32,7 @@ Reflektiert die aktuelle Session und aktualisiert `.claude/GETBETTER.md` mit syn
    ```markdown
    # GETBETTER
 
-   _Letzte Aktualisierung: YYYY-MM-DD_
+   _Letzte Aktualisierung: 2026-05-15_ (ISO 8601, immer das aktuelle Datum)
 
    ## Entscheidungen
    [synthetisierter Inhalt]
@@ -47,4 +46,4 @@ Reflektiert die aktuelle Session und aktualisiert `.claude/GETBETTER.md` mit syn
 
 4. **Bestätigen**
 
-   Gib eine kurze Zusammenfassung: wie viele Punkte wurden hinzugefügt, geändert, verdichtet.
+   Gib eine kurze Zusammenfassung: wie viele Punkte wurden hinzugefügt, verdichtet oder entfernt.
