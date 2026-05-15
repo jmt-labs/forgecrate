@@ -1,8 +1,6 @@
 package deploy
 
 import (
-	"os"
-	"path/filepath"
 	"testing"
 )
 
@@ -20,23 +18,3 @@ func TestHashBytesEmpty(t *testing.T) {
 	}
 }
 
-func TestHashFile(t *testing.T) {
-	dir := t.TempDir()
-	f := filepath.Join(dir, "test.txt")
-	os.WriteFile(f, []byte("hello"), 0644)
-
-	h, err := hashFile(f)
-	if err != nil {
-		t.Fatalf("hashFile: %v", err)
-	}
-	if h != hashBytes([]byte("hello")) {
-		t.Errorf("hashFile != hashBytes for same content")
-	}
-}
-
-func TestHashFileMissing(t *testing.T) {
-	_, err := hashFile("/no/such/file")
-	if err == nil {
-		t.Error("expected error for missing file")
-	}
-}

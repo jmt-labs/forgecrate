@@ -49,7 +49,8 @@ func deployFile(dstPath, rel string, newContent []byte, cfg *config.Config, w io
 
 	// Nutzer hat Datei geändert
 	if newSameAsDisk {
-		// Fall 3: Nutzer hat gleich geändert wie neue Version → nichts tun
+		// Fall 3: Nutzer hat gleich geändert wie neue Version → nichts tun, aber Hash aktualisieren
+		cfg.DeployedFiles[rel] = hashDisk
 		return nil
 	}
 

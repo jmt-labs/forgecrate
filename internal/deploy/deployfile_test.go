@@ -80,6 +80,10 @@ func TestDeployFileUserChangedSameAsNew(t *testing.T) {
 	if string(data) != "user-modified" {
 		t.Errorf("file should be preserved: %q", data)
 	}
+	// Hash muss auf den aktuellen Disk-Hash aktualisiert werden
+	if cfg.DeployedFiles["file.txt"] != hashBytes([]byte("user-modified")) {
+		t.Errorf("hash should be updated to current disk hash, got: %q", cfg.DeployedFiles["file.txt"])
+	}
 }
 
 // Fall 4a: Konflikt → Nutzer wählt behalten
