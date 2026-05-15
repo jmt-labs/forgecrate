@@ -2,7 +2,7 @@
 TOOL="${CLAUDE_TOOL_NAME:-}"
 
 case "$TOOL" in
-  Edit|Write)
+  Edit|Write|MultiEdit)
     BRANCH=$(git branch --show-current 2>/dev/null)
     if [ "$BRANCH" = "main" ] || [ "$BRANCH" = "master" ]; then
       printf '{"continue": false, "stopReason": "Direkte Änderungen auf main sind verboten. Branch anlegen: git checkout -b feat/<thema> — dann erst Edit/Write verwenden."}'

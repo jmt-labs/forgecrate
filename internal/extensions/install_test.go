@@ -105,7 +105,7 @@ func TestInstallerMCPHTTP(t *testing.T) {
 				Name:      "github",
 				Transport: "http",
 				URL:       "https://api.githubcopilot.com/mcp/",
-							},
+			},
 		},
 	}
 
@@ -130,7 +130,7 @@ func TestInstallerMCPHTTPEnv(t *testing.T) {
 				Name:      "github",
 				Transport: "http",
 				URL:       "https://api.githubcopilot.com/mcp/",
-								Env:       map[string]string{"GITHUB_PERSONAL_ACCESS_TOKEN": "tok"},
+				Env:       map[string]string{"GITHUB_PERSONAL_ACCESS_TOKEN": "tok"},
 			},
 		},
 	}
