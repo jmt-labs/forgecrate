@@ -4,9 +4,9 @@ Prüft Barrierefreiheit in geänderten UI-Komponenten.
 
 ## Ablauf
 
-1. **Geänderte Dateien ermitteln**
+1. **Geänderte Dateien ermitteln** — nur existierende Dateien (keine gelöschten):
    ```bash
-   git diff --name-only | grep -E '\.(tsx?|jsx?|vue|svelte|html)$'
+   git diff --name-only --diff-filter=d | grep -E '\.(tsx?|jsx?|vue|svelte|html|css|scss)$'
    ```
    Falls keine UI-Dateien geändert wurden: "Keine UI-Dateien geändert — Audit übersprungen."
 
@@ -14,35 +14,42 @@ Prüft Barrierefreiheit in geänderten UI-Komponenten.
 
    **Fehlende `alt`-Attribute:**
    ```bash
-   grep -n '<img' <datei> | grep -v 'alt='
+   grep -nE '<img[[:space:]>]' <datei> | grep -v 'alt='
    ```
 
    **Interaktive Elemente ohne Label:**
    ```bash
-   grep -n '<button\|<a ' <datei> | grep -v 'aria-label\|aria-labelledby'
+   grep -nE '<(button|a)[[:space:]>]' <datei> | grep -vE 'aria-label|aria-labelledby'
    ```
-   Prüfe zusätzlich ob der Button/Link sichtbaren Textinhalt hat (kein reines Icon ohne Label).
+   Prüfe zusätzlich ob der Button/Link sichtbaren Textinhalt hat (kein reines Icon ohne Label). Multiline-JSX (Attribute auf Folgezeilen) manuell prüfen.
 
    **Formular-Inputs ohne `<label>`:**
    ```bash
-   grep -n '<input\|<textarea\|<select' <datei> | grep -v 'type="hidden"'
+   grep -nE '<(input|textarea|select)[[:space:]>]' <datei> | grep -vE 'type="hidden"|aria-label|aria-labelledby'
    ```
-   Für jeden Fund: prüfe ob ein `<label for="...">` mit passendem `id` existiert.
+   Für jeden Fund mit einer `id`-Attribut: prüfe ob ein `<label for="<id>">` existiert:
+   ```bash
+   grep -oE 'id="[^"]+"' <datei> | while read id_attr; do
+     id="${id_attr#id=\"}"; id="${id%\"}"
+     grep -q "for=\"$id\"" <datei> || echo "KEIN LABEL für id='$id'"
+   done
+   ```
 
    **Inline-Farbkontrast-Warnung:**
    ```bash
-   grep -n 'color:.*#[fF][fF]\|color:.*white\|color:.*rgb(255' <datei>
+   grep -nE 'color:\s*(#[fF]{3}[^0-9a-fA-F]|#[fF]{6}|white|rgb\(255,\s*255,\s*255\))' <datei>
    ```
-   Hinweis wenn helle Textfarbe auf weißem Hintergrund vermutet wird.
+   Warnung wenn sehr helle Textfarbe verwendet wird (möglicher Kontrast-Verlust auf hellem Hintergrund).
 
 3. **Ausgabe** — Befunde mit Datei und Zeile:
    ```
    components/Button.tsx:12  <img> ohne alt-Attribut
    components/Nav.tsx:34     <button> ohne aria-label und ohne sichtbaren Text
    ```
-   Bei keinen Befunden: "Keine Barrierefreiheitsprobleme in geänderten Dateien gefunden."
+   Bei keinen Befunden: "Keine Barrierefreiheitsprobleme gefunden."
 
 ## Hinweise
 
 - Kein Ersatz für echte Screenreader-Tests — deckt die häufigsten statischen Fehler ab.
-- Bei generierten Dateien (`.min.js`, Build-Output) überspringen.
+- Multiline-JSX-Attribute (Button-Label auf Folgezeile) können nicht per grep erkannt werden — manuell prüfen.
+- Generierte Dateien (`*.min.js`, `dist/`, Build-Output) überspringen.
