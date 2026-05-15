@@ -13,7 +13,7 @@ Claude Code lädt `.md`-Dateien aus `~/.claude/commands/` als Slash-Commands.
 `base/.claude/commands/`, `profiles/<p>/.claude/commands/` und
 `flavors/<f>/.claude/commands/` nach `<destDir>/.claude/commands/` merged.
 
-Das Verzeichnis `base/.claude/commands/` existiert noch nicht und ist leer.
+Die Verzeichnisse `base/.claude/commands/`, `profiles/*/.claude/commands/` und `flavors/*/.claude/commands/` existieren noch nicht.
 
 ## Design
 
@@ -23,11 +23,12 @@ Skills bleiben in ihren bestehenden Verzeichnissen (`base/skills/release/`,
 `flavors/tdd/skills/test-coverage/`, etc.). Es werden nur Command-Wrapper-Dateien
 hinzugefügt.
 
-### Command-Dateien in `base/.claude/commands/`
+### Command-Dateien nach Layer
 
-Alle Commands kommen in `base/.claude/commands/`, unabhängig von Profil oder Flavor.
-Wenn ein Skill für das aktuelle Profil/Flavor nicht installiert wurde, meldet der
-Skill-Tool einen klaren Fehler — das ist akzeptables Verhalten.
+Commands liegen im selben Layer wie ihr Skill — base-Skills in `base/.claude/commands/`,
+Profil-Skills in `profiles/<p>/.claude/commands/`, Flavor-Skills in
+`flavors/<f>/.claude/commands/`. So werden Commands nur deployt, wenn der zugehörige
+Skill auch tatsächlich installiert wird.
 
 | Command-Datei | Slash-Command | Ruft auf |
 |---|---|---|
@@ -55,8 +56,8 @@ Use the Skill tool to invoke the "<skill-name>" skill.
 
 ### Deploy-Pfad
 
-`claude-setup run` → `compose.Run()` → `composeSkills()` → merged
-`base/.claude/commands/*.md` nach `~/.claude/commands/` → Slash-Commands aktiv.
+`claude-setup run` → `compose.Run()` → `composeSkills()` → merged alle
+`*/.claude/commands/*.md`-Layer nach `~/.claude/commands/` → Slash-Commands aktiv.
 
 Kein Umbau an `deploy.go`, `compose.go` oder `extensions.yaml` nötig.
 
@@ -69,5 +70,4 @@ Später wird das Plugin-System genutzt, um den Namespace `claude-setup:<name>`
 
 - Umbenennung bestehender Skill-Verzeichnisse
 - Änderungen an `deploy.go` oder `compose.go`
-- Profile- oder Flavor-spezifische Commands
 - Plugin-Registrierung

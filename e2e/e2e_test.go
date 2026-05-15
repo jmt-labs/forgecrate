@@ -249,4 +249,10 @@ func TestProfileFlavorCommandsDeployed(t *testing.T) {
 			t.Errorf("missing command: %s", f)
 		}
 	}
+
+	// frontend-Command darf bei backend-Profil nicht vorhanden sein
+	frontendOnly := filepath.Join(dst, ".claude", "commands", "claude-setup-accessibility-audit.md")
+	if _, err := os.Stat(frontendOnly); err == nil {
+		t.Error("frontend-only command should not be present for backend profile")
+	}
 }
