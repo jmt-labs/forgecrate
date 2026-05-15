@@ -193,3 +193,66 @@ func TestDeployIncludesFlavorSkill(t *testing.T) {
 		t.Errorf("github flavor skill missing: github-release")
 	}
 }
+
+func TestBaseCommandsDeployed(t *testing.T) {
+	dst := t.TempDir()
+	cfg := config.Config{
+		Version: "1.0",
+		Source:  "github.com/jmt-labs/claude-setup",
+		Ref:     "main",
+		Profile: "backend",
+		Flavors: []string{},
+	}
+
+	if err := deploy.Run(localSource(t), dst, cfg); err != nil {
+		t.Fatalf("deploy.Run: %v", err)
+	}
+
+	baseCommands := []string{
+		"claude-setup-advisor.md",
+		"claude-setup-release.md",
+		"claude-setup-repo-health.md",
+		"claude-setup-repo-onboarding.md",
+	}
+
+	for _, f := range baseCommands {
+		path := filepath.Join(dst, ".claude", "commands", f)
+		if _, err := os.Stat(path); err != nil {
+			t.Errorf("missing base command: %s", f)
+		}
+	}
+}
+
+func TestProfileFlavorCommandsDeployed(t *testing.T) {
+	dst := t.TempDir()
+	cfg := config.Config{
+		Version: "1.0",
+		Source:  "github.com/jmt-labs/claude-setup",
+		Ref:     "main",
+		Profile: "backend",
+		Flavors: []string{"tdd", "strict-review"},
+	}
+
+	if err := deploy.Run(localSource(t), dst, cfg); err != nil {
+		t.Fatalf("deploy.Run: %v", err)
+	}
+
+	expectedCommands := []string{
+		"claude-setup-db-migration.md",
+		"claude-setup-test-coverage.md",
+		"claude-setup-pr-checklist.md",
+	}
+
+	for _, f := range expectedCommands {
+		path := filepath.Join(dst, ".claude", "commands", f)
+		if _, err := os.Stat(path); err != nil {
+			t.Errorf("missing command: %s", f)
+		}
+	}
+
+	// frontend-Command darf bei backend-Profil nicht vorhanden sein
+	frontendOnly := filepath.Join(dst, ".claude", "commands", "claude-setup-accessibility-audit.md")
+	if _, err := os.Stat(frontendOnly); err == nil {
+		t.Error("frontend-only command should not be present for backend profile")
+	}
+}
