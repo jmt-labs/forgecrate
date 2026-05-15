@@ -49,6 +49,43 @@ func TestCompose(t *testing.T) {
 	}
 }
 
+func TestComposeSettingsReturnsContent(t *testing.T) {
+	src := t.TempDir()
+	dst := t.TempDir()
+
+	settingsDir := filepath.Join(src, "base", ".claude")
+	os.MkdirAll(settingsDir, 0755)
+	os.WriteFile(filepath.Join(settingsDir, "settings.json"), []byte(`{"model":"claude-sonnet-4-6"}`), 0644)
+
+	req := compose.Request{SourceDir: src, DestDir: dst, Profile: "backend", Flavors: []string{}}
+	content, err := compose.ComposeSettings(req)
+	if err != nil {
+		t.Fatalf("ComposeSettings: %v", err)
+	}
+	if !strings.Contains(string(content), "claude-sonnet-4-6") {
+		t.Errorf("expected model in content, got: %s", content)
+	}
+}
+
+func TestComposeRunSkipsSettingsWhenFlagSet(t *testing.T) {
+	src := t.TempDir()
+	dst := t.TempDir()
+
+	settingsDir := filepath.Join(src, "base", ".claude")
+	os.MkdirAll(settingsDir, 0755)
+	os.WriteFile(filepath.Join(settingsDir, "settings.json"), []byte(`{"model":"claude-sonnet-4-6"}`), 0644)
+	os.WriteFile(filepath.Join(src, "base", "CLAUDE.md"), []byte("# Base\n<!-- CUSTOM:BEGIN -->\n<!-- CUSTOM:END -->\n"), 0644)
+
+	req := compose.Request{SourceDir: src, DestDir: dst, Profile: "backend", Flavors: []string{}, SkipSettings: true}
+	if err := compose.Run(req); err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+
+	if _, err := os.Stat(filepath.Join(dst, ".claude", "settings.json")); err == nil {
+		t.Error("settings.json should not be written when SkipSettings is true")
+	}
+}
+
 func writeFile(t *testing.T, base, rel, content string) {
 	t.Helper()
 	path := filepath.Join(base, filepath.FromSlash(rel))
