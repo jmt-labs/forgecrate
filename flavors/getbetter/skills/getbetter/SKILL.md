@@ -32,7 +32,7 @@ Reflektiert die aktuelle Session und aktualisiert `.claude/GETBETTER.md` mit syn
    ```markdown
    # GETBETTER
 
-   _Letzte Aktualisierung: 2026-05-15_ (ISO 8601, immer das aktuelle Datum)
+   _Letzte Aktualisierung: YYYY-MM-DD_ (ISO 8601, immer das aktuelle Datum einsetzen)
 
    ## Entscheidungen
    [synthetisierter Inhalt]
