@@ -86,6 +86,7 @@ Sandboxt Tool-Output automatisch — kein expliziter Aufruf nötig.
 - `ctx_insight` — Überblick über bisherigen Session-Verlauf
 - `ctx_stats` — gespartes Context-Budget prüfen
 - `ctx_doctor` — bei Problemen mit dem Server
+
 ## Backend-Profil
 
 - API-Design: REST-First, klare Fehlercodes, keine unnötige Abstraktion
@@ -93,14 +94,12 @@ Sandboxt Tool-Output automatisch — kein expliziter Aufruf nötig.
 - Tests: Integrationstests bevorzugt gegenüber reinen Unit-Tests mit Mocks
 - Kein ORM-Magic: explizite Queries sind verständlicher
 
-
 ## Strict-Review-Flavor
 
 - Vor jedem Commit: `superpowers:requesting-code-review` aufrufen
 - Keine direkten Commits auf main/master
 - PR-Beschreibung enthält: Was, Warum, Wie getestet
 - Breaking Changes werden explizit kommuniziert
-
 
 ## TDD-Flavor
 
