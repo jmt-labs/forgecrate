@@ -29,7 +29,17 @@ Analysiert ein Repo und empfiehlt das passende `claude-setup`-Profil und die pas
 
 3. **Test-Kultur erkennen** — prüfe ob Tests vorhanden sind, ob CI konfiguriert ist (`.github/workflows/`), ob Coverage-Reports erzeugt werden → Flavor `tdd` sinnvoll?
 
-4. **Review-Anforderungen abfragen** — stelle eine Frage: "Arbeitest du alleine oder im Team mit PR-Reviews?" → Flavor `strict-review` sinnvoll?
+4. **Arbeitsweise abfragen** — stelle diese Fragen nacheinander:
+
+   a. "Ist das ein Prototyp oder Solo-Projekt ohne formalen Review-Prozess?"
+      - Ja → empfehle `minimal` (schließt `strict-review` und `tdd` aus, weiter mit Schritt 5)
+      - Nein → weiter mit b
+
+   b. "Arbeitest du im Team mit PR-Reviews?"
+      - Ja → Flavor `strict-review` vormerken
+
+   c. "Schreibst du Tests vor der Implementierung (Test-first)?"
+      - Ja → Flavor `tdd` vormerken
 
 5. **Empfehlung ausgeben**:
 
