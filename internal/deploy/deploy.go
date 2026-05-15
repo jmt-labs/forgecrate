@@ -17,16 +17,28 @@ func Run(sourceDir, destDir string, cfg config.Config) error {
 
 func RunWithClaude(sourceDir, destDir string, cfg config.Config, claudeBin string) error {
 	req := compose.Request{
-		SourceDir: sourceDir,
-		DestDir:   destDir,
-		Profile:   cfg.Profile,
-		Flavors:   cfg.Flavors,
+		SourceDir:    sourceDir,
+		DestDir:      destDir,
+		Profile:      cfg.Profile,
+		Flavors:      cfg.Flavors,
+		SkipSettings: true,
 	}
+
+	// Settings: Inhalt berechnen, dann konflikt-sicher schreiben
+	settingsContent, err := compose.ComposeSettings(req)
+	if err != nil {
+		return fmt.Errorf("compose settings: %w", err)
+	}
+	settingsPath := filepath.Join(destDir, ".claude", "settings.json")
+	if err := deployFile(settingsPath, ".claude/settings.json", settingsContent, &cfg, os.Stdout, os.Stdin); err != nil {
+		return fmt.Errorf("settings: %w", err)
+	}
+
 	if err := compose.Run(req); err != nil {
 		return fmt.Errorf("compose: %w", err)
 	}
 
-	if err := copyHooks(sourceDir, destDir); err != nil {
+	if err := copyHooks(sourceDir, destDir, &cfg); err != nil {
 		return fmt.Errorf("hooks: %w", err)
 	}
 
@@ -145,7 +157,7 @@ func copyFile(src, dst string) (err error) {
 	return nil
 }
 
-func copyHooks(src, dst string) error {
+func copyHooks(src, dst string, cfg *config.Config) error {
 	hooksDir := filepath.Join(src, "base", "hooks")
 	if _, err := os.Stat(hooksDir); os.IsNotExist(err) {
 		return nil
@@ -161,7 +173,18 @@ func copyHooks(src, dst string) error {
 			return err
 		}
 		rel, _ := filepath.Rel(hooksDir, path)
-		return copyExecutable(path, filepath.Join(dstHooks, rel))
+		dstPath := filepath.Join(dstHooks, rel)
+
+		content, err := os.ReadFile(path)
+		if err != nil {
+			return fmt.Errorf("read hook %s: %w", rel, err)
+		}
+
+		relKey := filepath.Join(".claude", "hooks", rel)
+		if err := deployFile(dstPath, relKey, content, cfg, os.Stdout, os.Stdin); err != nil {
+			return err
+		}
+		return os.Chmod(dstPath, 0755)
 	})
 }
 
