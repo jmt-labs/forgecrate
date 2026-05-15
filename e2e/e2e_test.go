@@ -222,3 +222,31 @@ func TestBaseCommandsDeployed(t *testing.T) {
 		}
 	}
 }
+
+func TestProfileFlavorCommandsDeployed(t *testing.T) {
+	dst := t.TempDir()
+	cfg := config.Config{
+		Version: "1.0",
+		Source:  "github.com/jmt-labs/claude-setup",
+		Ref:     "main",
+		Profile: "backend",
+		Flavors: []string{"tdd", "strict-review"},
+	}
+
+	if err := deploy.Run(localSource(t), dst, cfg); err != nil {
+		t.Fatalf("deploy.Run: %v", err)
+	}
+
+	expectedCommands := []string{
+		"claude-setup-db-migration.md",
+		"claude-setup-test-coverage.md",
+		"claude-setup-pr-checklist.md",
+	}
+
+	for _, f := range expectedCommands {
+		path := filepath.Join(dst, ".claude", "commands", f)
+		if _, err := os.Stat(path); err != nil {
+			t.Errorf("missing command: %s", f)
+		}
+	}
+}
