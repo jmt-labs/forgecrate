@@ -7,7 +7,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .claude/hooks/prompt-submit.sh"
+            "command": "bash -c 'root=$(git rev-parse --show-toplevel 2>/dev/null || pwd) && exec bash \"$root/.claude/hooks/prompt-submit.sh\"'"
           }
         ]
       }
@@ -18,7 +18,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .claude/hooks/pre-tool.sh"
+            "command": "bash -c 'root=$(git rev-parse --show-toplevel 2>/dev/null || pwd) && exec bash \"$root/.claude/hooks/pre-tool.sh\"'"
           }
         ]
       }

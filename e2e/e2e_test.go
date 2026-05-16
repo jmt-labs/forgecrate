@@ -331,6 +331,28 @@ func TestDeployIncludesGetbetterCommand(t *testing.T) {
 	}
 }
 
+func TestHookCommandsUseAbsolutePaths(t *testing.T) {
+	dst := t.TempDir()
+	cfg := config.Config{
+		Version: "1.0",
+		Source:  "github.com/jmt-labs/claude-setup",
+		Ref:     "main",
+		Profile: "backend",
+		Flavors: []string{},
+	}
+	if err := deploy.Run(localSource(t), dst, cfg); err != nil {
+		t.Fatalf("deploy.Run: %v", err)
+	}
+	content, err := os.ReadFile(filepath.Join(dst, ".claude", "settings.json"))
+	if err != nil {
+		t.Fatalf("settings.json missing: %v", err)
+	}
+	s := string(content)
+	if strings.Contains(s, `"bash .claude/hooks/`) {
+		t.Error("settings.json contains relative hook path — should use git rev-parse for absolute resolution")
+	}
+}
+
 func TestDeployIncludesParallelisierungSection(t *testing.T) {
 	dst := t.TempDir()
 	cfg := config.Config{
