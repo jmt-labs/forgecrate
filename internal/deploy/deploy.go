@@ -3,6 +3,7 @@ package deploy
 import (
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"path/filepath"
 
@@ -148,6 +149,7 @@ func copyFile(src, dst string) (err error) {
 func copyHooks(src, dst string) error {
 	hooksDir := filepath.Join(src, "base", "hooks")
 	if _, err := os.Stat(hooksDir); os.IsNotExist(err) {
+		log.Printf("warn: hooks-Verzeichnis nicht gefunden (%s) — Hook-Dateien werden nicht deployt, aber settings.json referenziert sie", hooksDir)
 		return nil
 	}
 

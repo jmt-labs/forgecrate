@@ -150,6 +150,24 @@ func TestCopySkillsProfileAndFlavor(t *testing.T) {
 	}
 }
 
+func TestCopyHooksMissingDirSucceedsWithoutHookFiles(t *testing.T) {
+	src := t.TempDir()
+	dst := t.TempDir()
+
+	// settings.json referenziert Hooks, aber base/hooks/ fehlt absichtlich
+	writeFile(t, src, "base/CLAUDE.md", "<!-- GENERATED:BEGIN -->\n# Base\n<!-- GENERATED:END -->\n<!-- CUSTOM:BEGIN -->\n<!-- CUSTOM:END -->\n")
+	writeFile(t, src, "base/.claude/settings.json", `{"hooks":{"PreToolUse":[{"matcher":"Bash","hooks":[{"type":"command","command":"bash .claude/hooks/pre-tool.sh"}]}]}}`)
+
+	cfg := config.Config{Profile: "backend"}
+	if err := deploy.Run(src, dst, cfg); err != nil {
+		t.Fatalf("Run should succeed even when hooks dir missing: %v", err)
+	}
+
+	if _, err := os.Stat(filepath.Join(dst, ".claude", "hooks", "pre-tool.sh")); err == nil {
+		t.Error("pre-tool.sh should not exist when source has no hooks dir")
+	}
+}
+
 func writeFile(t *testing.T, base, rel, content string) {
 	t.Helper()
 	path := filepath.Join(base, filepath.FromSlash(rel))
