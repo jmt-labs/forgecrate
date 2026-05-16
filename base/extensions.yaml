@@ -29,3 +29,7 @@ mcp:
   - name: context-mode
     command: npx
     args: ["-y", "context-mode"]
+
+  - name: context7
+    command: npx
+    args: ["-y", "@upstash/context7-mcp"]

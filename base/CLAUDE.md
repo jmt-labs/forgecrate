@@ -98,3 +98,13 @@ Sandboxt Tool-Output automatisch — kein expliziter Aufruf nötig.
 - `ctx_insight` — Überblick über bisherigen Session-Verlauf
 - `ctx_stats` — gespartes Context-Budget prüfen
 - `ctx_doctor` — bei Problemen mit dem Server
+
+### context7
+
+Aktuelle Bibliotheks-Dokumentation direkt aus den Source-Repositories abrufen. Automatisch konfiguriert via `base/extensions.yaml`.
+
+**Verwende es für:** Aktuelle API-Dokumentation, Versionsmigration, Framework-spezifisches Debugging, Changelog-Inhalte — überall wo Trainingsdaten veraltet sein könnten.
+
+**Verwende es NICHT für:** GitHub-Inhalte (→ github MCP), lokale Dateien (→ Read), allgemeine Programmierkonzepte.
+
+**Keine Konfiguration nötig** — wird beim ersten `claude-setup init/update` automatisch als Projekt-MCP-Server eingerichtet.
