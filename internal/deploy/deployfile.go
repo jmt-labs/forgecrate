@@ -27,13 +27,13 @@ func deployFile(dstPath, rel string, newContent []byte, cfg *config.Config, w io
 
 	// Datei existiert nicht → einfach schreiben
 	if hashDisk == "" {
-		fmt.Fprintf(w, "  written   %s\n", rel)
+		fmt.Fprintf(w, "✅ %s\n", rel)
 		return writeAndRecord(dstPath, rel, newContent, hashNew, cfg)
 	}
 
 	// Migration: kein stored hash → einfach überschreiben
 	if !hasStored {
-		fmt.Fprintf(w, "  written   %s\n", rel)
+		fmt.Fprintf(w, "✅ %s\n", rel)
 		return writeAndRecord(dstPath, rel, newContent, hashNew, cfg)
 	}
 
@@ -43,18 +43,18 @@ func deployFile(dstPath, rel string, newContent []byte, cfg *config.Config, w io
 	if diskUnchanged {
 		if newSameAsDisk {
 			// Fall 1: unverändert, neue Version identisch → nichts tun
-			fmt.Fprintf(w, "  skipped   %s\n", rel)
+			fmt.Fprintf(w, "🔵 %s\n", rel)
 			return nil
 		}
 		// Fall 2: unverändert, neue Version verschieden → überschreiben
-		fmt.Fprintf(w, "  written   %s\n", rel)
+		fmt.Fprintf(w, "✅ %s\n", rel)
 		return writeAndRecord(dstPath, rel, newContent, hashNew, cfg)
 	}
 
 	// Nutzer hat Datei geändert
 	if newSameAsDisk {
 		// Fall 3: Nutzer hat gleich geändert wie neue Version → nichts tun, aber Hash aktualisieren
-		fmt.Fprintf(w, "  skipped   %s\n", rel)
+		fmt.Fprintf(w, "🔵 %s\n", rel)
 		cfg.DeployedFiles[rel] = hashDisk
 		return nil
 	}
@@ -71,11 +71,11 @@ func deployFile(dstPath, rel string, newContent []byte, cfg *config.Config, w io
 	answer := strings.TrimSpace(scanner.Text())
 
 	if answer == "ü" || answer == "u" {
-		fmt.Fprintf(w, "  written   %s  (conflict → replaced)\n", rel)
+		fmt.Fprintf(w, "✅ %s  (conflict → replaced)\n", rel)
 		return writeAndRecord(dstPath, rel, newContent, hashNew, cfg)
 	}
 	// behalten: Hash der Nutzer-Version speichern
-	fmt.Fprintf(w, "  skipped   %s  (conflict → kept)\n", rel)
+	fmt.Fprintf(w, "🔵 %s  (conflict → kept)\n", rel)
 	cfg.DeployedFiles[rel] = hashDisk
 	return nil
 }

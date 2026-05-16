@@ -3,7 +3,6 @@ package extensions
 import (
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"os/exec"
 	"strings"
@@ -35,12 +34,12 @@ func (i Installer) Install(ext Extensions) error {
 		if cmdOut, err := cmd.CombinedOutput(); err != nil {
 			msg := string(cmdOut)
 			if strings.Contains(msg, "not found in any configured marketplace") {
-				fmt.Fprintf(out, "  skipped   plugin:%s  (not in marketplace)\n", p.Name)
+				fmt.Fprintf(out, "🔵 plugin:%s  (not in marketplace)\n", p.Name)
 			} else {
-				log.Printf("warn: plugin install %s: %v: %s", p.Name, err, msg)
+				fmt.Fprintf(out, "❌ plugin:%s  (%v)\n", p.Name, err)
 			}
 		} else {
-			fmt.Fprintf(out, "  plugin    %s\n", p.Name)
+			fmt.Fprintf(out, "✅ plugin:%s\n", p.Name)
 		}
 	}
 
@@ -62,12 +61,12 @@ func (i Installer) Install(ext Extensions) error {
 		if cmdOut, err := cmd.CombinedOutput(); err != nil {
 			msg := string(cmdOut)
 			if strings.Contains(msg, "already exists") {
-				fmt.Fprintf(out, "  skipped   mcp:%s  (already configured)\n", m.Name)
+				fmt.Fprintf(out, "🔵 mcp:%s  (already configured)\n", m.Name)
 			} else {
-				log.Printf("warn: mcp add %s: %v: %s", m.Name, err, msg)
+				fmt.Fprintf(out, "❌ mcp:%s  (%v)\n", m.Name, err)
 			}
 		} else {
-			fmt.Fprintf(out, "  mcp       %s\n", m.Name)
+			fmt.Fprintf(out, "✅ mcp:%s\n", m.Name)
 		}
 	}
 	return nil
