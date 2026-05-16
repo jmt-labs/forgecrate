@@ -330,3 +330,30 @@ func TestDeployIncludesGetbetterCommand(t *testing.T) {
 		t.Errorf("getbetter command missing: claude-setup-getbetter.md")
 	}
 }
+
+func TestDeployIncludesParallelisierungSection(t *testing.T) {
+	dst := t.TempDir()
+	cfg := config.Config{
+		Version: "1.0",
+		Source:  "github.com/jmt-labs/claude-setup",
+		Ref:     "main",
+		Profile: "backend",
+		Flavors: []string{},
+	}
+	if err := deploy.Run(localSource(t), dst, cfg); err != nil {
+		t.Fatalf("deploy.Run: %v", err)
+	}
+	content, err := os.ReadFile(filepath.Join(dst, "CLAUDE.md"))
+	if err != nil {
+		t.Fatalf("CLAUDE.md missing: %v", err)
+	}
+	if !strings.Contains(string(content), "Parallelisierung & Isolation") {
+		t.Error("CLAUDE.md missing section: Parallelisierung & Isolation")
+	}
+	if !strings.Contains(string(content), "run_in_background") {
+		t.Error("CLAUDE.md missing: run_in_background")
+	}
+	if !strings.Contains(string(content), `isolation: "worktree"`) {
+		t.Error(`CLAUDE.md missing: isolation: "worktree"`)
+	}
+}
