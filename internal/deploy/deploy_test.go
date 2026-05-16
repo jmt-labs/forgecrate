@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 
@@ -257,6 +258,83 @@ func TestDeployConflictIsShown(t *testing.T) {
 	kept, _ := os.ReadFile(settingsPath)
 	if string(kept) != `{"model":"user-modified"}` {
 		t.Errorf("Datei hätte erhalten bleiben sollen, aber: %q", string(kept))
+	}
+}
+
+func TestDeployConflictOverwriteReplacesFile(t *testing.T) {
+	src := t.TempDir()
+	dst := t.TempDir()
+	setupMinimalSource(t, src)
+
+	cfg := config.Config{Version: "1.0", Source: "s", Ref: "r", Profile: "backend", Flavors: []string{}}
+	if err := deploy.Run(src, dst, cfg); err != nil {
+		t.Fatalf("first deploy: %v", err)
+	}
+
+	settingsPath := filepath.Join(dst, ".claude", "settings.json")
+	os.WriteFile(settingsPath, []byte(`{"model":"user-modified"}`), 0644)
+	os.WriteFile(filepath.Join(src, "base", ".claude", "settings.json"), []byte(`{"model":"upstream-update"}`), 0644)
+
+	cfg2, _ := config.Read(filepath.Join(dst, ".claude-setup.yaml"))
+	if err := deploy.RunWithClaude(src, dst, cfg2, "claude", io.Discard, strings.NewReader("ü\n")); err != nil {
+		t.Fatalf("second deploy: %v", err)
+	}
+
+	got, _ := os.ReadFile(settingsPath)
+	content := string(got)
+	if !strings.Contains(content, "upstream-update") {
+		t.Errorf("expected upstream content after überschreiben, got: %q", content)
+	}
+	if strings.Contains(content, "user-modified") {
+		t.Errorf("user content should have been replaced after überschreiben, got: %q", content)
+	}
+}
+
+func TestDeployConflictEmptyInputKeepsUserFile(t *testing.T) {
+	src := t.TempDir()
+	dst := t.TempDir()
+	setupMinimalSource(t, src)
+
+	cfg := config.Config{Version: "1.0", Source: "s", Ref: "r", Profile: "backend", Flavors: []string{}}
+	if err := deploy.Run(src, dst, cfg); err != nil {
+		t.Fatalf("first deploy: %v", err)
+	}
+
+	settingsPath := filepath.Join(dst, ".claude", "settings.json")
+	os.WriteFile(settingsPath, []byte(`{"model":"user-modified"}`), 0644)
+	os.WriteFile(filepath.Join(src, "base", ".claude", "settings.json"), []byte(`{"model":"upstream-update"}`), 0644)
+
+	cfg2, _ := config.Read(filepath.Join(dst, ".claude-setup.yaml"))
+	if err := deploy.RunWithClaude(src, dst, cfg2, "claude", io.Discard, strings.NewReader("\n")); err != nil {
+		t.Fatalf("second deploy: %v", err)
+	}
+
+	kept, _ := os.ReadFile(settingsPath)
+	if string(kept) != `{"model":"user-modified"}` {
+		t.Errorf("expected user content after empty input (default behalten), got: %q", string(kept))
+	}
+}
+
+func TestCopyHooksStatErrorPropagates(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("circular symlinks not reliable on Windows")
+	}
+	src := t.TempDir()
+	dst := t.TempDir()
+	setupMinimalSource(t, src)
+
+	hooksPath := filepath.Join(src, "base", "hooks")
+	if err := os.Symlink(hooksPath, hooksPath); err != nil {
+		t.Skipf("cannot create circular symlink: %v", err)
+	}
+
+	cfg := config.Config{Profile: "backend"}
+	err := deploy.Run(src, dst, cfg)
+	if err == nil {
+		t.Fatal("expected error when hooks dir has unresolvable stat error, got nil")
+	}
+	if !strings.Contains(err.Error(), "hooks-Verzeichnis") {
+		t.Errorf("expected specific stat error message containing 'hooks-Verzeichnis', got: %v", err)
 	}
 }
 
