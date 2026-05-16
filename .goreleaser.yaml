@@ -58,13 +58,15 @@ brews:
     test: |
       system "#{bin}/claude-setup", "--version"
 
-chocolateys:
-  - name: claude-setup
-    title: claude-setup
-    owners: jmt-labs
-    description: Reproducible Claude Code setup for any repository.
-    license_url: https://github.com/jmt-labs/claude-setup/blob/main/LICENSE
-    require_license_acceptance: false
-    api_key: "{{ .Env.CHOCOLATEY_API_KEY }}"
-    source_repo: "https://push.chocolatey.org/"
-    skip_publish: false
+# TODO: Chocolatey-Publishing aktivieren, sobald Account auf community.chocolatey.org angelegt
+#       und CHOCOLATEY_API_KEY als CI Secret gesetzt ist.
+# chocolateys:
+#   - name: claude-setup
+#     title: claude-setup
+#     owners: jmt-labs
+#     description: Reproducible Claude Code setup for any repository.
+#     license_url: https://github.com/jmt-labs/claude-setup/blob/main/LICENSE
+#     require_license_acceptance: false
+#     api_key: "{{ .Env.CHOCOLATEY_API_KEY }}"
+#     source_repo: "https://push.chocolatey.org/"
+#     skip_publish: false
