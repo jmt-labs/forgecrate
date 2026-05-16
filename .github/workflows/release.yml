@@ -31,11 +31,63 @@ jobs:
 
       - run: make test
       - run: make test-e2e
-      - run: make release
 
-      - name: GitHub Release erstellen
-        uses: softprops/action-gh-release@v2
+      - name: Tag setzen
+        run: |
+          git tag ${{ github.event.inputs.version }}
+          git push origin ${{ github.event.inputs.version }}
+
+      - name: GoReleaser
+        uses: goreleaser/goreleaser-action@v6
         with:
-          tag_name: ${{ github.event.inputs.version }}
-          name: ${{ github.event.inputs.version }}
-          files: dist/*
+          version: latest
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          CHOCOLATEY_API_KEY: ${{ secrets.CHOCOLATEY_API_KEY }}
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
+
+  publish-apt:
+    name: Publish apt repository
+    needs: release
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: jmt-labs/apt
+          ref: gh-pages
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+
+      - name: Install reprepro
+        run: sudo apt-get install -y reprepro
+
+      - name: Import GPG key
+        run: |
+          echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --batch --import
+
+      - name: Download .deb packages from release
+        run: |
+          mkdir -p /tmp/debs
+          gh release download ${{ github.event.inputs.version }} \
+            --repo jmt-labs/claude-setup \
+            --pattern "*.deb" \
+            --dir /tmp/debs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Add packages to apt repository
+        run: |
+          for deb in /tmp/debs/*.deb; do
+            reprepro -b . includedeb stable "$deb"
+          done
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Release ${{ github.event.inputs.version }}" || echo "Nothing to commit"
+          git push
