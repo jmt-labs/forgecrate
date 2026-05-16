@@ -46,6 +46,19 @@ Der Hauptagent kann bei Bedarf eigenständig von diesen Empfehlungen abweichen.
 | Reviewer | `superpowers:requesting-code-review` | `claude-sonnet-4-6` | medium |
 | QA / Abschluss | `superpowers:verification-before-completion` | `claude-sonnet-4-6` | medium |
 | Debugger | `superpowers:systematic-debugging` | `claude-sonnet-4-6` | medium |
+
+## Parallelisierung & Isolation
+
+Subagenten werden proaktiv parallelisiert und isoliert — ohne explizite Aufforderung.
+
+| Situation | Mechanismus | Anleitung |
+|---|---|---|
+| Task dauert >1 min oder Ergebnis nicht sofort nötig | `run_in_background: true` | `superpowers:dispatching-parallel-agents` |
+| Feature-Branch, Multi-File-Änderung, langer Plan | `isolation: "worktree"` | `superpowers:using-git-worktrees` |
+| Mehrere unabhängige Tasks gleichzeitig | beide kombinieren | beide Skills |
+
+Im Zweifelsfall Background nutzen — warten ist kein Default.
+
 ## MCP Server
 
 Vier MCP-Server sind im base layer deklariert und stehen automatisch zur Verfügung.
