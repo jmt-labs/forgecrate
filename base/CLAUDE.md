@@ -33,6 +33,23 @@ Ticket-Kommentare immer kurz (ein Satz): Fortschritt, Pfad, oder Ergebnis.
 - YAGNI: keine ungefragten Features
 - Änderungen immer über Branch + PR, nie direkt auf `main`
 
+## Konfliktbehandlung beim Deploy (`claude-setup update`)
+
+Wenn `claude-setup update` eine verwaltete Datei (z. B. `settings.json`, Hooks) aktualisieren will und die lokale Version seit dem letzten Deploy manuell geändert wurde, entsteht ein Konflikt. Das Tool zeigt:
+
+```
+KONFLIKT: .claude/settings.json
+  Deine Version: <erste Zeile der lokalen Datei>
+  Neue Version:  <erste Zeile des Upstream>
+  [ü]berschreiben / [b]ehalten (Standard: behalten):
+```
+
+**Entscheidung:**
+- `ü` oder `u` — Upstream-Version übernehmen, lokale Änderungen gehen verloren
+- `b` oder Enter — Lokale Version behalten, Upstream-Update wird übersprungen
+
+**Faustregel:** Lokale Overrides in die CUSTOM-Sektion der CLAUDE.md oder ein separates, nicht-verwaltetes File auslagern — so entsteht kein Konflikt.
+
 ## Team-Rollen & Subagent-Konfiguration
 
 Der Hauptagent koordiniert als Team-Lead. Subagenten übernehmen Rollen entsprechend ihrer Aufgabe.
