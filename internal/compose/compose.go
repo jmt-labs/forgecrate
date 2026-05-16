@@ -31,6 +31,17 @@ func Run(req Request) error {
 	return nil
 }
 
+// RunSingle führt compose für eine einzelne Markdown-Datei aus.
+// Gibt os.ErrNotExist zurück wenn keine Layers vorhanden sind.
+func RunSingle(req Request, filename string) error {
+	return composeMarkdown(req, filename)
+}
+
+// RunCommands deployt Slash-Commands aus allen Layern nach DestDir.
+func RunCommands(req Request) error {
+	return composeSkills(req)
+}
+
 func composeMarkdown(req Request, filename string) error {
 	layers := collectMarkdownLayers(req, filename)
 	if len(layers) == 0 {

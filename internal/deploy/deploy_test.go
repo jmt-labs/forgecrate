@@ -2,6 +2,7 @@ package deploy_test
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -63,7 +64,7 @@ func TestRunInstallsExtensions(t *testing.T) {
 	os.WriteFile(filepath.Join(baseDir, "extensions.yaml"), []byte("plugins:\n  - name: superpowers\n    source: claude-plugins-official/superpowers\n"), 0644)
 
 	cfg := config.Config{Profile: "backend"}
-	if err := deploy.RunWithClaude(src, dst, cfg, fakeClaude); err != nil {
+	if err := deploy.RunWithClaude(src, dst, cfg, fakeClaude, io.Discard); err != nil {
 		t.Fatalf("Run: %v", err)
 	}
 

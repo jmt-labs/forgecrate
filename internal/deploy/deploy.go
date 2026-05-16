@@ -13,10 +13,10 @@ import (
 )
 
 func Run(sourceDir, destDir string, cfg config.Config) error {
-	return RunWithClaude(sourceDir, destDir, cfg, "claude")
+	return RunWithClaude(sourceDir, destDir, cfg, "claude", os.Stdout)
 }
 
-func RunWithClaude(sourceDir, destDir string, cfg config.Config, claudeBin string) error {
+func RunWithClaude(sourceDir, destDir string, cfg config.Config, claudeBin string, out io.Writer) error {
 	req := compose.Request{
 		SourceDir:    sourceDir,
 		DestDir:      destDir,
@@ -31,23 +31,23 @@ func RunWithClaude(sourceDir, destDir string, cfg config.Config, claudeBin strin
 		return fmt.Errorf("compose settings: %w", err)
 	}
 	settingsPath := filepath.Join(destDir, ".claude", "settings.json")
-	if err := deployFile(settingsPath, ".claude/settings.json", settingsContent, &cfg, os.Stdout, os.Stdin); err != nil {
+	if err := deployFile(settingsPath, ".claude/settings.json", settingsContent, &cfg, out, os.Stdin); err != nil {
 		return fmt.Errorf("settings: %w", err)
 	}
 
-	if err := compose.Run(req); err != nil {
+	if err := composeWithLog(req, out); err != nil {
 		return fmt.Errorf("compose: %w", err)
 	}
 
-	if err := copyHooks(sourceDir, destDir, &cfg); err != nil {
+	if err := copyHooks(sourceDir, destDir, &cfg, out); err != nil {
 		return fmt.Errorf("hooks: %w", err)
 	}
 
-	if err := installExtensions(sourceDir, destDir, cfg, claudeBin); err != nil {
+	if err := installExtensions(sourceDir, destDir, cfg, claudeBin, out); err != nil {
 		return fmt.Errorf("extensions: %w", err)
 	}
 
-	if err := copySkills(sourceDir, destDir, cfg); err != nil {
+	if err := copySkills(sourceDir, destDir, cfg, out); err != nil {
 		return fmt.Errorf("skills: %w", err)
 	}
 
@@ -59,7 +59,35 @@ func RunWithClaude(sourceDir, destDir string, cfg config.Config, claudeBin strin
 	return nil
 }
 
-func installExtensions(sourceDir, destDir string, cfg config.Config, claudeBin string) error {
+func composeWithLog(req compose.Request, out io.Writer) error {
+	for _, f := range []string{"CLAUDE.md", "AGENTS.md"} {
+		destPath := filepath.Join(req.DestDir, f)
+		before := fileHash(destPath)
+		if err := compose.RunSingle(req, f); err != nil {
+			if os.IsNotExist(err) {
+				continue
+			}
+			return fmt.Errorf("%s: %w", f, err)
+		}
+		after := fileHash(destPath)
+		if before == after {
+			fmt.Fprintf(out, "  skipped   %s\n", f)
+		} else {
+			fmt.Fprintf(out, "  written   %s\n", f)
+		}
+	}
+	return compose.RunCommands(req)
+}
+
+func fileHash(path string) string {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return ""
+	}
+	return hashBytes(data)
+}
+
+func installExtensions(sourceDir, destDir string, cfg config.Config, claudeBin string, out io.Writer) error {
 	paths := []string{
 		filepath.Join(sourceDir, "base", "extensions.yaml"),
 		filepath.Join(sourceDir, "profiles", cfg.Profile, "extensions.yaml"),
@@ -81,10 +109,10 @@ func installExtensions(sourceDir, destDir string, cfg config.Config, claudeBin s
 	}
 
 	merged := extensions.Merge(layers)
-	return extensions.Installer{Claude: claudeBin, Dir: destDir}.Install(merged)
+	return extensions.Installer{Claude: claudeBin, Dir: destDir, Out: out}.Install(merged)
 }
 
-func copySkills(sourceDir, destDir string, cfg config.Config) error {
+func copySkills(sourceDir, destDir string, cfg config.Config, out io.Writer) error {
 	dirs := []string{
 		filepath.Join(sourceDir, "base", "skills"),
 		filepath.Join(sourceDir, "profiles", cfg.Profile, "skills"),
@@ -116,6 +144,7 @@ func copySkills(sourceDir, destDir string, cfg config.Config) error {
 			if err := copyDir(src, dst); err != nil {
 				return fmt.Errorf("copy skill %s: %w", name, err)
 			}
+			fmt.Fprintf(out, "  skill     %s\n", name)
 		}
 	}
 	return nil
@@ -158,7 +187,7 @@ func copyFile(src, dst string) (err error) {
 	return nil
 }
 
-func copyHooks(src, dst string, cfg *config.Config) error {
+func copyHooks(src, dst string, cfg *config.Config, out io.Writer) error {
 	hooksDir := filepath.Join(src, "base", "hooks")
 	if _, err := os.Stat(hooksDir); os.IsNotExist(err) {
 		log.Printf("warn: hooks-Verzeichnis nicht gefunden (%s) — Hook-Dateien werden nicht deployt, aber settings.json referenziert sie", hooksDir)
@@ -183,7 +212,7 @@ func copyHooks(src, dst string, cfg *config.Config) error {
 		}
 
 		relKey := filepath.Join(".claude", "hooks", rel)
-		if err := deployFile(dstPath, relKey, content, cfg, os.Stdout, os.Stdin); err != nil {
+		if err := deployFile(dstPath, relKey, content, cfg, out, os.Stdin); err != nil {
 			return err
 		}
 		return os.Chmod(dstPath, 0755)

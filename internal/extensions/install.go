@@ -1,6 +1,8 @@
 package extensions
 
 import (
+	"fmt"
+	"io"
 	"log"
 	"os"
 	"os/exec"
@@ -9,7 +11,8 @@ import (
 
 type Installer struct {
 	Claude string
-	Dir    string // git repo root of the target project
+	Dir    string    // git repo root of the target project
+	Out    io.Writer // progress output; nil = silent
 }
 
 func NewInstaller() Installer {
@@ -21,15 +24,23 @@ func (i Installer) Install(ext Extensions) error {
 	if claude == "" {
 		claude = "claude"
 	}
+	out := i.Out
+	if out == nil {
+		out = io.Discard
+	}
 
 	for _, p := range ext.Plugins {
 		cmd := exec.Command(claude, "plugin", "install", "--scope", "project", p.Source)
 		cmd.Dir = i.Dir
-		if out, err := cmd.CombinedOutput(); err != nil {
-			msg := string(out)
-			if !strings.Contains(msg, "not found in any configured marketplace") {
+		if cmdOut, err := cmd.CombinedOutput(); err != nil {
+			msg := string(cmdOut)
+			if strings.Contains(msg, "not found in any configured marketplace") {
+				fmt.Fprintf(out, "  skipped   plugin:%s  (not in marketplace)\n", p.Name)
+			} else {
 				log.Printf("warn: plugin install %s: %v: %s", p.Name, err, msg)
 			}
+		} else {
+			fmt.Fprintf(out, "  plugin    %s\n", p.Name)
 		}
 	}
 
@@ -48,11 +59,15 @@ func (i Installer) Install(ext Extensions) error {
 		cmd := exec.Command(claude, args...)
 		cmd.Dir = i.Dir
 		cmd.Env = append(os.Environ(), envPairs(m.Env)...)
-		if out, err := cmd.CombinedOutput(); err != nil {
-			msg := string(out)
-			if !strings.Contains(msg, "already exists") {
+		if cmdOut, err := cmd.CombinedOutput(); err != nil {
+			msg := string(cmdOut)
+			if strings.Contains(msg, "already exists") {
+				fmt.Fprintf(out, "  skipped   mcp:%s  (already configured)\n", m.Name)
+			} else {
 				log.Printf("warn: mcp add %s: %v: %s", m.Name, err, msg)
 			}
+		} else {
+			fmt.Fprintf(out, "  mcp       %s\n", m.Name)
 		}
 	}
 	return nil
