@@ -8,10 +8,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var version = "dev"
+
 func main() {
 	root := &cobra.Command{
-		Use:   "claude-setup",
-		Short: "Reproduzierbares Claude-Setup für Repos",
+		Use:     "claude-setup",
+		Short:   "Reproduzierbares Claude-Setup für Repos",
+		Version: version,
 	}
 	root.AddCommand(newInitCmd())
 	root.AddCommand(newUpdateCmd())
