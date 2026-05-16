@@ -4,3 +4,4 @@
 - Kein Produktionscode ohne vorherigen Test
 - Test-Namen beschreiben Verhalten, nicht Implementierung
 - Mocks nur an Systemgrenzen (externe APIs, Datenbanken)
+- Für jeden gefundenen Bug: Regressionstest vor dem Fix
