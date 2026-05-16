@@ -1,6 +1,6 @@
 plugins:
   - name: pr-review-toolkit
-    source: claude-plugins-official/pr-review-toolkit
+    source: pr-review-toolkit
 
   - name: code-simplifier
-    source: claude-plugins-official/code-simplifier
+    source: code-simplifier

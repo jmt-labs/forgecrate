@@ -40,7 +40,7 @@ func TestInstallerPlugin(t *testing.T) {
 	inst := extensions.Installer{Claude: claude}
 	ext := extensions.Extensions{
 		Plugins: []extensions.Plugin{
-			{Name: "superpowers", Source: "claude-plugins-official/superpowers"},
+			{Name: "superpowers", Source: "superpowers"},
 		},
 	}
 
@@ -49,7 +49,7 @@ func TestInstallerPlugin(t *testing.T) {
 	}
 
 	data, _ := os.ReadFile(argsFile)
-	if !strings.Contains(string(data), "plugin install --scope project claude-plugins-official/superpowers") {
+	if !strings.Contains(string(data), "plugin install --scope project superpowers") {
 		t.Errorf("expected project-scoped plugin install call, got: %q", string(data))
 	}
 }
@@ -193,12 +193,12 @@ func TestInstallerMCPAlreadyExistsNoWarn(t *testing.T) {
 }
 
 func TestInstallerPluginNotFoundNoWarn(t *testing.T) {
-	claude := fakeClaudeWithOutput(t, `Plugin "claude-plugins-official/superpowers" not found in any configured marketplace`)
+	claude := fakeClaudeWithOutput(t, `Plugin "unknown-plugin" not found in any configured marketplace`)
 
 	inst := extensions.Installer{Claude: claude}
 	ext := extensions.Extensions{
 		Plugins: []extensions.Plugin{
-			{Name: "superpowers", Source: "claude-plugins-official/superpowers"},
+			{Name: "unknown-plugin", Source: "unknown-plugin"},
 		},
 	}
 

@@ -1,12 +1,12 @@
 plugins:
   - name: frontend-design
-    source: claude-plugins-official/frontend-design
+    source: frontend-design
 
   - name: typescript-lsp
-    source: claude-plugins-official/typescript-lsp
+    source: typescript-lsp
 
   - name: playwright
-    source: claude-plugins-official/playwright
+    source: playwright
 
 mcp:
   - name: playwright
