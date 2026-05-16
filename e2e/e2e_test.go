@@ -293,3 +293,39 @@ func TestConflictDetectionTracksHashes(t *testing.T) {
 		t.Error("hash changed on clean second deploy")
 	}
 }
+
+func TestDeployIncludesGetbetterFlavorSkill(t *testing.T) {
+	dst := t.TempDir()
+	cfg := config.Config{
+		Version: "1.0",
+		Source:  "github.com/jmt-labs/claude-setup",
+		Ref:     "main",
+		Profile: "backend",
+		Flavors: []string{"getbetter"},
+	}
+	if err := deploy.Run(localSource(t), dst, cfg); err != nil {
+		t.Fatalf("deploy.Run: %v", err)
+	}
+	path := filepath.Join(dst, ".claude", "skills", "getbetter", "SKILL.md")
+	if _, err := os.Stat(path); err != nil {
+		t.Errorf("getbetter flavor skill missing: getbetter")
+	}
+}
+
+func TestDeployIncludesGetbetterCommand(t *testing.T) {
+	dst := t.TempDir()
+	cfg := config.Config{
+		Version: "1.0",
+		Source:  "github.com/jmt-labs/claude-setup",
+		Ref:     "main",
+		Profile: "backend",
+		Flavors: []string{"getbetter"},
+	}
+	if err := deploy.Run(localSource(t), dst, cfg); err != nil {
+		t.Fatalf("deploy.Run: %v", err)
+	}
+	path := filepath.Join(dst, ".claude", "commands", "claude-setup-getbetter.md")
+	if _, err := os.Stat(path); err != nil {
+		t.Errorf("getbetter command missing: claude-setup-getbetter.md")
+	}
+}
