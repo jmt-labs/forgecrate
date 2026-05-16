@@ -1,15 +1,15 @@
 plugins:
   - name: superpowers
-    source: claude-plugins-official/superpowers
+    source: superpowers
 
   - name: commit-commands
-    source: claude-plugins-official/commit-commands
+    source: commit-commands
 
   - name: security-guidance
-    source: claude-plugins-official/security-guidance
+    source: security-guidance
 
   - name: claude-md-management
-    source: claude-plugins-official/claude-md-management
+    source: claude-md-management
 
 mcp:
   - name: github
