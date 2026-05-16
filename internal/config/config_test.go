@@ -4,6 +4,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/jmt-labs/claude-setup/internal/config"
@@ -51,5 +52,53 @@ func TestReadMissing(t *testing.T) {
 	_, err := config.Read("/nonexistent/.claude-setup.yaml")
 	if !errors.Is(err, os.ErrNotExist) {
 		t.Errorf("expected ErrNotExist, got %v", err)
+	}
+}
+
+func TestDeployedFilesRoundtrip(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, ".claude-setup.yaml")
+
+	cfg := config.Config{
+		Version: "1.0",
+		Source:  "github.com/jmt-labs/claude-setup",
+		Ref:     "main",
+		Profile: "backend",
+		Flavors: []string{"tdd"},
+		DeployedFiles: map[string]string{
+			".claude/settings.json":     "sha256:abc123",
+			".claude/hooks/pre-tool.sh": "sha256:def456",
+		},
+	}
+
+	if err := config.Write(path, cfg); err != nil {
+		t.Fatalf("Write: %v", err)
+	}
+
+	got, err := config.Read(path)
+	if err != nil {
+		t.Fatalf("Read: %v", err)
+	}
+
+	if got.DeployedFiles[".claude/settings.json"] != "sha256:abc123" {
+		t.Errorf("settings.json hash lost: %q", got.DeployedFiles[".claude/settings.json"])
+	}
+	if got.DeployedFiles[".claude/hooks/pre-tool.sh"] != "sha256:def456" {
+		t.Errorf("pre-tool.sh hash lost: %q", got.DeployedFiles[".claude/hooks/pre-tool.sh"])
+	}
+}
+
+func TestDeployedFilesOmittedWhenEmpty(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, ".claude-setup.yaml")
+
+	cfg := config.Config{Version: "1.0", Source: "s", Ref: "r", Profile: "p"}
+	if err := config.Write(path, cfg); err != nil {
+		t.Fatalf("Write: %v", err)
+	}
+
+	data, _ := os.ReadFile(path)
+	if strings.Contains(string(data), "deployed_files") {
+		t.Error("deployed_files should be omitted when empty")
 	}
 }

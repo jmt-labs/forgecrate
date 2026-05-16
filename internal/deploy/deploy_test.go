@@ -150,6 +150,59 @@ func TestCopySkillsProfileAndFlavor(t *testing.T) {
 	}
 }
 
+func setupMinimalSource(t *testing.T, src string) {
+	t.Helper()
+	// base settings.json
+	settingsDir := filepath.Join(src, "base", ".claude")
+	os.MkdirAll(settingsDir, 0755)
+	os.WriteFile(filepath.Join(settingsDir, "settings.json"), []byte(`{"model":"claude-sonnet-4-6"}`), 0644)
+	// base CLAUDE.md
+	os.MkdirAll(filepath.Join(src, "base"), 0755)
+	os.WriteFile(filepath.Join(src, "base", "CLAUDE.md"), []byte("# Base\n<!-- CUSTOM:BEGIN -->\n<!-- CUSTOM:END -->\n"), 0644)
+}
+
+func TestDeployTracksSettingsHash(t *testing.T) {
+	src := t.TempDir()
+	dst := t.TempDir()
+	setupMinimalSource(t, src)
+
+	cfg := config.Config{Version: "1.0", Source: "s", Ref: "r", Profile: "backend", Flavors: []string{}}
+	if err := deploy.Run(src, dst, cfg); err != nil {
+		t.Fatalf("first deploy: %v", err)
+	}
+
+	written, err := config.Read(filepath.Join(dst, ".claude-setup.yaml"))
+	if err != nil {
+		t.Fatalf("read config: %v", err)
+	}
+	if written.DeployedFiles[".claude/settings.json"] == "" {
+		t.Error("settings.json hash not tracked after deploy")
+	}
+}
+
+func TestDeploySecondRunIsStable(t *testing.T) {
+	src := t.TempDir()
+	dst := t.TempDir()
+	setupMinimalSource(t, src)
+
+	cfg := config.Config{Version: "1.0", Source: "s", Ref: "r", Profile: "backend", Flavors: []string{}}
+	if err := deploy.Run(src, dst, cfg); err != nil {
+		t.Fatalf("first deploy: %v", err)
+	}
+
+	written, _ := config.Read(filepath.Join(dst, ".claude-setup.yaml"))
+	hashBefore := written.DeployedFiles[".claude/settings.json"]
+
+	if err := deploy.Run(src, dst, written); err != nil {
+		t.Fatalf("second deploy: %v", err)
+	}
+
+	after, _ := config.Read(filepath.Join(dst, ".claude-setup.yaml"))
+	if after.DeployedFiles[".claude/settings.json"] != hashBefore {
+		t.Error("hash changed on clean second deploy — should be stable")
+	}
+}
+
 func writeFile(t *testing.T, base, rel, content string) {
 	t.Helper()
 	path := filepath.Join(base, filepath.FromSlash(rel))

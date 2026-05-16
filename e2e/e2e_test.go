@@ -257,6 +257,43 @@ func TestProfileFlavorCommandsDeployed(t *testing.T) {
 	}
 }
 
+func TestConflictDetectionTracksHashes(t *testing.T) {
+	dst := t.TempDir()
+	cfg := config.Config{
+		Version: "1.0",
+		Source:  "github.com/jmt-labs/claude-setup",
+		Ref:     "main",
+		Profile: "backend",
+		Flavors: []string{},
+	}
+
+	// Erster Deploy — befüllt deployed_files
+	if err := deploy.Run(localSource(t), dst, cfg); err != nil {
+		t.Fatalf("first deploy: %v", err)
+	}
+
+	yamlPath := filepath.Join(dst, ".claude-setup.yaml")
+	written, err := config.Read(yamlPath)
+	if err != nil {
+		t.Fatalf("read config: %v", err)
+	}
+	if written.DeployedFiles[".claude/settings.json"] == "" {
+		t.Error("settings.json hash not tracked after first deploy")
+	}
+	if written.DeployedFiles[".claude/hooks/prompt-submit.sh"] == "" {
+		t.Error("prompt-submit.sh hash not tracked after first deploy")
+	}
+
+	// Zweiter Deploy ohne Änderung — Hashes bleiben stabil
+	if err := deploy.Run(localSource(t), dst, written); err != nil {
+		t.Fatalf("second deploy: %v", err)
+	}
+	after, _ := config.Read(yamlPath)
+	if after.DeployedFiles[".claude/settings.json"] != written.DeployedFiles[".claude/settings.json"] {
+		t.Error("hash changed on clean second deploy")
+	}
+}
+
 func TestDeployIncludesGetbetterFlavorSkill(t *testing.T) {
 	dst := t.TempDir()
 	cfg := config.Config{
