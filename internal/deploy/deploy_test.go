@@ -64,7 +64,7 @@ func TestRunInstallsExtensions(t *testing.T) {
 	os.WriteFile(filepath.Join(baseDir, "extensions.yaml"), []byte("plugins:\n  - name: superpowers\n    source: claude-plugins-official/superpowers\n"), 0644)
 
 	cfg := config.Config{Profile: "backend"}
-	if err := deploy.RunWithClaude(src, dst, cfg, fakeClaude, io.Discard); err != nil {
+	if err := deploy.RunWithClaude(src, dst, cfg, fakeClaude, io.Discard, strings.NewReader("")); err != nil {
 		t.Fatalf("Run: %v", err)
 	}
 
@@ -217,6 +217,46 @@ func TestCopyHooksMissingDirSucceedsWithoutHookFiles(t *testing.T) {
 
 	if _, err := os.Stat(filepath.Join(dst, ".claude", "hooks", "pre-tool.sh")); err == nil {
 		t.Error("pre-tool.sh should not exist when source has no hooks dir")
+	}
+}
+
+func TestDeployConflictIsShown(t *testing.T) {
+	src := t.TempDir()
+	dst := t.TempDir()
+	setupMinimalSource(t, src)
+
+	// Erster Deploy: Settings werden eingespielt und Hash gespeichert
+	cfg := config.Config{Version: "1.0", Source: "s", Ref: "r", Profile: "backend", Flavors: []string{}}
+	if err := deploy.Run(src, dst, cfg); err != nil {
+		t.Fatalf("first deploy: %v", err)
+	}
+
+	// Nutzer ändert die Datei lokal
+	settingsPath := filepath.Join(dst, ".claude", "settings.json")
+	os.WriteFile(settingsPath, []byte(`{"model":"user-modified"}`), 0644)
+
+	// Upstream bekommt eine andere Änderung
+	os.WriteFile(filepath.Join(src, "base", ".claude", "settings.json"), []byte(`{"model":"upstream-update"}`), 0644)
+
+	// Zweiter Deploy: Konflikt erwartet — Nutzer wählt "behalten"
+	cfg2, _ := config.Read(filepath.Join(dst, ".claude-setup.yaml"))
+	var out strings.Builder
+	if err := deploy.RunWithClaude(src, dst, cfg2, "claude", &out, strings.NewReader("b\n")); err != nil {
+		t.Fatalf("second deploy: %v", err)
+	}
+
+	output := out.String()
+	if !strings.Contains(output, "KONFLIKT") {
+		t.Errorf("Konfliktmeldung fehlt in der Ausgabe:\n%s", output)
+	}
+	if !strings.Contains(output, ".claude/settings.json") {
+		t.Errorf("Dateiname fehlt in der Konfliktmeldung:\n%s", output)
+	}
+
+	// Nutzer-Version muss erhalten bleiben
+	kept, _ := os.ReadFile(settingsPath)
+	if string(kept) != `{"model":"user-modified"}` {
+		t.Errorf("Datei hätte erhalten bleiben sollen, aber: %q", string(kept))
 	}
 }
 

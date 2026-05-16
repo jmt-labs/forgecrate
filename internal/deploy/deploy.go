@@ -12,10 +12,10 @@ import (
 )
 
 func Run(sourceDir, destDir string, cfg config.Config) error {
-	return RunWithClaude(sourceDir, destDir, cfg, "claude", os.Stdout)
+	return RunWithClaude(sourceDir, destDir, cfg, "claude", os.Stdout, os.Stdin)
 }
 
-func RunWithClaude(sourceDir, destDir string, cfg config.Config, claudeBin string, out io.Writer) error {
+func RunWithClaude(sourceDir, destDir string, cfg config.Config, claudeBin string, out io.Writer, in io.Reader) error {
 	req := compose.Request{
 		SourceDir:    sourceDir,
 		DestDir:      destDir,
@@ -30,7 +30,7 @@ func RunWithClaude(sourceDir, destDir string, cfg config.Config, claudeBin strin
 		return fmt.Errorf("compose settings: %w", err)
 	}
 	settingsPath := filepath.Join(destDir, ".claude", "settings.json")
-	if err := deployFile(settingsPath, ".claude/settings.json", settingsContent, &cfg, out, os.Stdin); err != nil {
+	if err := deployFile(settingsPath, ".claude/settings.json", settingsContent, &cfg, out, in); err != nil {
 		return fmt.Errorf("settings: %w", err)
 	}
 
@@ -38,7 +38,7 @@ func RunWithClaude(sourceDir, destDir string, cfg config.Config, claudeBin strin
 		return fmt.Errorf("compose: %w", err)
 	}
 
-	if err := copyHooks(sourceDir, destDir, &cfg, out); err != nil {
+	if err := copyHooks(sourceDir, destDir, &cfg, out, in); err != nil {
 		return fmt.Errorf("hooks: %w", err)
 	}
 
@@ -186,7 +186,7 @@ func copyFile(src, dst string) (err error) {
 	return nil
 }
 
-func copyHooks(src, dst string, cfg *config.Config, out io.Writer) error {
+func copyHooks(src, dst string, cfg *config.Config, out io.Writer, in io.Reader) error {
 	hooksDir := filepath.Join(src, "base", "hooks")
 	if _, err := os.Stat(hooksDir); os.IsNotExist(err) {
 		fmt.Fprintf(out, "🔵 hooks: kein Verzeichnis vorhanden, wird übersprungen\n")
@@ -211,7 +211,7 @@ func copyHooks(src, dst string, cfg *config.Config, out io.Writer) error {
 		}
 
 		relKey := filepath.Join(".claude", "hooks", rel)
-		if err := deployFile(dstPath, relKey, content, cfg, out, os.Stdin); err != nil {
+		if err := deployFile(dstPath, relKey, content, cfg, out, in); err != nil {
 			return err
 		}
 		return os.Chmod(dstPath, 0755)
