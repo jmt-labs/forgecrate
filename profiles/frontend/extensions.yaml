@@ -7,3 +7,8 @@ plugins:
 
   - name: playwright
     source: claude-plugins-official/playwright
+
+mcp:
+  - name: playwright
+    command: npx
+    args: ["-y", "@playwright/mcp"]

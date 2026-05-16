@@ -377,6 +377,54 @@ func TestDeployIncludesContext7MCP(t *testing.T) {
 	}
 }
 
+func TestDeployIncludesPlaywrightMCPFrontend(t *testing.T) {
+	dst := t.TempDir()
+	cfg := config.Config{
+		Version: "1.0",
+		Source:  "github.com/jmt-labs/claude-setup",
+		Ref:     "main",
+		Profile: "frontend",
+		Flavors: []string{},
+	}
+	if err := deploy.Run(localSource(t), dst, cfg); err != nil {
+		t.Fatalf("deploy.Run: %v", err)
+	}
+	mcpJson, err := os.ReadFile(filepath.Join(dst, ".mcp.json"))
+	if err != nil {
+		t.Fatalf(".mcp.json missing: %v", err)
+	}
+	if !strings.Contains(string(mcpJson), `"playwright"`) {
+		t.Error(".mcp.json missing playwright MCP server entry for frontend profile")
+	}
+	if !strings.Contains(string(mcpJson), `@playwright/mcp`) {
+		t.Error(".mcp.json missing @playwright/mcp npx command for frontend profile")
+	}
+}
+
+func TestDeployIncludesPlaywrightMCPFullstack(t *testing.T) {
+	dst := t.TempDir()
+	cfg := config.Config{
+		Version: "1.0",
+		Source:  "github.com/jmt-labs/claude-setup",
+		Ref:     "main",
+		Profile: "fullstack",
+		Flavors: []string{},
+	}
+	if err := deploy.Run(localSource(t), dst, cfg); err != nil {
+		t.Fatalf("deploy.Run: %v", err)
+	}
+	mcpJson, err := os.ReadFile(filepath.Join(dst, ".mcp.json"))
+	if err != nil {
+		t.Fatalf(".mcp.json missing: %v", err)
+	}
+	if !strings.Contains(string(mcpJson), `"playwright"`) {
+		t.Error(".mcp.json missing playwright MCP server entry for fullstack profile")
+	}
+	if !strings.Contains(string(mcpJson), `@playwright/mcp`) {
+		t.Error(".mcp.json missing @playwright/mcp npx command for fullstack profile")
+	}
+}
+
 func TestDeployIncludesParallelisierungSection(t *testing.T) {
 	dst := t.TempDir()
 	cfg := config.Config{
