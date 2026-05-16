@@ -12,6 +12,7 @@ Eigene Anpassungen gehören in den CUSTOM-Abschnitt.
 | Implementierung | `superpowers:test-driven-development` | MUSS vor Code aufgerufen werden |
 | Vor Commit/PR | `superpowers:verification-before-completion` | MUSS ausgeführt werden |
 | Debug | `superpowers:systematic-debugging` | MUSS vor Fix aufgerufen werden |
+| Bug gefunden (nach Debug) | `superpowers:test-driven-development` | Regressionstest schreiben, BEVOR der Fix committed wird |
 
 ## Entwicklungs-Workflow
 
