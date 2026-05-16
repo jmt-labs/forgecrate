@@ -4,7 +4,15 @@ test:
 	go test ./internal/... ./cmd/...
 
 test-e2e:
-	go test ./e2e/...
+	@if [ -z "$$CLAUDE_BIN" ]; then \
+		FAKE=$$(mktemp); \
+		printf '#!/bin/sh\nexit 0\n' > "$$FAKE"; \
+		chmod +x "$$FAKE"; \
+		CLAUDE_BIN="$$FAKE" go test ./e2e/...; \
+		EXIT=$$?; rm -f "$$FAKE"; exit $$EXIT; \
+	else \
+		go test ./e2e/...; \
+	fi
 
 quality:
 	go vet ./...

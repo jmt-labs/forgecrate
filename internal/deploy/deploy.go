@@ -12,7 +12,11 @@ import (
 )
 
 func Run(sourceDir, destDir string, cfg config.Config) error {
-	return RunWithClaude(sourceDir, destDir, cfg, "claude", os.Stdout, os.Stdin)
+	claudeBin := os.Getenv("CLAUDE_BIN")
+	if claudeBin == "" {
+		claudeBin = "claude"
+	}
+	return RunWithClaude(sourceDir, destDir, cfg, claudeBin, os.Stdout, os.Stdin)
 }
 
 func RunWithClaude(sourceDir, destDir string, cfg config.Config, claudeBin string, out io.Writer, in io.Reader) error {
@@ -108,6 +112,9 @@ func installExtensions(sourceDir, destDir string, cfg config.Config, claudeBin s
 	}
 
 	merged := extensions.Merge(layers)
+	if err := extensions.WriteMCPJson(destDir, merged); err != nil {
+		return fmt.Errorf("write .mcp.json: %w", err)
+	}
 	return extensions.Installer{Claude: claudeBin, Dir: destDir, Out: out}.Install(merged)
 }
 
