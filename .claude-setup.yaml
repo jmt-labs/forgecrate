@@ -5,3 +5,7 @@ profile: backend
 flavors:
     - strict-review
     - tdd
+deployed_files:
+    .claude/hooks/pre-tool.sh: sha256:ad5a7932211d43dda7785ce55c5cac38517a11cc5def59ffd41f988690764fed
+    .claude/hooks/prompt-submit.sh: sha256:7d64a6643c4600023fe82eddacc008f770be448d866bb21e7bb70287526e6f01
+    .claude/settings.json: sha256:92aef9f365c8993740ccaa2ff8cdd57b9403f99cc9934d83654591c66101a00f
