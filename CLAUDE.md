@@ -13,6 +13,7 @@ Eigene Anpassungen gehören in den CUSTOM-Abschnitt.
 | Implementierung | `superpowers:test-driven-development` | MUSS vor Code aufgerufen werden |
 | Vor Commit/PR | `superpowers:verification-before-completion` | MUSS ausgeführt werden |
 | Debug | `superpowers:systematic-debugging` | MUSS vor Fix aufgerufen werden |
+| Bug gefunden (nach Debug) | `superpowers:test-driven-development` | Regressionstest schreiben, BEVOR der Fix committed wird |
 
 ## Entwicklungs-Workflow
 
@@ -59,6 +60,14 @@ Subagenten werden proaktiv parallelisiert und isoliert — ohne explizite Auffor
 | Mehrere unabhängige Tasks gleichzeitig | beide kombinieren | beide Skills |
 
 Im Zweifelsfall Background nutzen — warten ist kein Default.
+
+### Agenten-Identität
+
+Jeder Subagent bekommt eindeutige Identifikation:
+- **Eindeutigen Namen** — via `description`-Parameter im Agent-Tool-Aufruf (3–5 Wörter, Rolle + Aufgabe)
+- **Eindeutige Farbe** — dynamisch durch FleetView-Dashboard zugewiesen; keine zwei gleichzeitig laufenden Agenten teilen eine Farbe
+
+Dies ermöglicht einfaches Tracking und verhindert Verwechslungen bei parallelen Läufen.
 
 ## MCP Server
 
@@ -130,6 +139,7 @@ Aktuelle Bibliotheks-Dokumentation direkt aus den Source-Repositories abrufen. A
 - Kein Produktionscode ohne vorherigen Test
 - Test-Namen beschreiben Verhalten, nicht Implementierung
 - Mocks nur an Systemgrenzen (externe APIs, Datenbanken)
+- Für jeden gefundenen Bug: Regressionstest vor dem Fix
 <!-- GENERATED:END -->
 
 <!-- CUSTOM:BEGIN -->

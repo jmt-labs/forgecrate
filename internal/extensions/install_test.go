@@ -1,8 +1,10 @@
 package extensions_test
 
 import (
+	"errors"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -204,5 +206,34 @@ func TestInstallerPluginNotFoundReturnsError(t *testing.T) {
 
 	if err := inst.Install(ext); err == nil {
 		t.Fatal("expected error for plugin not found in marketplace, got nil")
+	}
+}
+
+func TestInstallerPluginNotFoundErrorWrapsExitError(t *testing.T) {
+	claude := fakeClaudeWithOutput(t, `Plugin "x" not found in any configured marketplace`)
+	inst := extensions.Installer{Claude: claude}
+	ext := extensions.Extensions{
+		Plugins: []extensions.Plugin{{Name: "x", Source: "x"}},
+	}
+	err := inst.Install(ext)
+	if err == nil {
+		t.Fatal("expected error for plugin not found in marketplace, got nil")
+	}
+	var exitErr *exec.ExitError
+	if !errors.As(err, &exitErr) {
+		t.Errorf("expected wrapped *exec.ExitError so callers can use errors.As, got type %T: %v", err, err)
+	}
+}
+
+func TestInstallerMCPUnexpectedErrorReturnsError(t *testing.T) {
+	claude := fakeClaudeWithOutput(t, "some unexpected mcp configuration error")
+	inst := extensions.Installer{Claude: claude}
+	ext := extensions.Extensions{
+		MCP: []extensions.MCP{
+			{Name: "github", Transport: "http", URL: "https://example.com/mcp"},
+		},
+	}
+	if err := inst.Install(ext); err == nil {
+		t.Fatal("expected error for unexpected MCP failure, got nil")
 	}
 }

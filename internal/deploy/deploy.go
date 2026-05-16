@@ -188,9 +188,12 @@ func copyFile(src, dst string) (err error) {
 
 func copyHooks(src, dst string, cfg *config.Config, out io.Writer, in io.Reader) error {
 	hooksDir := filepath.Join(src, "base", "hooks")
-	if _, err := os.Stat(hooksDir); os.IsNotExist(err) {
-		fmt.Fprintf(out, "🔵 hooks: kein Verzeichnis vorhanden, wird übersprungen\n")
-		return nil
+	if _, err := os.Stat(hooksDir); err != nil {
+		if os.IsNotExist(err) {
+			fmt.Fprintf(out, "🔵 hooks: kein Verzeichnis vorhanden, wird übersprungen\n")
+			return nil
+		}
+		return fmt.Errorf("hooks-Verzeichnis prüfen (%s): %w", hooksDir, err)
 	}
 
 	dstHooks := filepath.Join(dst, ".claude", "hooks")
@@ -212,7 +215,7 @@ func copyHooks(src, dst string, cfg *config.Config, out io.Writer, in io.Reader)
 
 		relKey := filepath.Join(".claude", "hooks", rel)
 		if err := deployFile(dstPath, relKey, content, cfg, out, in); err != nil {
-			return err
+			return fmt.Errorf("%s: %w", rel, err)
 		}
 		return os.Chmod(dstPath, 0755)
 	})
