@@ -9,6 +9,8 @@ builds:
     binary: claude-setup
     env:
       - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{.Version}}
     goos:
       - linux
       - windows
@@ -25,7 +27,7 @@ archives:
     format_overrides:
       - goos: windows
         formats: [zip]
-    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
 
 checksum:
   name_template: "checksums.txt"
@@ -46,6 +48,9 @@ brews:
       owner: jmt-labs
       name: homebrew-tap
       token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
+    commit_author:
+      name: goreleaserbot
+      email: bot@goreleaser.com
     homepage: https://github.com/jmt-labs/claude-setup
     description: Reproducible Claude Code setup for any repository.
     install: |
