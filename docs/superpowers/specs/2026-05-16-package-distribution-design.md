@@ -105,6 +105,42 @@ echo "deb [signed-by=/etc/apt/keyrings/jmt-labs.gpg] https://jmt-labs.github.io/
 sudo apt update && sudo apt install claude-setup
 ```
 
+## User-facing Dokumentation (README.md)
+
+Der bestehende README-Installations-Abschnitt wird grundlegend überarbeitet: klare Tabs/Blöcke pro Paketmanager, copy-paste-ready, englische Sprache (da internationales Publikum).
+
+**Neue Struktur des `## Installation`-Abschnitts:**
+
+```markdown
+## Installation
+
+### Homebrew (macOS / Linux)
+brew tap jmt-labs/tap
+brew install claude-setup
+
+### Chocolatey (Windows)
+choco install claude-setup
+
+### apt (Ubuntu / Debian)
+curl -fsSL https://jmt-labs.github.io/apt/KEY.gpg \
+  | sudo gpg --dearmor -o /etc/apt/keyrings/jmt-labs.gpg
+echo "deb [signed-by=/etc/apt/keyrings/jmt-labs.gpg] \
+  https://jmt-labs.github.io/apt stable main" \
+  | sudo tee /etc/apt/sources.list.d/jmt-labs.list
+sudo apt update && sudo apt install claude-setup
+
+### go install
+go install github.com/jmt-labs/claude-setup/cmd/claude-setup@latest
+
+### curl (ohne Paketmanager)
+curl -fsSL https://raw.githubusercontent.com/jmt-labs/claude-setup/main/install.sh | bash
+```
+
+**Weitere README-Verbesserungen:**
+- Kurze Erklärung direkt unter dem Titel (was ist es, warum braucht man es — 2–3 Sätze, Englisch)
+- Quick-Start-Block bleibt, wird aber nach dem Installations-Abschnitt platziert
+- Versions-Badge (GoReleaser generiert automatisch einen `latest`-Tag, den wir als Shield einbinden)
+
 ## Nicht im Scope
 
 - macOS `darwin_amd64` (Intel) — war bisher nicht gebaut, bleibt außen vor
