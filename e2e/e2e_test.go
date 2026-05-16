@@ -294,6 +294,7 @@ func TestConflictDetectionTracksHashes(t *testing.T) {
 	}
 }
 
+
 func TestDeployIncludesGetbetterFlavorSkill(t *testing.T) {
 	dst := t.TempDir()
 	cfg := config.Config{

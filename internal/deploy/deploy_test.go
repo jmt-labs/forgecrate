@@ -152,11 +152,9 @@ func TestCopySkillsProfileAndFlavor(t *testing.T) {
 
 func setupMinimalSource(t *testing.T, src string) {
 	t.Helper()
-	// base settings.json
 	settingsDir := filepath.Join(src, "base", ".claude")
 	os.MkdirAll(settingsDir, 0755)
 	os.WriteFile(filepath.Join(settingsDir, "settings.json"), []byte(`{"model":"claude-sonnet-4-6"}`), 0644)
-	// base CLAUDE.md
 	os.MkdirAll(filepath.Join(src, "base"), 0755)
 	os.WriteFile(filepath.Join(src, "base", "CLAUDE.md"), []byte("# Base\n<!-- CUSTOM:BEGIN -->\n<!-- CUSTOM:END -->\n"), 0644)
 }
@@ -200,6 +198,24 @@ func TestDeploySecondRunIsStable(t *testing.T) {
 	after, _ := config.Read(filepath.Join(dst, ".claude-setup.yaml"))
 	if after.DeployedFiles[".claude/settings.json"] != hashBefore {
 		t.Error("hash changed on clean second deploy — should be stable")
+	}
+}
+
+func TestCopyHooksMissingDirSucceedsWithoutHookFiles(t *testing.T) {
+	src := t.TempDir()
+	dst := t.TempDir()
+
+	// settings.json referenziert Hooks, aber base/hooks/ fehlt absichtlich
+	writeFile(t, src, "base/CLAUDE.md", "<!-- GENERATED:BEGIN -->\n# Base\n<!-- GENERATED:END -->\n<!-- CUSTOM:BEGIN -->\n<!-- CUSTOM:END -->\n")
+	writeFile(t, src, "base/.claude/settings.json", `{"hooks":{"PreToolUse":[{"matcher":"Bash","hooks":[{"type":"command","command":"bash .claude/hooks/pre-tool.sh"}]}]}}`)
+
+	cfg := config.Config{Profile: "backend"}
+	if err := deploy.Run(src, dst, cfg); err != nil {
+		t.Fatalf("Run should succeed even when hooks dir missing: %v", err)
+	}
+
+	if _, err := os.Stat(filepath.Join(dst, ".claude", "hooks", "pre-tool.sh")); err == nil {
+		t.Error("pre-tool.sh should not exist when source has no hooks dir")
 	}
 }
 
