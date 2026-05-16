@@ -35,20 +35,26 @@ Ticket-Kommentare immer kurz (ein Satz): Fortschritt, Pfad, oder Ergebnis.
 
 ## Konfliktbehandlung beim Deploy (`claude-setup update`)
 
-Wenn `claude-setup update` eine verwaltete Datei (z. B. `settings.json`, Hooks) aktualisieren will und die lokale Version seit dem letzten Deploy manuell geändert wurde, entsteht ein Konflikt. Das Tool zeigt:
+Ein Konflikt entsteht nur, wenn **beides** gleichzeitig zutrifft: die lokale Datei wurde seit dem letzten Deploy geändert, **und** die neue Upstream-Version unterscheidet sich von der lokalen Version. Stimmt die lokale Änderung zufällig mit dem Upstream überein, wird kein Konflikt ausgelöst.
+
+> **Wichtig:** Dateien ohne gespeicherten Hash (z. B. beim ersten Update nach Einführung des Hash-Trackings) werden ohne Rückfrage überschrieben.
+
+Das Tool zeigt bei einem echten Konflikt:
 
 ```
 KONFLIKT: .claude/settings.json
-  Deine Version: <erste Zeile der lokalen Datei>
+  Deine Version: <erste Zeile der lokalen Datei, max. 80 Zeichen>
   Neue Version:  <erste Zeile des Upstream>
   [ü]berschreiben / [b]ehalten (Standard: behalten):
 ```
 
 **Entscheidung:**
 - `ü` oder `u` — Upstream-Version übernehmen, lokale Änderungen gehen verloren
-- `b` oder Enter — Lokale Version behalten, Upstream-Update wird übersprungen
+- `b` oder Enter — Lokale Version behalten, Upstream-Update wird übersprungen; der Hash der lokalen Version wird als neue Basis gespeichert — beim nächsten Update entsteht erneut ein Konflikt, falls Upstream sich weiter ändert
 
-**Faustregel:** Lokale Overrides in die CUSTOM-Sektion der CLAUDE.md oder ein separates, nicht-verwaltetes File auslagern — so entsteht kein Konflikt.
+**Faustregel:**
+- Für `settings.json` und CLAUDE.md: Overrides in die CUSTOM-Sektion auslagern
+- Für Hooks (`.claude/hooks/**`): eigene, nicht-verwaltete Hook-Dateien verwenden
 
 ## Team-Rollen & Subagent-Konfiguration
 
