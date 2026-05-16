@@ -62,9 +62,11 @@ Im Zweifelsfall Background nutzen — warten ist kein Default.
 
 ### Agenten-Identität
 
-Jeder Subagent bekommt:
+Jeder Subagent bekommt eindeutige Identifikation:
 - **Eindeutigen Namen** — via `description`-Parameter im Agent-Tool-Aufruf (3–5 Wörter, Rolle + Aufgabe)
-- **Eindeutige Farbe** — dynamisch durch FleetView zugewiesen; keine zwei gleichzeitig laufenden Agenten teilen eine Farbe
+- **Eindeutige Farbe** — dynamisch durch FleetView-Dashboard zugewiesen; keine zwei gleichzeitig laufenden Agenten teilen eine Farbe
+
+Dies ermöglicht einfaches Tracking und verhindert Verwechslungen bei parallelen Läufen.
 
 ## MCP Server
 
