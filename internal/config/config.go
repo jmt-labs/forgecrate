@@ -7,11 +7,12 @@ import (
 )
 
 type Config struct {
-	Version string   `yaml:"version"`
-	Source  string   `yaml:"source"`
-	Ref     string   `yaml:"ref"`
-	Profile string   `yaml:"profile"`
-	Flavors []string `yaml:"flavors"`
+	Version       string            `yaml:"version"`
+	Source        string            `yaml:"source"`
+	Ref           string            `yaml:"ref"`
+	Profile       string            `yaml:"profile"`
+	Flavors       []string          `yaml:"flavors"`
+	DeployedFiles map[string]string `yaml:"deployed_files,omitempty"`
 }
 
 func Read(path string) (Config, error) {

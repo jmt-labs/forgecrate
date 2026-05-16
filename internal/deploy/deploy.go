@@ -18,16 +18,28 @@ func Run(sourceDir, destDir string, cfg config.Config) error {
 
 func RunWithClaude(sourceDir, destDir string, cfg config.Config, claudeBin string) error {
 	req := compose.Request{
-		SourceDir: sourceDir,
-		DestDir:   destDir,
-		Profile:   cfg.Profile,
-		Flavors:   cfg.Flavors,
+		SourceDir:    sourceDir,
+		DestDir:      destDir,
+		Profile:      cfg.Profile,
+		Flavors:      cfg.Flavors,
+		SkipSettings: true,
 	}
+
+	// Settings: Inhalt berechnen, dann konflikt-sicher schreiben
+	settingsContent, err := compose.ComposeSettings(req)
+	if err != nil {
+		return fmt.Errorf("compose settings: %w", err)
+	}
+	settingsPath := filepath.Join(destDir, ".claude", "settings.json")
+	if err := deployFile(settingsPath, ".claude/settings.json", settingsContent, &cfg, os.Stdout, os.Stdin); err != nil {
+		return fmt.Errorf("settings: %w", err)
+	}
+
 	if err := compose.Run(req); err != nil {
 		return fmt.Errorf("compose: %w", err)
 	}
 
-	if err := copyHooks(sourceDir, destDir); err != nil {
+	if err := copyHooks(sourceDir, destDir, &cfg); err != nil {
 		return fmt.Errorf("hooks: %w", err)
 	}
 
@@ -146,7 +158,7 @@ func copyFile(src, dst string) (err error) {
 	return nil
 }
 
-func copyHooks(src, dst string) error {
+func copyHooks(src, dst string, cfg *config.Config) error {
 	hooksDir := filepath.Join(src, "base", "hooks")
 	if _, err := os.Stat(hooksDir); os.IsNotExist(err) {
 		log.Printf("warn: hooks-Verzeichnis nicht gefunden (%s) — Hook-Dateien werden nicht deployt, aber settings.json referenziert sie", hooksDir)
@@ -163,33 +175,17 @@ func copyHooks(src, dst string) error {
 			return err
 		}
 		rel, _ := filepath.Rel(hooksDir, path)
-		return copyExecutable(path, filepath.Join(dstHooks, rel))
-	})
-}
+		dstPath := filepath.Join(dstHooks, rel)
 
-func copyExecutable(src, dst string) (err error) {
-	if err := os.MkdirAll(filepath.Dir(dst), 0755); err != nil {
-		return fmt.Errorf("mkdir: %w", err)
-	}
-
-	in, err := os.Open(src)
-	if err != nil {
-		return fmt.Errorf("open %s: %w", src, err)
-	}
-	defer in.Close()
-
-	out, err := os.OpenFile(dst, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0755)
-	if err != nil {
-		return fmt.Errorf("create %s: %w", dst, err)
-	}
-	defer func() {
-		if cerr := out.Close(); cerr != nil && err == nil {
-			err = cerr
+		content, err := os.ReadFile(path)
+		if err != nil {
+			return fmt.Errorf("read hook %s: %w", rel, err)
 		}
-	}()
 
-	if _, err = io.Copy(out, in); err != nil {
-		return fmt.Errorf("copy: %w", err)
-	}
-	return nil
+		relKey := filepath.Join(".claude", "hooks", rel)
+		if err := deployFile(dstPath, relKey, content, cfg, os.Stdout, os.Stdin); err != nil {
+			return err
+		}
+		return os.Chmod(dstPath, 0755)
+	})
 }
