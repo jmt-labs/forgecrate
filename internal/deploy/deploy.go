@@ -71,9 +71,9 @@ func composeWithLog(req compose.Request, out io.Writer) error {
 		}
 		after := fileHash(destPath)
 		if before == after {
-			fmt.Fprintf(out, "  skipped   %s\n", f)
+			fmt.Fprintf(out, "🔵 %s\n", f)
 		} else {
-			fmt.Fprintf(out, "  written   %s\n", f)
+			fmt.Fprintf(out, "✅ %s\n", f)
 		}
 	}
 	return compose.RunCommands(req)
@@ -144,7 +144,7 @@ func copySkills(sourceDir, destDir string, cfg config.Config, out io.Writer) err
 			if err := copyDir(src, dst); err != nil {
 				return fmt.Errorf("copy skill %s: %w", name, err)
 			}
-			fmt.Fprintf(out, "  skill     %s\n", name)
+			fmt.Fprintf(out, "✅ skill:%s\n", name)
 		}
 	}
 	return nil
