@@ -192,7 +192,7 @@ func TestInstallerMCPAlreadyExistsNoWarn(t *testing.T) {
 	}
 }
 
-func TestInstallerPluginNotFoundNoWarn(t *testing.T) {
+func TestInstallerPluginNotFoundReturnsError(t *testing.T) {
 	claude := fakeClaudeWithOutput(t, `Plugin "unknown-plugin" not found in any configured marketplace`)
 
 	inst := extensions.Installer{Claude: claude}
@@ -202,8 +202,7 @@ func TestInstallerPluginNotFoundNoWarn(t *testing.T) {
 		},
 	}
 
-	// Must not return an error — marketplace misses are handled silently.
-	if err := inst.Install(ext); err != nil {
-		t.Fatalf("Install: %v", err)
+	if err := inst.Install(ext); err == nil {
+		t.Fatal("expected error for plugin not found in marketplace, got nil")
 	}
 }
