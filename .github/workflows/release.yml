@@ -29,6 +29,9 @@ jobs:
           go-version: '1.22'
           cache: true
 
+      - name: Claude CLI installieren
+        run: npm install -g @anthropic-ai/claude-code
+
       - run: make test
       - run: make test-e2e
 
