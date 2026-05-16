@@ -1,0 +1,65 @@
+version: 2
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - main: ./cmd/claude-setup/
+    binary: claude-setup
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    ignore:
+      - goos: darwin
+        goarch: amd64
+
+archives:
+  - formats: [tar.gz]
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
+
+checksum:
+  name_template: "checksums.txt"
+
+nfpms:
+  - package_name: claude-setup
+    maintainer: Markus Hartmann <markush1986@gmail.com>
+    description: Reproducible Claude Code setup for any repository.
+    homepage: https://github.com/jmt-labs/claude-setup
+    license: MIT
+    formats:
+      - deb
+    bindir: /usr/local/bin
+
+brews:
+  - name: claude-setup
+    repository:
+      owner: jmt-labs
+      name: homebrew-tap
+      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
+    homepage: https://github.com/jmt-labs/claude-setup
+    description: Reproducible Claude Code setup for any repository.
+    install: |
+      bin.install "claude-setup"
+    test: |
+      system "#{bin}/claude-setup", "--version"
+
+chocolateys:
+  - name: claude-setup
+    title: claude-setup
+    owners: jmt-labs
+    description: Reproducible Claude Code setup for any repository.
+    license_url: https://github.com/jmt-labs/claude-setup/blob/main/LICENSE
+    require_license_acceptance: false
+    api_key: "{{ .Env.CHOCOLATEY_API_KEY }}"
+    source_repo: "https://push.chocolatey.org/"
+    skip_publish: false
