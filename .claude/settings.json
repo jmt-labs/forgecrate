@@ -1,31 +1,39 @@
 {
+  "permissions": {
+    "allow": [],
+    "deny": []
+  },
+  "model": "claude-sonnet-4-6",
   "hooks": {
     "PreToolUse": [
       {
+        "matcher": "Bash|Edit|Write",
         "hooks": [
           {
-            "command": "bash .claude/hooks/pre-tool.sh",
-            "type": "command"
+            "type": "command",
+            "command": "bash -c 'root=$(git rev-parse --show-toplevel 2>/dev/null || pwd) && exec bash \"$root/.claude/hooks/pre-tool.sh\"'"
           }
-        ],
-        "matcher": "Bash|Edit|Write"
+        ]
       }
     ],
     "UserPromptSubmit": [
       {
+        "matcher": "",
         "hooks": [
           {
-            "command": "bash .claude/hooks/prompt-submit.sh",
-            "type": "command"
+            "type": "command",
+            "command": "bash -c 'root=$(git rev-parse --show-toplevel 2>/dev/null || pwd) && exec bash \"$root/.claude/hooks/prompt-submit.sh\"'"
           }
-        ],
-        "matcher": ""
+        ]
       }
     ]
   },
-  "model": "claude-sonnet-4-6",
-  "permissions": {
-    "allow": [],
-    "deny": []
+  "enabledPlugins": {
+    "superpowers@claude-plugins-official": true,
+    "commit-commands@claude-plugins-official": true,
+    "security-guidance@claude-plugins-official": true,
+    "claude-md-management@claude-plugins-official": true,
+    "pr-review-toolkit@claude-plugins-official": true,
+    "code-simplifier@claude-plugins-official": true
   }
 }

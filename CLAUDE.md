@@ -47,6 +47,19 @@ Der Hauptagent kann bei Bedarf eigenständig von diesen Empfehlungen abweichen.
 | Reviewer | `superpowers:requesting-code-review` | `claude-sonnet-4-6` | medium |
 | QA / Abschluss | `superpowers:verification-before-completion` | `claude-sonnet-4-6` | medium |
 | Debugger | `superpowers:systematic-debugging` | `claude-sonnet-4-6` | medium |
+
+## Parallelisierung & Isolation
+
+Subagenten werden proaktiv parallelisiert und isoliert — ohne explizite Aufforderung.
+
+| Situation | Mechanismus | Anleitung |
+|---|---|---|
+| Task dauert >1 min oder Ergebnis nicht sofort nötig | `run_in_background: true` | `superpowers:dispatching-parallel-agents` |
+| Feature-Branch, Multi-File-Änderung, langer Plan | `isolation: "worktree"` | `superpowers:using-git-worktrees` |
+| Mehrere unabhängige Tasks gleichzeitig | beide kombinieren | beide Skills |
+
+Im Zweifelsfall Background nutzen — warten ist kein Default.
+
 ## MCP Server
 
 Vier MCP-Server sind im base layer deklariert und stehen automatisch zur Verfügung.
@@ -86,6 +99,16 @@ Sandboxt Tool-Output automatisch — kein expliziter Aufruf nötig.
 - `ctx_insight` — Überblick über bisherigen Session-Verlauf
 - `ctx_stats` — gespartes Context-Budget prüfen
 - `ctx_doctor` — bei Problemen mit dem Server
+
+### context7
+
+Aktuelle Bibliotheks-Dokumentation direkt aus den Source-Repositories abrufen. Automatisch konfiguriert via `base/extensions.yaml`.
+
+**Verwende es für:** Aktuelle API-Dokumentation, Versionsmigration, Framework-spezifisches Debugging, Changelog-Inhalte — überall wo Trainingsdaten veraltet sein könnten.
+
+**Verwende es NICHT für:** GitHub-Inhalte (→ github MCP), lokale Dateien (→ Read), allgemeine Programmierkonzepte.
+
+**Keine Konfiguration nötig** — wird beim ersten `claude-setup init/update` automatisch als Projekt-MCP-Server eingerichtet.
 
 ## Backend-Profil
 
