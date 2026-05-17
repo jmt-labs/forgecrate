@@ -28,7 +28,7 @@ Ticket-Kommentare immer kurz (ein Satz): Fortschritt, Pfad, oder Ergebnis.
 
 ## Session-Start
 
-Falls `HANDOFF.md` im Projektverzeichnis vorhanden ist: Datei lesen und als Kontext verwenden, dann fragen: „HANDOFF.md gefunden und gelesen. Soll ich sie jetzt löschen?"
+Beim Session-Start: `ls HANDOFF.md 2>/dev/null` ausführen. Falls vorhanden: Datei lesen und als Kontext verwenden, dann fragen: „HANDOFF.md gefunden und gelesen. Soll ich sie löschen?"
 
 ## Verhalten
 
