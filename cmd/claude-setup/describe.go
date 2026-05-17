@@ -1,7 +1,9 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -24,7 +26,11 @@ func newDescribeCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			defer os.RemoveAll(srcDir)
+			defer func() {
+				if err := os.RemoveAll(srcDir); err != nil {
+					fmt.Fprintf(os.Stderr, "warning: temp-Verzeichnis konnte nicht gelöscht werden %s: %v\n", srcDir, err)
+				}
+			}()
 
 			fmt.Println("Fetching jmt-labs/claude-setup@main ...")
 			client := gh.Default()
@@ -55,11 +61,11 @@ func describeEntry(srcDir, kind, name string) (string, error) {
 
 	claudeMD := filepath.Join(dir, "CLAUDE.md")
 	content, err := os.ReadFile(claudeMD)
-	if os.IsNotExist(err) {
+	if errors.Is(err, fs.ErrNotExist) {
 		return "", fmt.Errorf("%s %q nicht gefunden", kind, name)
 	}
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("CLAUDE.md für %s %q lesen: %w", kind, name, err)
 	}
 
 	var sb strings.Builder
