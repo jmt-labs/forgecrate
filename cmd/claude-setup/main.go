@@ -19,6 +19,7 @@ func main() {
 	root.AddCommand(newInitCmd())
 	root.AddCommand(newUpdateCmd())
 	root.AddCommand(newListCmd())
+	root.AddCommand(newDescribeCmd())
 	if err := root.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)

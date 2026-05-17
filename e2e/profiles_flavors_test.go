@@ -17,9 +17,10 @@ type profileCase struct {
 }
 
 type flavorCase struct {
-	name           string
-	contentMarker  string
-	expectedSkills []string
+	name             string
+	contentMarker    string
+	expectedSkills   []string
+	expectedCommands []string
 }
 
 var allProfiles = []profileCase{
@@ -58,6 +59,12 @@ var allFlavors = []flavorCase{
 		name:           "tdd",
 		contentMarker:  "TDD-Flavor",
 		expectedSkills: []string{"test-coverage"},
+	},
+	{
+		name:             "gitops",
+		contentMarker:    "GitOps-Flavor",
+		expectedSkills:   []string{"gitops-drift-check"},
+		expectedCommands: []string{"claude-setup-gitops-status.md"},
 	},
 }
 
@@ -133,6 +140,13 @@ func TestAllFlavors(t *testing.T) {
 				path := filepath.Join(dst, ".claude", "skills", skill, "SKILL.md")
 				if _, err := os.Stat(path); err != nil {
 					t.Errorf("flavor skill missing: %s", skill)
+				}
+			}
+
+			for _, cmd := range tc.expectedCommands {
+				path := filepath.Join(dst, ".claude", "commands", cmd)
+				if _, err := os.Stat(path); err != nil {
+					t.Errorf("flavor command missing: %s", cmd)
 				}
 			}
 
