@@ -59,6 +59,11 @@ var allFlavors = []flavorCase{
 		contentMarker:  "TDD-Flavor",
 		expectedSkills: []string{"test-coverage"},
 	},
+	{
+		name:           "gitops",
+		contentMarker:  "GitOps-Flavor",
+		expectedSkills: []string{"gitops-drift-check"},
+	},
 }
 
 func TestAllProfiles(t *testing.T) {

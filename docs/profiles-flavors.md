@@ -15,3 +15,4 @@
 | `tdd` | Test-First, kein Produktionscode ohne Test |
 | `strict-review` | Pflicht-Review vor jedem Commit |
 | `minimal` | Nur Basis-Enforcement |
+| `gitops` | Infrastruktur via Git, Drift-Checks, Policy-Enforcement |
