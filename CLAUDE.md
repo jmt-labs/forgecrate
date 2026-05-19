@@ -1,3 +1,6 @@
+<!-- HINWEIS: Diese Datei (Root-CLAUDE.md) wird MANUELL gepflegt und ist kein generierter Output.
+     Sie überschreibt/ergänzt die Inhalte aus base/CLAUDE.md für dieses Repository.
+     base/CLAUDE.md wird bei `forgecrate update` neu generiert; diese Datei bleibt unverändert. -->
 <!-- GENERATED:BEGIN -->
 # Claude-Konfiguration
 

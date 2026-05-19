@@ -234,6 +234,14 @@ For Infrastructure-as-Code and GitOps workflows:
 - Deployments exclusively via ArgoCD — no direct `kubectl apply` commands
 - Skill: `/forgecrate-gitops-status` for cluster overview
 
+### `getbetter`
+
+Enables continuous learning across sessions: reads `.claude/GETBETTER.md` at session start and saves insights at session end via `/forgecrate-getbetter`.
+
+### `github`
+
+Adds GitHub-specific workflow rules: releases via `gh release create`, CI status checks before tagging, and proactive parallelization for multi-step GitHub tasks.
+
 ---
 
 ## CLI reference
@@ -344,6 +352,7 @@ Custom skills in this directory complement the managed commands and are never ov
 | `/forgecrate-pr-checklist` | Systematic review before `gh pr create` |
 | `/forgecrate-db-migration` | Guides creation and review of a database migration |
 | `/forgecrate-release` | Runs a complete release cycle |
+| `/forgecrate-handoff` | Generates a `HANDOFF.md` with portable project context for AI model switches or session handoffs |
 
 Via [Superpowers skills](https://github.com/anthropics/claude-code-superpowers), additional mandatory skills are available and automatically integrated into the development workflow (brainstorming, TDD, code review, debugging).
 
