@@ -72,7 +72,7 @@ jobs:
         run: |
           mkdir -p /tmp/debs
           gh release download ${{ github.event.inputs.version }} \
-            --repo jmt-labs/claude-setup \
+            --repo jmt-labs/forgecrate \
             --pattern "*.deb" \
             --dir /tmp/debs
         env:
