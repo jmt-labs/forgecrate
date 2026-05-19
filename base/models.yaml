@@ -1,0 +1,7 @@
+# Zentrale Modell-Konfiguration für forgecrate
+# Beim Upgrade: nur diese Datei ändern, dann forgecrate update ausführen
+models:
+  default: claude-sonnet-4-6      # Standard für Implementierung und Review
+  planning: claude-opus-4-7       # Architektur, Brainstorming
+  mechanical: claude-haiku-4-5-20251001  # Einfache, repetitive Tasks
+  review: claude-sonnet-4-6       # Code-Review, QA
