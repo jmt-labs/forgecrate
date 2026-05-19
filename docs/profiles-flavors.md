@@ -2,11 +2,11 @@
 
 ## Profile (eines wählbar)
 
-| Profil | Fokus |
-|---|---|
-| `backend` | API, Datenbank, Integrationstests |
-| `frontend` | Komponenten, State, Barrierefreiheit |
-| `fullstack` | Kombination beider, shared Types, E2E |
+| Profil | Fokus | Zusätzliche Extensions |
+|---|---|---|
+| `backend` | API, Datenbank, Integrationstests | keine (Base-Layer reicht: memory, fetch, github, context7, context-mode) |
+| `frontend` | Komponenten, State, Barrierefreiheit | Plugins: frontend-design, typescript-lsp, playwright; MCP: playwright |
+| `fullstack` | Kombination beider, shared Types, E2E | MCP: playwright |
 
 ## Flavors (mehrere kombinierbar)
 

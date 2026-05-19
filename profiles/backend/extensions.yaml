@@ -1,0 +1,5 @@
+# Backend-Profil: keine zusätzlichen MCP-Server nötig.
+# Die Base-Layer-Extensions (memory, fetch, github, context7, context-mode)
+# decken typische Backend-Workflows vollständig ab.
+plugins: []
+mcp: []
