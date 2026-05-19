@@ -32,7 +32,7 @@ var allProfiles = []profileCase{
 	{
 		name:           "frontend",
 		contentMarker:  "Frontend-Profil",
-		expectedSkills: []string{"accessibility-audit"},
+		expectedSkills: []string{"accessibility-audit", "ui-ux-audit"},
 	},
 	{
 		name:          "fullstack",
