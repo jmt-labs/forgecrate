@@ -27,7 +27,7 @@ var allProfiles = []profileCase{
 	{
 		name:           "backend",
 		contentMarker:  "Backend-Profil",
-		expectedSkills: []string{"db-migration"},
+		expectedSkills: []string{"forgecrate-db-migration"},
 	},
 	{
 		name:           "frontend",
@@ -44,7 +44,7 @@ var allFlavors = []flavorCase{
 	{
 		name:           "github",
 		contentMarker:  "GitHub-Flavor",
-		expectedSkills: []string{"github-release"},
+		expectedSkills: []string{"forgecrate-github-release"},
 	},
 	{
 		name:          "minimal",
@@ -53,12 +53,12 @@ var allFlavors = []flavorCase{
 	{
 		name:           "strict-review",
 		contentMarker:  "Strict-Review-Flavor",
-		expectedSkills: []string{"pr-checklist"},
+		expectedSkills: []string{"forgecrate-pr-checklist"},
 	},
 	{
 		name:           "tdd",
 		contentMarker:  "TDD-Flavor",
-		expectedSkills: []string{"test-coverage"},
+		expectedSkills: []string{"forgecrate-test-coverage"},
 	},
 	{
 		name:             "gitops",
@@ -185,7 +185,7 @@ func TestMultipleFlavors(t *testing.T) {
 		}
 	}
 
-	for _, skill := range []string{"test-coverage", "github-release"} {
+	for _, skill := range []string{"forgecrate-test-coverage", "forgecrate-github-release"} {
 		path := filepath.Join(dst, ".claude", "skills", skill, "SKILL.md")
 		if _, err := os.Stat(path); err != nil {
 			t.Errorf("skill missing: %s", skill)

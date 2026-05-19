@@ -149,7 +149,7 @@ func TestDeployIncludesBaseSkills(t *testing.T) {
 	if err := deploy.Run(localSource(t), dst, cfg); err != nil {
 		t.Fatalf("deploy.Run: %v", err)
 	}
-	skills := []string{"release", "repo-onboarding", "repo-health", "forgecrate-advisor"}
+	skills := []string{"forgecrate-release", "forgecrate-repo-onboarding", "forgecrate-repo-health", "forgecrate-advisor"}
 	for _, s := range skills {
 		path := filepath.Join(dst, ".claude", "skills", s, "SKILL.md")
 		if _, err := os.Stat(path); err != nil {
@@ -188,9 +188,9 @@ func TestDeployIncludesFlavorSkill(t *testing.T) {
 	if err := deploy.Run(localSource(t), dst, cfg); err != nil {
 		t.Fatalf("deploy.Run: %v", err)
 	}
-	path := filepath.Join(dst, ".claude", "skills", "github-release", "SKILL.md")
+	path := filepath.Join(dst, ".claude", "skills", "forgecrate-github-release", "SKILL.md")
 	if _, err := os.Stat(path); err != nil {
-		t.Errorf("github flavor skill missing: github-release")
+		t.Errorf("github flavor skill missing: forgecrate-github-release")
 	}
 }
 
