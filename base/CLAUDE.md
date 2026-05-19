@@ -49,12 +49,12 @@ Das Tool zeigt bei einem echten Konflikt:
 KONFLIKT: .claude/settings.json
   Deine Version: <erste Zeile der lokalen Datei, max. 80 Zeichen>
   Neue Version:  <erste Zeile des Upstream>
-  [ü]berschreiben / [b]ehalten (Standard: behalten):
+  [o]verwrite / [k]eep (Standard: behalten):
 ```
 
 **Entscheidung:**
-- `ü` oder `u` — Upstream-Version übernehmen, lokale Änderungen gehen verloren
-- `b` oder Enter — Lokale Version behalten, Upstream-Update wird übersprungen; der Hash der lokalen Version wird als neue Basis gespeichert — beim nächsten Update entsteht erneut ein Konflikt, falls Upstream sich weiter ändert
+- `o` (overwrite) — Upstream-Version übernehmen, lokale Änderungen gehen verloren; alternativ `ü` oder `u` (Rückwärtskompatibilität)
+- `k` oder Enter — Lokale Version behalten, Upstream-Update wird übersprungen; der Hash der lokalen Version wird als neue Basis gespeichert — beim nächsten Update entsteht erneut ein Konflikt, falls Upstream sich weiter ändert; alternativ `b` (Rückwärtskompatibilität)
 
 **Faustregel:**
 - Für `settings.json` und CLAUDE.md: Overrides in die CUSTOM-Sektion auslagern
@@ -147,3 +147,7 @@ Aktuelle Bibliotheks-Dokumentation direkt aus den Source-Repositories abrufen. A
 **Verwende es NICHT für:** GitHub-Inhalte (→ github MCP), lokale Dateien (→ Read), allgemeine Programmierkonzepte.
 
 **Keine Konfiguration nötig** — wird beim ersten `forgecrate init/update` automatisch als Projekt-MCP-Server eingerichtet.
+
+## MCP-Konfiguration: Single Source of Truth
+
+Die Datei `.mcp.json` wird aus `base/extensions.yaml` generiert — `base/extensions.yaml` ist die Quelle der Wahrheit für MCP-Server-Konfigurationen (inkl. Umgebungsvariablen wie `MEMORY_FILE_PATH`). Änderungen immer dort vornehmen, nicht direkt in `.mcp.json`.
