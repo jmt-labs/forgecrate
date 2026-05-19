@@ -4,7 +4,7 @@
 
 ## Ziel
 
-`claude-setup update` zeigt Konflikte an, wenn der Nutzer eine Datei seit dem letzten Deploy geändert hat und die neue Remote-Version davon abweicht. Basis: Hash-Tracking in `.claude-setup.yaml`.
+`forgecrate update` zeigt Konflikte an, wenn der Nutzer eine Datei seit dem letzten Deploy geändert hat und die neue Remote-Version davon abweicht. Basis: Hash-Tracking in `.forgecrate.yaml`.
 
 ## Hintergrund
 
@@ -16,7 +16,7 @@
 
 ```yaml
 version: "1.0"
-source: github.com/markus/claude-setup
+source: github.com/jmt-labs/forgecrate
 ref: main
 profile: backend
 flavors: [tdd]
@@ -36,7 +36,7 @@ deployed_files:
 Nicht getracked:
 - `CLAUDE.md` — CUSTOM-Blöcke werden bereits separat bewahrt
 - `.claude/skills/*` — first-wins: werden nie überschrieben
-- `.claude-setup.yaml` selbst
+- `.forgecrate.yaml` selbst
 
 ## Drei-Wege-Vergleich
 
@@ -44,7 +44,7 @@ Für jede zu schreibende Datei beim `update`:
 
 ```
 hash_disk    = SHA256(aktuelle Datei auf Disk)
-hash_stored  = deployed_files[datei]  (aus .claude-setup.yaml)
+hash_stored  = deployed_files[datei]  (aus .forgecrate.yaml)
 hash_new     = SHA256(neue Datei von remote)
 ```
 
@@ -94,11 +94,11 @@ Neue Funktion `deployFile(dst, rel, newContent string, cfg *config.Config, w io.
 
 `w io.Writer` und eine `reader io.Reader`-Abhängigkeit ermöglichen Tests ohne interaktive Eingabe.
 
-### `cmd/claude-setup/update.go`
+### `cmd/forgecrate/update.go`
 
 Nach `deploy.Run(...)`: `config.Write(cfgPath, cfg)` bereits vorhanden — schreibt die aktualisierten Hashes zurück.
 
-### `cmd/claude-setup/init.go`
+### `cmd/forgecrate/init.go`
 
 Nach dem ersten Deploy ebenfalls `deployed_files` befüllen, damit `update` beim nächsten Aufruf einen Baseline-Hash hat.
 

@@ -21,7 +21,7 @@ durch einen expliziten Slash-Command statt eines automatischen Hooks.
 flavors/getbetter/
 ├── CLAUDE.md
 ├── skills/getbetter/SKILL.md
-└── .claude/commands/claude-setup-getbetter.md
+└── .claude/commands/forgecrate-getbetter.md
 ```
 
 Kein Go-Code. Kein `extensions.yaml`. Nur Markdown-Dateien.
@@ -57,7 +57,7 @@ optional lesen, sondern zwingend — sofern sie vorhanden ist.
 
 ### Slash-Command
 
-`flavors/getbetter/.claude/commands/claude-setup-getbetter.md`:
+`flavors/getbetter/.claude/commands/forgecrate-getbetter.md`:
 
 ```markdown
 ---
@@ -101,4 +101,4 @@ E2E-Test analog zu `TestDeployIncludesFlavorSkill`:
 - Deploy mit `Flavors: []string{"getbetter"}`
 - Prüft: `flavors/getbetter/skills/getbetter/SKILL.md` wird nach
   `.claude/skills/getbetter/SKILL.md` gedeployt
-- Prüft: `.claude/commands/claude-setup-getbetter.md` existiert
+- Prüft: `.claude/commands/forgecrate-getbetter.md` existiert

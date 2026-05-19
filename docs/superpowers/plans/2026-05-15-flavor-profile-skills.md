@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Fünf neue SKILL.md-Dateien für Flavors und Profile, einen neuen `github`-Flavor und einen Bug-Fix im `claude-setup-advisor` — alles Markdown-Inhalt, kein Go-Code außer E2E-Tests.
+**Goal:** Fünf neue SKILL.md-Dateien für Flavors und Profile, einen neuen `github`-Flavor und einen Bug-Fix im `forgecrate-advisor` — alles Markdown-Inhalt, kein Go-Code außer E2E-Tests.
 
 **Architecture:** Alle Skill-Dateien landen in `flavors/<name>/skills/<skill>/SKILL.md` bzw. `profiles/<name>/skills/<skill>/SKILL.md`. Der `copySkills`-Mechanismus in `deploy.go` kopiert sie automatisch ins Zielrepo. E2E-Tests prüfen den vollständigen Deploy-Pfad mit den echten Dateien.
 
@@ -24,7 +24,7 @@ func TestDeployIncludesBaseSkills(t *testing.T) {
 	dst := t.TempDir()
 	cfg := config.Config{
 		Version: "1.0",
-		Source:  "github.com/markus/claude-setup",
+		Source:  "github.com/jmt-labs/forgecrate",
 		Ref:     "main",
 		Profile: "backend",
 		Flavors: []string{},
@@ -32,7 +32,7 @@ func TestDeployIncludesBaseSkills(t *testing.T) {
 	if err := deploy.Run(localSource(t), dst, cfg); err != nil {
 		t.Fatalf("deploy.Run: %v", err)
 	}
-	skills := []string{"release", "repo-onboarding", "repo-health", "claude-setup-advisor"}
+	skills := []string{"release", "repo-onboarding", "repo-health", "forgecrate-advisor"}
 	for _, s := range skills {
 		path := filepath.Join(dst, ".claude", "skills", s, "SKILL.md")
 		if _, err := os.Stat(path); err != nil {
@@ -45,7 +45,7 @@ func TestDeployIncludesProfileSkill(t *testing.T) {
 	dst := t.TempDir()
 	cfg := config.Config{
 		Version: "1.0",
-		Source:  "github.com/markus/claude-setup",
+		Source:  "github.com/jmt-labs/forgecrate",
 		Ref:     "main",
 		Profile: "frontend",
 		Flavors: []string{},
@@ -63,7 +63,7 @@ func TestDeployIncludesFlavorSkill(t *testing.T) {
 	dst := t.TempDir()
 	cfg := config.Config{
 		Version: "1.0",
-		Source:  "github.com/markus/claude-setup",
+		Source:  "github.com/jmt-labs/forgecrate",
 		Ref:     "main",
 		Profile: "backend",
 		Flavors: []string{"github"},
@@ -489,10 +489,10 @@ git commit -m "feat(backend): add db-migration skill"
 
 ---
 
-### Task 7: Bug-Fix `claude-setup-advisor` — `minimal`-Flavor
+### Task 7: Bug-Fix `forgecrate-advisor` — `minimal`-Flavor
 
 **Files:**
-- Modify: `base/skills/claude-setup-advisor/SKILL.md`
+- Modify: `base/skills/forgecrate-advisor/SKILL.md`
 
 - [ ] **Step 1: Datei öffnen und Schritt 4 ersetzen**
 
@@ -529,7 +529,7 @@ Erwartung: PASS
 - [ ] **Step 3: Commit und PR**
 
 ```bash
-git add base/skills/claude-setup-advisor/SKILL.md
+git add base/skills/forgecrate-advisor/SKILL.md
 git commit -m "fix(advisor): add minimal flavor to decision logic"
 ```
 
@@ -545,7 +545,7 @@ gh pr create \
 - \`strict-review\`: \`pr-checklist\`-Skill
 - \`frontend\`: \`accessibility-audit\`-Skill
 - \`backend\`: \`db-migration\`-Skill
-- Fix: \`minimal\`-Flavor in \`claude-setup-advisor\`
+- Fix: \`minimal\`-Flavor in \`forgecrate-advisor\`
 - E2E-Tests für \`copySkills\`
 
 ## Test Plan

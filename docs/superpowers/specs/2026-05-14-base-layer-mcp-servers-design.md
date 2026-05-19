@@ -6,7 +6,7 @@
 
 ## Ziel
 
-Vier universell nützliche MCP Server werden im base layer deklariert. Sie stehen in jedem Repo, das claude-setup verwendet, automatisch zur Verfügung. Alle Server sind kostenlos, kein externer Bezahldienst.
+Vier universell nützliche MCP Server werden im base layer deklariert. Sie stehen in jedem Repo, das forgecrate verwendet, automatisch zur Verfügung. Alle Server sind kostenlos, kein externer Bezahldienst.
 
 ## Abhängigkeit
 

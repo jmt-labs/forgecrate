@@ -5,18 +5,18 @@
 
 ## Ziel
 
-Vier projekt-unabhängige Skills werden über das Layer-System in Ziel-Repos verteilt: Release-Workflow, Repo-Onboarding, Repo-Health-Analyse und ein claude-setup-Advisor. Alle landen in `.claude/skills/` des Ziel-Repos und stehen dort per `/skill-name` zur Verfügung.
+Vier projekt-unabhängige Skills werden über das Layer-System in Ziel-Repos verteilt: Release-Workflow, Repo-Onboarding, Repo-Health-Analyse und ein forgecrate-Advisor. Alle landen in `.claude/skills/` des Ziel-Repos und stehen dort per `/skill-name` zur Verfügung.
 
 ## Delivery-Mechanismus
 
-### Verzeichnisstruktur im claude-setup Repo
+### Verzeichnisstruktur im forgecrate Repo
 
 ```
 base/skills/
   release/SKILL.md
   repo-onboarding/SKILL.md
   repo-health/SKILL.md
-  claude-setup-advisor/SKILL.md
+  forgecrate-advisor/SKILL.md
 profiles/frontend/skills/   # leer — Mechanismus steht für spätere Skills bereit
 flavors/strict-review/skills/  # leer — dto.
 ```
@@ -69,7 +69,7 @@ Der Skill erkennt den eingesetzten Paketmanager und Build-Mechanismus aus dem Re
 
 ### `repo-onboarding/SKILL.md`
 
-Erkundet das Repo nach `claude-setup run` und erstellt eine strukturierte Zusammenfassung:
+Erkundet das Repo nach `forgecrate run` und erstellt eine strukturierte Zusammenfassung:
 - Welche Sprachen/Frameworks sind im Einsatz
 - Wo liegen Tests, Business-Logik, Konfiguration
 - Wie wird gebaut, wie wird getestet
@@ -88,15 +88,15 @@ Analysiert das Repo auf Verbesserungspotenzial und gibt eine priorisierte Liste 
 
 Ausgabe: Nummerierte Liste nach Priorität, jeweils mit konkretem Datei-/Zeilenverweis.
 
-### `claude-setup-advisor/SKILL.md`
+### `forgecrate-advisor/SKILL.md`
 
-Analysiert ein Repo und empfiehlt das passende claude-setup-Profil und -Flavor:
+Analysiert ein Repo und empfiehlt das passende forgecrate-Profil und -Flavor:
 1. Sprache und Framework erkennen → Profil (backend/frontend/fullstack)
 2. Test-Konventionen erkennen → Flavor `tdd` sinnvoll?
 3. Review-Anforderungen abfragen → Flavor `strict-review` sinnvoll?
-4. Gibt den exakten `claude-setup run`-Befehl aus:
+4. Gibt den exakten `forgecrate run`-Befehl aus:
    ```
-   claude-setup run --profile frontend --flavor strict-review
+   forgecrate run --profile frontend --flavor strict-review
    ```
 
 Der Skill kennt alle verfügbaren Profile und Flavors und erklärt kurz, warum er die jeweilige Kombination empfiehlt.
@@ -104,5 +104,5 @@ Der Skill kennt alle verfügbaren Profile und Flavors und erklärt kurz, warum e
 ## Nicht in Scope
 
 - Profil- oder flavor-spezifische Skills in dieser Iteration — Mechanismus steht, Inhalte folgen bei Bedarf
-- Automatisches Aktualisieren bestehender Skills beim Re-Run von `claude-setup` — first-wins gilt auch für Re-Runs
-- Skills für das claude-setup Repo selbst (Entwickler-Skills) — separates Thema
+- Automatisches Aktualisieren bestehender Skills beim Re-Run von `forgecrate` — first-wins gilt auch für Re-Runs
+- Skills für das forgecrate Repo selbst (Entwickler-Skills) — separates Thema

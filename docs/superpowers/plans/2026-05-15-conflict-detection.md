@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** `claude-setup update` erkennt, wenn der Nutzer eine verwaltete Datei (Settings, Hooks) seit dem letzten Deploy manuell geändert hat, und fragt vor dem Überschreiben nach.
+**Goal:** `forgecrate update` erkennt, wenn der Nutzer eine verwaltete Datei (Settings, Hooks) seit dem letzten Deploy manuell geändert hat, und fragt vor dem Überschreiben nach.
 
-**Architecture:** SHA-256-Hashes in `deployed_files`-Feld von `.claude-setup.yaml`. Drei-Wege-Vergleich (disk vs. stored vs. new) in neuer `deployFile()`-Funktion. `compose.ComposeSettings()` (neuer Export) liefert den neuen Settings-Inhalt bevor er geschrieben wird. `copyHooks` nutzt `deployFile` statt direktem `copyFile`. Kein Umbau der öffentlichen Deploy-Signatur nötig.
+**Architecture:** SHA-256-Hashes in `deployed_files`-Feld von `.forgecrate.yaml`. Drei-Wege-Vergleich (disk vs. stored vs. new) in neuer `deployFile()`-Funktion. `compose.ComposeSettings()` (neuer Export) liefert den neuen Settings-Inhalt bevor er geschrieben wird. `copyHooks` nutzt `deployFile` statt direktem `copyFile`. Kein Umbau der öffentlichen Deploy-Signatur nötig.
 
 **Tech Stack:** Go (`crypto/sha256`, `io`, `bufio`), bestehende `deploy.Run()` / `compose.Run()` E2E-Infrastruktur, `testing`.
 
@@ -27,16 +27,16 @@ import (
     "path/filepath"
     "testing"
 
-    "github.com/jmt-labs/claude-setup/internal/config"
+    "github.com/jmt-labs/forgecrate/internal/config"
 )
 
 func TestDeployedFilesRoundtrip(t *testing.T) {
     dir := t.TempDir()
-    path := filepath.Join(dir, ".claude-setup.yaml")
+    path := filepath.Join(dir, ".forgecrate.yaml")
 
     cfg := config.Config{
         Version: "1.0",
-        Source:  "github.com/jmt-labs/claude-setup",
+        Source:  "github.com/jmt-labs/forgecrate",
         Ref:     "main",
         Profile: "backend",
         Flavors: []string{"tdd"},
@@ -65,7 +65,7 @@ func TestDeployedFilesRoundtrip(t *testing.T) {
 
 func TestDeployedFilesOmittedWhenEmpty(t *testing.T) {
     dir := t.TempDir()
-    path := filepath.Join(dir, ".claude-setup.yaml")
+    path := filepath.Join(dir, ".forgecrate.yaml")
 
     cfg := config.Config{Version: "1.0", Source: "s", Ref: "r", Profile: "p"}
     if err := config.Write(path, cfg); err != nil {
@@ -247,7 +247,7 @@ import (
     "strings"
     "testing"
 
-    "github.com/jmt-labs/claude-setup/internal/config"
+    "github.com/jmt-labs/forgecrate/internal/config"
 )
 
 func writeFile(t *testing.T, path, content string) {
@@ -416,7 +416,7 @@ import (
     "os"
     "strings"
 
-    "github.com/jmt-labs/claude-setup/internal/config"
+    "github.com/jmt-labs/forgecrate/internal/config"
 )
 
 func deployFile(dstPath, rel string, newContent []byte, cfg *config.Config, w io.Writer, r io.Reader) error {
@@ -664,8 +664,8 @@ import (
     "path/filepath"
     "testing"
 
-    "github.com/jmt-labs/claude-setup/internal/config"
-    "github.com/jmt-labs/claude-setup/internal/deploy"
+    "github.com/jmt-labs/forgecrate/internal/config"
+    "github.com/jmt-labs/forgecrate/internal/deploy"
 )
 
 func TestDeployTracksSettingsHash(t *testing.T) {
@@ -678,7 +678,7 @@ func TestDeployTracksSettingsHash(t *testing.T) {
         t.Fatalf("first deploy: %v", err)
     }
 
-    written, err := config.Read(filepath.Join(dst, ".claude-setup.yaml"))
+    written, err := config.Read(filepath.Join(dst, ".forgecrate.yaml"))
     if err != nil {
         t.Fatalf("read config: %v", err)
     }
@@ -752,7 +752,7 @@ func RunWithClaude(sourceDir, destDir string, cfg config.Config, claudeBin strin
         return fmt.Errorf("skills: %w", err)
     }
 
-    cfgPath := filepath.Join(destDir, ".claude-setup.yaml")
+    cfgPath := filepath.Join(destDir, ".forgecrate.yaml")
     if err := config.Write(cfgPath, cfg); err != nil {
         return fmt.Errorf("write config: %w", err)
     }
@@ -829,7 +829,7 @@ func TestConflictDetectionTracksHashes(t *testing.T) {
     dst := t.TempDir()
     cfg := config.Config{
         Version: "1.0",
-        Source:  "github.com/jmt-labs/claude-setup",
+        Source:  "github.com/jmt-labs/forgecrate",
         Ref:     "main",
         Profile: "backend",
         Flavors: []string{},
@@ -840,7 +840,7 @@ func TestConflictDetectionTracksHashes(t *testing.T) {
         t.Fatalf("first deploy: %v", err)
     }
 
-    yamlPath := filepath.Join(dst, ".claude-setup.yaml")
+    yamlPath := filepath.Join(dst, ".forgecrate.yaml")
     written, err := config.Read(yamlPath)
     if err != nil {
         t.Fatalf("read config: %v", err)
@@ -914,11 +914,11 @@ Implementiert Drei-Wege-Konflikterkennung für verwaltete Dateien (settings.json
 
 ## Warum
 
-Nutzer-Änderungen an verwalteten Dateien wurden bei `claude-setup update` stillschweigend überschrieben.
+Nutzer-Änderungen an verwalteten Dateien wurden bei `forgecrate update` stillschweigend überschrieben.
 
 ## Wie
 
-- `Config.DeployedFiles` (SHA-256-Hashes in `.claude-setup.yaml`)
+- `Config.DeployedFiles` (SHA-256-Hashes in `.forgecrate.yaml`)
 - `deployFile()`: Drei-Wege-Vergleich hash_disk / hash_stored / hash_new mit interaktivem Prompt bei Konflikt
 - `compose.ComposeSettings()`: exportiert Settings-Berechnung ohne Disk-Write
 - `compose.Request.SkipSettings`: deploy.go schreibt settings.json selbst (konflikt-sicher)

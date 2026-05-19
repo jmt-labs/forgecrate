@@ -5,7 +5,7 @@
 
 ## Überblick
 
-Zwei unabhängige Ergänzungen zur bestehenden claude-setup-Konfiguration:
+Zwei unabhängige Ergänzungen zur bestehenden forgecrate-Konfiguration:
 
 1. **TDD Bug-Regression** — Jeder gefundene Bug muss durch einen Regressionstest abgedeckt werden, bevor der Fix committed wird.
 2. **Agenten-Identität** — Subagenten erhalten eindeutige Namen und Farben.

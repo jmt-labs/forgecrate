@@ -162,7 +162,7 @@ Erwartete Ausgabe: kein Output (erfolgreich).
 go test ./...
 ```
 
-Erwartete Ausgabe: `ok  github.com/jmt-labs/claude-setup/cmd/claude-setup`
+Erwartete Ausgabe: `ok  github.com/jmt-labs/forgecrate/cmd/forgecrate`
 
 - [ ] **Step 3: Finaler Commit falls nötig**
 

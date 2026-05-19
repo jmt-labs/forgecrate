@@ -14,7 +14,7 @@ go test ./e2e/...    # E2E-Tests (gegen lokales Repo)
 ## Binary bauen
 
 ```bash
-go build ./cmd/claude-setup/
+go build ./cmd/forgecrate/
 ```
 
 ## Neues Profil hinzufügen

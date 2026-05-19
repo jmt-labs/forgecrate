@@ -16,4 +16,4 @@ Wird vor `Bash`, `Edit`, `Write` ausgeführt.
 
 ## Hooks anpassen
 
-Hooks liegen nach dem Deployment unter `.claude/hooks/` im Ziel-Repo und können dort direkt bearbeitet werden. Sie werden bei `claude-setup update` überschrieben — lokale Anpassungen in `.claude/hooks/` vorher sichern.
+Hooks liegen nach dem Deployment unter `.claude/hooks/` im Ziel-Repo und können dort direkt bearbeitet werden. Sie werden bei `forgecrate update` überschrieben — lokale Anpassungen in `.claude/hooks/` vorher sichern.

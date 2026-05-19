@@ -1,15 +1,15 @@
-# Design: Slash-Commands für claude-setup-Skills
+# Design: Slash-Commands für forgecrate-Skills
 
 ## Ziel
 
-Alle Skills, die `claude-setup run` installiert, sollen als Slash-Commands im Format
-`/claude-setup-<name>` aufrufbar sein. Das ermöglicht schnellen Zugriff ohne den
+Alle Skills, die `forgecrate run` installiert, sollen als Slash-Commands im Format
+`/forgecrate-<name>` aufrufbar sein. Das ermöglicht schnellen Zugriff ohne den
 genauen Skill-Namen kennen zu müssen.
 
 ## Hintergrund
 
 Claude Code lädt `.md`-Dateien aus `~/.claude/commands/` als Slash-Commands.
-`claude-setup` hat in `compose.go` bereits `composeSkills`, das Dateien aus
+`forgecrate` hat in `compose.go` bereits `composeSkills`, das Dateien aus
 `base/.claude/commands/`, `profiles/<p>/.claude/commands/` und
 `flavors/<f>/.claude/commands/` nach `<destDir>/.claude/commands/` merged.
 
@@ -32,15 +32,15 @@ Skill auch tatsächlich installiert wird.
 
 | Command-Datei | Slash-Command | Ruft auf |
 |---|---|---|
-| `claude-setup-advisor.md` | `/claude-setup-advisor` | `Skill("claude-setup-advisor")` |
-| `claude-setup-release.md` | `/claude-setup-release` | `Skill("release")` |
-| `claude-setup-repo-health.md` | `/claude-setup-repo-health` | `Skill("repo-health")` |
-| `claude-setup-repo-onboarding.md` | `/claude-setup-repo-onboarding` | `Skill("repo-onboarding")` |
-| `claude-setup-db-migration.md` | `/claude-setup-db-migration` | `Skill("db-migration")` |
-| `claude-setup-test-coverage.md` | `/claude-setup-test-coverage` | `Skill("test-coverage")` |
-| `claude-setup-pr-checklist.md` | `/claude-setup-pr-checklist` | `Skill("pr-checklist")` |
-| `claude-setup-accessibility-audit.md` | `/claude-setup-accessibility-audit` | `Skill("accessibility-audit")` |
-| `claude-setup-github-release.md` | `/claude-setup-github-release` | `Skill("github-release")` |
+| `forgecrate-advisor.md` | `/forgecrate-advisor` | `Skill("forgecrate-advisor")` |
+| `claude-setup-release.md` | `/forgecrate-release` | `Skill("release")` |
+| `claude-setup-repo-health.md` | `/forgecrate-repo-health` | `Skill("repo-health")` |
+| `claude-setup-repo-onboarding.md` | `/forgecrate-repo-onboarding` | `Skill("repo-onboarding")` |
+| `claude-setup-db-migration.md` | `/forgecrate-db-migration` | `Skill("db-migration")` |
+| `claude-setup-test-coverage.md` | `/forgecrate-test-coverage` | `Skill("test-coverage")` |
+| `claude-setup-pr-checklist.md` | `/forgecrate-pr-checklist` | `Skill("pr-checklist")` |
+| `claude-setup-accessibility-audit.md` | `/forgecrate-accessibility-audit` | `Skill("accessibility-audit")` |
+| `claude-setup-github-release.md` | `/forgecrate-github-release` | `Skill("github-release")` |
 
 ### Dateiformat
 
@@ -56,14 +56,14 @@ Use the Skill tool to invoke the "<skill-name>" skill.
 
 ### Deploy-Pfad
 
-`claude-setup run` → `compose.Run()` → `composeSkills()` → merged alle
+`forgecrate run` → `compose.Run()` → `composeSkills()` → merged alle
 `*/.claude/commands/*.md`-Layer nach `~/.claude/commands/` → Slash-Commands aktiv.
 
 Kein Umbau an `deploy.go`, `compose.go` oder `extensions.yaml` nötig.
 
 ### Zukünftiger Plugin-Schritt (nicht Teil dieses Features)
 
-Später wird das Plugin-System genutzt, um den Namespace `claude-setup:<name>`
+Später wird das Plugin-System genutzt, um den Namespace `forgecrate:<name>`
 (mit Doppelpunkt) zu ermöglichen. Die Command-Dateien können dann 1:1 übernommen werden.
 
 ## Nicht in scope

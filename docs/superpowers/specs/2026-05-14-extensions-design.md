@@ -4,7 +4,7 @@
 
 ## Ziel
 
-`claude-setup init` und `claude-setup update` installieren automatisch externe Abhängigkeiten (Claude-Code-Plugins, MCP-Server), die in den Layern deklariert sind. Die Deklaration erfolgt pro Layer in einer `extensions.yaml`. Das Binary merged alle aktiven Layer und ruft die `claude`-CLI auf.
+`forgecrate init` und `forgecrate update` installieren automatisch externe Abhängigkeiten (Claude-Code-Plugins, MCP-Server), die in den Layern deklariert sind. Die Deklaration erfolgt pro Layer in einer `extensions.yaml`. Das Binary merged alle aktiven Layer und ruft die `claude`-CLI auf.
 
 ## Dateiformat
 

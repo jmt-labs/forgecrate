@@ -1,8 +1,8 @@
-# claude-setup Slash-Commands Implementation Plan
+# forgecrate Slash-Commands Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Slash-Commands `/claude-setup-*` für alle claude-setup-Skills in `base/.claude/commands/` anlegen, damit sie nach `claude-setup run` sofort als `/claude-setup-<name>` verfügbar sind.
+**Goal:** Slash-Commands `/forgecrate-*` für alle forgecrate-Skills in `base/.claude/commands/` anlegen, damit sie nach `forgecrate run` sofort als `/forgecrate-<name>` verfügbar sind.
 
 **Architecture:** Command-Wrapper-Dateien in `base/.claude/commands/` werden vom bestehenden `composeSkills()` in `compose.go` automatisch nach `~/.claude/commands/` gemergt. Jede Datei ist ein minimaler Wrapper, der den Skill-Tool-Aufruf beschreibt. Kein Umbau an Go-Code nötig.
 
@@ -24,7 +24,7 @@ func TestBaseCommandsDeployed(t *testing.T) {
 	dst := t.TempDir()
 	cfg := config.Config{
 		Version: "1.0",
-		Source:  "github.com/jmt-labs/claude-setup",
+		Source:  "github.com/jmt-labs/forgecrate",
 		Ref:     "main",
 		Profile: "backend",
 		Flavors: []string{},
@@ -35,7 +35,7 @@ func TestBaseCommandsDeployed(t *testing.T) {
 	}
 
 	baseCommands := []string{
-		"claude-setup-advisor.md",
+		"forgecrate-advisor.md",
 		"claude-setup-release.md",
 		"claude-setup-repo-health.md",
 		"claude-setup-repo-onboarding.md",
@@ -56,17 +56,17 @@ func TestBaseCommandsDeployed(t *testing.T) {
 go test ./e2e/ -run TestBaseCommandsDeployed -v
 ```
 
-Erwartet: FAIL mit `missing base command: claude-setup-advisor.md`
+Erwartet: FAIL mit `missing base command: forgecrate-advisor.md`
 
 ---
 
 ### Task 2: Base-Command-Dateien anlegen
 
 **Files:**
-- Create: `base/.claude/commands/claude-setup-advisor.md`
-- Create: `base/.claude/commands/claude-setup-release.md`
-- Create: `base/.claude/commands/claude-setup-repo-health.md`
-- Create: `base/.claude/commands/claude-setup-repo-onboarding.md`
+- Create: `base/.claude/commands/forgecrate-advisor.md`
+- Create: `base/.claude/commands/forgecrate-release.md`
+- Create: `base/.claude/commands/forgecrate-repo-health.md`
+- Create: `base/.claude/commands/forgecrate-repo-onboarding.md`
 
 - [ ] **Step 1: Verzeichnis anlegen**
 
@@ -74,21 +74,21 @@ Erwartet: FAIL mit `missing base command: claude-setup-advisor.md`
 mkdir -p base/.claude/commands
 ```
 
-- [ ] **Step 2: `claude-setup-advisor.md` erstellen**
+- [ ] **Step 2: `forgecrate-advisor.md` erstellen**
 
-Inhalt von `base/.claude/commands/claude-setup-advisor.md`:
+Inhalt von `base/.claude/commands/forgecrate-advisor.md`:
 
 ```markdown
 ---
-description: Analysiere dieses Repo und empfehle das passende claude-setup-Profil und Flavors
+description: Analysiere dieses Repo und empfehle das passende forgecrate-Profil und Flavors
 ---
 
-Use the Skill tool to invoke the "claude-setup-advisor" skill.
+Use the Skill tool to invoke the "forgecrate-advisor" skill.
 ```
 
 - [ ] **Step 3: `claude-setup-release.md` erstellen**
 
-Inhalt von `base/.claude/commands/claude-setup-release.md`:
+Inhalt von `base/.claude/commands/forgecrate-release.md`:
 
 ```markdown
 ---
@@ -100,7 +100,7 @@ Use the Skill tool to invoke the "release" skill.
 
 - [ ] **Step 4: `claude-setup-repo-health.md` erstellen**
 
-Inhalt von `base/.claude/commands/claude-setup-repo-health.md`:
+Inhalt von `base/.claude/commands/forgecrate-repo-health.md`:
 
 ```markdown
 ---
@@ -112,11 +112,11 @@ Use the Skill tool to invoke the "repo-health" skill.
 
 - [ ] **Step 5: `claude-setup-repo-onboarding.md` erstellen**
 
-Inhalt von `base/.claude/commands/claude-setup-repo-onboarding.md`:
+Inhalt von `base/.claude/commands/forgecrate-repo-onboarding.md`:
 
 ```markdown
 ---
-description: Erkunde das Repo nach claude-setup run und erstelle einen strukturierten Überblick für CLAUDE.md
+description: Erkunde das Repo nach forgecrate run und erstelle einen strukturierten Überblick für CLAUDE.md
 ---
 
 Use the Skill tool to invoke the "repo-onboarding" skill.
@@ -134,7 +134,7 @@ Erwartet: PASS
 
 ```bash
 git add base/.claude/commands/ e2e/e2e_test.go
-git commit -m "feat: slash-commands für base-skills (claude-setup-*)"
+git commit -m "feat: slash-commands für base-skills (forgecrate-*)"
 ```
 
 ---
@@ -153,7 +153,7 @@ func TestProfileFlavorCommandsDeployed(t *testing.T) {
 	dst := t.TempDir()
 	cfg := config.Config{
 		Version: "1.0",
-		Source:  "github.com/jmt-labs/claude-setup",
+		Source:  "github.com/jmt-labs/forgecrate",
 		Ref:     "main",
 		Profile: "backend",
 		Flavors: []string{"tdd", "strict-review"},
@@ -191,11 +191,11 @@ Erwartet: FAIL mit `missing command: claude-setup-db-migration.md`
 ### Task 4: Profil/Flavor-Command-Dateien anlegen
 
 **Files:**
-- Create: `profiles/backend/.claude/commands/claude-setup-db-migration.md`
-- Create: `profiles/frontend/.claude/commands/claude-setup-accessibility-audit.md`
-- Create: `flavors/tdd/.claude/commands/claude-setup-test-coverage.md`
-- Create: `flavors/strict-review/.claude/commands/claude-setup-pr-checklist.md`
-- Create: `flavors/github/.claude/commands/claude-setup-github-release.md`
+- Create: `profiles/backend/.claude/commands/forgecrate-db-migration.md`
+- Create: `profiles/frontend/.claude/commands/forgecrate-accessibility-audit.md`
+- Create: `flavors/tdd/.claude/commands/forgecrate-test-coverage.md`
+- Create: `flavors/strict-review/.claude/commands/forgecrate-pr-checklist.md`
+- Create: `flavors/github/.claude/commands/forgecrate-github-release.md`
 
 - [ ] **Step 1: Verzeichnisse anlegen**
 
@@ -209,7 +209,7 @@ mkdir -p flavors/github/.claude/commands
 
 - [ ] **Step 2: `claude-setup-db-migration.md` erstellen**
 
-Inhalt von `profiles/backend/.claude/commands/claude-setup-db-migration.md`:
+Inhalt von `profiles/backend/.claude/commands/forgecrate-db-migration.md`:
 
 ```markdown
 ---
@@ -221,7 +221,7 @@ Use the Skill tool to invoke the "db-migration" skill.
 
 - [ ] **Step 3: `claude-setup-accessibility-audit.md` erstellen**
 
-Inhalt von `profiles/frontend/.claude/commands/claude-setup-accessibility-audit.md`:
+Inhalt von `profiles/frontend/.claude/commands/forgecrate-accessibility-audit.md`:
 
 ```markdown
 ---
@@ -233,7 +233,7 @@ Use the Skill tool to invoke the "accessibility-audit" skill.
 
 - [ ] **Step 4: `claude-setup-test-coverage.md` erstellen**
 
-Inhalt von `flavors/tdd/.claude/commands/claude-setup-test-coverage.md`:
+Inhalt von `flavors/tdd/.claude/commands/forgecrate-test-coverage.md`:
 
 ```markdown
 ---
@@ -245,7 +245,7 @@ Use the Skill tool to invoke the "test-coverage" skill.
 
 - [ ] **Step 5: `claude-setup-pr-checklist.md` erstellen**
 
-Inhalt von `flavors/strict-review/.claude/commands/claude-setup-pr-checklist.md`:
+Inhalt von `flavors/strict-review/.claude/commands/forgecrate-pr-checklist.md`:
 
 ```markdown
 ---
@@ -257,7 +257,7 @@ Use the Skill tool to invoke the "pr-checklist" skill.
 
 - [ ] **Step 6: `claude-setup-github-release.md` erstellen**
 
-Inhalt von `flavors/github/.claude/commands/claude-setup-github-release.md`:
+Inhalt von `flavors/github/.claude/commands/forgecrate-github-release.md`:
 
 ```markdown
 ---
@@ -287,7 +287,7 @@ Erwartet: alle PASS
 
 ```bash
 git add profiles/ flavors/ e2e/e2e_test.go
-git commit -m "feat: slash-commands für profil/flavor-skills (claude-setup-*)"
+git commit -m "feat: slash-commands für profil/flavor-skills (forgecrate-*)"
 ```
 
 ---
@@ -306,11 +306,11 @@ Erwartet: alle PASS, kein Skip
 
 ```bash
 gh pr create \
-  --title "feat: slash-commands für claude-setup skills" \
+  --title "feat: slash-commands für forgecrate skills" \
   --body "$(cat <<'EOF'
 ## Was
 
-Fügt `/claude-setup-*` Slash-Commands für alle Skills hinzu.
+Fügt `/forgecrate-*` Slash-Commands für alle Skills hinzu.
 
 ## Warum
 
@@ -324,7 +324,7 @@ Skills waren bisher nur über den Skill-Tool-Namen erreichbar. Mit den Commands 
 
 ## Nächster Schritt
 
-Plugin-Wrapper für echten `/claude-setup:<name>`-Namespace (separates Feature).
+Plugin-Wrapper für echten `/forgecrate:<name>`-Namespace (separates Feature).
 
 Closes #<issue>
 EOF
