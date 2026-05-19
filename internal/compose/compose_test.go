@@ -54,8 +54,8 @@ func TestComposeSettingsReturnsContent(t *testing.T) {
 	dst := t.TempDir()
 
 	settingsDir := filepath.Join(src, "base", ".claude")
-	os.MkdirAll(settingsDir, 0755)
-	os.WriteFile(filepath.Join(settingsDir, "settings.json"), []byte(`{"model":"claude-sonnet-4-6"}`), 0644)
+	_ = os.MkdirAll(settingsDir, 0755)
+	_ = os.WriteFile(filepath.Join(settingsDir, "settings.json"), []byte(`{"model":"claude-sonnet-4-6"}`), 0644)
 
 	req := compose.Request{SourceDir: src, DestDir: dst, Profile: "backend", Flavors: []string{}}
 	content, err := compose.ComposeSettings(req)
@@ -72,9 +72,9 @@ func TestComposeRunSkipsSettingsWhenFlagSet(t *testing.T) {
 	dst := t.TempDir()
 
 	settingsDir := filepath.Join(src, "base", ".claude")
-	os.MkdirAll(settingsDir, 0755)
-	os.WriteFile(filepath.Join(settingsDir, "settings.json"), []byte(`{"model":"claude-sonnet-4-6"}`), 0644)
-	os.WriteFile(filepath.Join(src, "base", "CLAUDE.md"), []byte("# Base\n<!-- CUSTOM:BEGIN -->\n<!-- CUSTOM:END -->\n"), 0644)
+	_ = os.MkdirAll(settingsDir, 0755)
+	_ = os.WriteFile(filepath.Join(settingsDir, "settings.json"), []byte(`{"model":"claude-sonnet-4-6"}`), 0644)
+	_ = os.WriteFile(filepath.Join(src, "base", "CLAUDE.md"), []byte("# Base\n<!-- CUSTOM:BEGIN -->\n<!-- CUSTOM:END -->\n"), 0644)
 
 	req := compose.Request{SourceDir: src, DestDir: dst, Profile: "backend", Flavors: []string{}, SkipSettings: true}
 	if err := compose.Run(req); err != nil {
@@ -89,7 +89,7 @@ func TestComposeRunSkipsSettingsWhenFlagSet(t *testing.T) {
 func writeFile(t *testing.T, base, rel, content string) {
 	t.Helper()
 	path := filepath.Join(base, filepath.FromSlash(rel))
-	os.MkdirAll(filepath.Dir(path), 0755)
+	_ = os.MkdirAll(filepath.Dir(path), 0755)
 	if err := os.WriteFile(path, []byte(content), 0644); err != nil {
 		t.Fatalf("writeFile %s: %v", path, err)
 	}

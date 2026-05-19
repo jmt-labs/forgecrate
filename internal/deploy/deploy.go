@@ -74,9 +74,9 @@ func composeWithLog(req compose.Request, out io.Writer) error {
 		}
 		after := fileHash(destPath)
 		if before == after {
-			fmt.Fprintf(out, "🔵 %s\n", f)
+			_, _ = fmt.Fprintf(out, "🔵 %s\n", f)
 		} else {
-			fmt.Fprintf(out, "✅ %s\n", f)
+			_, _ = fmt.Fprintf(out, "✅ %s\n", f)
 		}
 	}
 	return compose.RunCommands(req)
@@ -150,7 +150,7 @@ func copySkills(sourceDir, destDir string, cfg config.Config, out io.Writer) err
 			if err := copyDir(src, dst); err != nil {
 				return fmt.Errorf("copy skill %s: %w", name, err)
 			}
-			fmt.Fprintf(out, "✅ skill:%s\n", name)
+			_, _ = fmt.Fprintf(out, "✅ skill:%s\n", name)
 		}
 	}
 	return nil
@@ -175,7 +175,7 @@ func copyFile(src, dst string) (err error) {
 	if err != nil {
 		return fmt.Errorf("open %s: %w", src, err)
 	}
-	defer in.Close()
+	defer func() { _ = in.Close() }()
 
 	out, err := os.OpenFile(dst, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
 	if err != nil {
@@ -197,7 +197,7 @@ func copyHooks(src, dst string, cfg *config.Config, out io.Writer, in io.Reader)
 	hooksDir := filepath.Join(src, "base", "hooks")
 	if _, err := os.Stat(hooksDir); err != nil {
 		if os.IsNotExist(err) {
-			fmt.Fprintf(out, "🔵 hooks: kein Verzeichnis vorhanden, wird übersprungen\n")
+			_, _ = fmt.Fprintf(out, "🔵 hooks: kein Verzeichnis vorhanden, wird übersprungen\n")
 			return nil
 		}
 		return fmt.Errorf("hooks-Verzeichnis prüfen (%s): %w", hooksDir, err)

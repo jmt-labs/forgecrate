@@ -58,7 +58,7 @@ func TestWriteMCPJsonHTTP(t *testing.T) {
 
 	data, _ := os.ReadFile(filepath.Join(dst, ".mcp.json"))
 	var result map[string]interface{}
-	json.Unmarshal(data, &result)
+	_ = json.Unmarshal(data, &result)
 
 	servers := result["mcpServers"].(map[string]interface{})
 	entry := servers["github"].(map[string]interface{})
@@ -93,7 +93,7 @@ func TestWriteMCPJsonMergesExisting(t *testing.T) {
 
 	data, _ := os.ReadFile(filepath.Join(dst, ".mcp.json"))
 	var result map[string]interface{}
-	json.Unmarshal(data, &result)
+	_ = json.Unmarshal(data, &result)
 	servers := result["mcpServers"].(map[string]interface{})
 
 	if _, ok := servers["existing"]; !ok {

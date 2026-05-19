@@ -20,7 +20,7 @@ func Read(path string) (Config, error) {
 	if err != nil {
 		return Config{}, err
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	var cfg Config
 	if err := yaml.NewDecoder(f).Decode(&cfg); err != nil {
@@ -36,11 +36,11 @@ func Write(path string, cfg Config) error {
 	}
 	enc := yaml.NewEncoder(f)
 	if err := enc.Encode(cfg); err != nil {
-		f.Close()
+		_ = f.Close()
 		return err
 	}
 	if err := enc.Close(); err != nil {
-		f.Close()
+		_ = f.Close()
 		return err
 	}
 	return f.Close()

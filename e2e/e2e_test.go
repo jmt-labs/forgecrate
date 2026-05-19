@@ -69,7 +69,7 @@ func TestInitIsIdempotent(t *testing.T) {
 	customized := strings.Replace(string(content),
 		"<!-- CUSTOM:BEGIN -->\n<!-- CUSTOM:END -->",
 		"<!-- CUSTOM:BEGIN -->\n# Mein Custom\n<!-- CUSTOM:END -->", 1)
-	os.WriteFile(claudeMD, []byte(customized), 0644)
+	_ = os.WriteFile(claudeMD, []byte(customized), 0644)
 
 	if err := deploy.Run(localSource(t), dst, cfg); err != nil {
 		t.Fatalf("second run: %v", err)
@@ -96,9 +96,9 @@ func TestUpdatePreservesOverrides(t *testing.T) {
 	}
 
 	overridesDir := filepath.Join(dst, ".claude", "commands", "overrides")
-	os.MkdirAll(overridesDir, 0755)
+	_ = os.MkdirAll(overridesDir, 0755)
 	overrideSkill := filepath.Join(overridesDir, "my-skill.md")
-	os.WriteFile(overrideSkill, []byte("# My Skill"), 0644)
+	_ = os.WriteFile(overrideSkill, []byte("# My Skill"), 0644)
 
 	if err := deploy.Run(localSource(t), dst, cfg); err != nil {
 		t.Fatalf("update: %v", err)
@@ -149,7 +149,7 @@ func TestDeployIncludesBaseSkills(t *testing.T) {
 	if err := deploy.Run(localSource(t), dst, cfg); err != nil {
 		t.Fatalf("deploy.Run: %v", err)
 	}
-	skills := []string{"release", "repo-onboarding", "repo-health", "forgecrate-advisor"}
+	skills := []string{"forgecrate-release", "forgecrate-repo-onboarding", "forgecrate-repo-health", "forgecrate-advisor"}
 	for _, s := range skills {
 		path := filepath.Join(dst, ".claude", "skills", s, "SKILL.md")
 		if _, err := os.Stat(path); err != nil {
@@ -188,9 +188,9 @@ func TestDeployIncludesFlavorSkill(t *testing.T) {
 	if err := deploy.Run(localSource(t), dst, cfg); err != nil {
 		t.Fatalf("deploy.Run: %v", err)
 	}
-	path := filepath.Join(dst, ".claude", "skills", "github-release", "SKILL.md")
+	path := filepath.Join(dst, ".claude", "skills", "forgecrate-github-release", "SKILL.md")
 	if _, err := os.Stat(path); err != nil {
-		t.Errorf("github flavor skill missing: github-release")
+		t.Errorf("github flavor skill missing: forgecrate-github-release")
 	}
 }
 
