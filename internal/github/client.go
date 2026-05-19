@@ -74,7 +74,7 @@ func (c *Client) do(req *http.Request) (*http.Response, error) {
 
 		if resp.StatusCode == http.StatusTooManyRequests {
 			reset := resp.Header.Get("X-RateLimit-Reset")
-			resp.Body.Close()
+			_ = resp.Body.Close()
 			if reset != "" {
 				ts, parseErr := strconv.ParseInt(reset, 10, 64)
 				if parseErr == nil {
@@ -92,7 +92,7 @@ func (c *Client) do(req *http.Request) (*http.Response, error) {
 		}
 
 		if resp.StatusCode >= 500 {
-			resp.Body.Close()
+			_ = resp.Body.Close()
 			if attempt == len(delays) {
 				return nil, fmt.Errorf("server error: HTTP %d", resp.StatusCode)
 			}
