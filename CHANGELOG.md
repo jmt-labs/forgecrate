@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+- feat(frontend): Skill `ui-ux-audit` für tiefgehende UI/UX-Reviews mit automatischer Erstellung kleinteiliger GitHub-Issues. Ergänzt den bestehenden `accessibility-audit`-Skill um einen ganzheitlichen Audit über alle UI-Bereiche (Auth, Hauptworkflow, Wizards/Dialoge, Settings) mit Severity-Bewertung.
+
 ## [v0.0.3] - 2026-05-17
 
 ### Added
