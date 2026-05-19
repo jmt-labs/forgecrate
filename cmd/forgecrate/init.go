@@ -27,9 +27,12 @@ func newInitCmd() *cobra.Command {
 
 			cfgPath := cwd + "/.forgecrate.yaml"
 			cfg, err := config.Read(cfgPath)
+			var legacyPath string
 			if errors.Is(err, os.ErrNotExist) {
-				if legacy, lerr := config.Read(cwd + "/.claude-setup.yaml"); lerr == nil {
-					cfg = legacy
+				legacy := cwd + "/.claude-setup.yaml"
+				if legacyCfg, lerr := config.Read(legacy); lerr == nil {
+					cfg = legacyCfg
+					legacyPath = legacy
 					fmt.Fprintln(os.Stderr, "Notice: migrating .claude-setup.yaml → .forgecrate.yaml")
 				} else {
 					cfg = config.Config{
@@ -44,7 +47,7 @@ func newInitCmd() *cobra.Command {
 				return err
 			}
 
-			if profile != "" {
+			if cmd.Flags().Changed("profile") {
 				cfg.Profile = profile
 			}
 			if len(flavors) > 0 {
@@ -68,6 +71,10 @@ func newInitCmd() *cobra.Command {
 			fmt.Printf("Deploying profile=%s flavors=%v ...\n", cfg.Profile, cfg.Flavors)
 			if err := deploy.Run(srcDir, cwd, cfg); err != nil {
 				return err
+			}
+
+			if legacyPath != "" {
+				os.Remove(legacyPath)
 			}
 
 			fmt.Println("Done.")

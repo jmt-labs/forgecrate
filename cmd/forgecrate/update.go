@@ -24,9 +24,12 @@ func newUpdateCmd() *cobra.Command {
 			}
 
 			cfg, err := config.Read(cwd + "/.forgecrate.yaml")
+			var legacyPath string
 			if errors.Is(err, os.ErrNotExist) {
-				if legacy, lerr := config.Read(cwd + "/.claude-setup.yaml"); lerr == nil {
-					cfg = legacy
+				legacy := cwd + "/.claude-setup.yaml"
+				if legacyCfg, lerr := config.Read(legacy); lerr == nil {
+					cfg = legacyCfg
+					legacyPath = legacy
 					fmt.Fprintln(os.Stderr, "Notice: migrating .claude-setup.yaml → .forgecrate.yaml")
 				} else {
 					return fmt.Errorf(".forgecrate.yaml nicht gefunden — erst 'forgecrate init' ausführen")
@@ -56,6 +59,10 @@ func newUpdateCmd() *cobra.Command {
 			fmt.Printf("Updating profile=%s flavors=%v ...\n", cfg.Profile, cfg.Flavors)
 			if err := deploy.Run(srcDir, cwd, cfg); err != nil {
 				return err
+			}
+
+			if legacyPath != "" {
+				os.Remove(legacyPath)
 			}
 
 			fmt.Println("Done.")
