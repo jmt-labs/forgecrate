@@ -37,6 +37,10 @@ Beim Session-Start: `ls HANDOFF.md 2>/dev/null` ausführen. Falls vorhanden: Dat
 - YAGNI: keine ungefragten Features
 - Änderungen immer über Branch + PR, nie direkt auf `main`
 
+## Hook-Schutz: Hinweis
+
+Der `pre-tool.sh`-Hook blockt destruktive Bash-Befehle auf `main` (z. B. `git commit`, `git push`, `git reset --hard`, Schreib-Redirectionen). Er ist jedoch **keine alleinige Schutzschicht** — GitHub Branch Protection Rules müssen zusätzlich konfiguriert werden, damit direkte Pushes auch serverseitig verhindert werden.
+
 ## Konfliktbehandlung beim Deploy (`forgecrate update`)
 
 Ein Konflikt entsteht nur, wenn **beides** gleichzeitig zutrifft: die lokale Datei wurde seit dem letzten Deploy geändert, **und** die neue Upstream-Version unterscheidet sich von der lokalen Version. Stimmt die lokale Änderung zufällig mit dem Upstream überein, wird kein Konflikt ausgelöst.
