@@ -69,15 +69,18 @@ KONFLIKT: .claude/settings.json
 Der Hauptagent koordiniert als Team-Lead. Subagenten übernehmen Rollen entsprechend ihrer Aufgabe.
 Der Hauptagent kann bei Bedarf eigenständig von diesen Empfehlungen abweichen.
 
+<!-- Modell-IDs werden zentral in base/models.yaml verwaltet. -->
+<!-- Beim Upgrade: nur base/models.yaml ändern, dann forgecrate update ausführen. -->
+
 | Rolle | Superpowers-Skill | Modell | Effort |
 |---|---|---|---|
-| Analyst / Product Owner | `superpowers:brainstorming` | `claude-opus-4-7` | high |
-| Tech Lead / Architekt | `superpowers:writing-plans` | `claude-opus-4-7` | high |
-| Entwickler | `superpowers:test-driven-development` | `claude-sonnet-4-6` | medium |
-| Implementierer (mechanisch) | `superpowers:subagent-driven-development` | `claude-haiku-4-5-20251001` | low |
-| Reviewer | `superpowers:requesting-code-review` | `claude-sonnet-4-6` | medium |
-| QA / Abschluss | `superpowers:verification-before-completion` | `claude-sonnet-4-6` | medium |
-| Debugger | `superpowers:systematic-debugging` | `claude-sonnet-4-6` | medium |
+| Analyst / Product Owner | `superpowers:brainstorming` | `claude-opus-4-7` (models.planning) | high |
+| Tech Lead / Architekt | `superpowers:writing-plans` | `claude-opus-4-7` (models.planning) | high |
+| Entwickler | `superpowers:test-driven-development` | `claude-sonnet-4-6` (models.default) | medium |
+| Implementierer (mechanisch) | `superpowers:subagent-driven-development` | `claude-haiku-4-5-20251001` (models.mechanical) | low |
+| Reviewer | `superpowers:requesting-code-review` | `claude-sonnet-4-6` (models.review) | medium |
+| QA / Abschluss | `superpowers:verification-before-completion` | `claude-sonnet-4-6` (models.review) | medium |
+| Debugger | `superpowers:systematic-debugging` | `claude-sonnet-4-6` (models.default) | medium |
 
 ## Parallelisierung & Isolation
 

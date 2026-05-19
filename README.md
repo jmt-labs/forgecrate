@@ -448,6 +448,7 @@ make release
 | `internal/github/` | GitHub API client (tarball download) |
 | `internal/extensions/` | Claude extension handling |
 | `base/` | Base layer — always deployed |
+| `base/models.yaml` | Canonical model IDs — single source of truth for all agent roles |
 | `profiles/` | Profile layer — one selectable |
 | `flavors/` | Flavor layer — multiple combinable |
 | `e2e/` | End-to-end tests |
