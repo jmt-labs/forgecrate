@@ -11,8 +11,8 @@ import (
 
 func writeTestFile(t *testing.T, path, content string) {
 	t.Helper()
-	os.MkdirAll(filepath.Dir(path), 0755)
-	os.WriteFile(path, []byte(content), 0644)
+	_ = os.MkdirAll(filepath.Dir(path), 0755)
+	_ = os.WriteFile(path, []byte(content), 0644)
 }
 
 // Fall 1: disk == stored, new == disk → nichts tun
