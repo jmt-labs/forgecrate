@@ -309,3 +309,157 @@ func TestDeployFileMissingStoredHash(t *testing.T) {
 		t.Error("migration should not show conflict")
 	}
 }
+
+// Konflikt → "o" überschreibt (primäres ASCII-Mnemonic)
+func TestDeployFileConflictOverwriteWithO(t *testing.T) {
+	dir := t.TempDir()
+	dst := filepath.Join(dir, "file.txt")
+	writeTestFile(t, dst, "user-modified")
+
+	cfg := &config.Config{
+		DeployedFiles: map[string]string{"file.txt": hashBytes([]byte("original"))},
+	}
+
+	out := &strings.Builder{}
+	err := deployFile(dst, "file.txt", []byte("remote-new"), cfg, out, strings.NewReader("o\n"))
+	if err != nil {
+		t.Fatalf("deployFile: %v", err)
+	}
+	data, _ := os.ReadFile(dst)
+	if string(data) != "remote-new" {
+		t.Errorf("'o' input: file should be overwritten, got %q", data)
+	}
+	if cfg.DeployedFiles["file.txt"] != hashBytes([]byte("remote-new")) {
+		t.Error("'o' input: hash not updated after overwrite")
+	}
+}
+
+// Konflikt → "k" behält (primäres ASCII-Mnemonic)
+func TestDeployFileConflictKeepWithK(t *testing.T) {
+	dir := t.TempDir()
+	dst := filepath.Join(dir, "file.txt")
+	writeTestFile(t, dst, "user-modified")
+
+	cfg := &config.Config{
+		DeployedFiles: map[string]string{"file.txt": hashBytes([]byte("original"))},
+	}
+
+	out := &strings.Builder{}
+	err := deployFile(dst, "file.txt", []byte("remote-new"), cfg, out, strings.NewReader("k\n"))
+	if err != nil {
+		t.Fatalf("deployFile: %v", err)
+	}
+	data, _ := os.ReadFile(dst)
+	if string(data) != "user-modified" {
+		t.Errorf("'k' input: file should be kept, got %q", data)
+	}
+	if !strings.Contains(out.String(), "KONFLIKT") {
+		t.Error("'k' input: conflict should be reported")
+	}
+}
+
+// Konflikt → "ü" weiterhin akzeptieren (Backwards-Compat)
+func TestDeployFileConflictOverwriteWithUmlaut(t *testing.T) {
+	dir := t.TempDir()
+	dst := filepath.Join(dir, "file.txt")
+	writeTestFile(t, dst, "user-modified")
+
+	cfg := &config.Config{
+		DeployedFiles: map[string]string{"file.txt": hashBytes([]byte("original"))},
+	}
+
+	out := &strings.Builder{}
+	err := deployFile(dst, "file.txt", []byte("remote-new"), cfg, out, strings.NewReader("ü\n"))
+	if err != nil {
+		t.Fatalf("deployFile: %v", err)
+	}
+	data, _ := os.ReadFile(dst)
+	if string(data) != "remote-new" {
+		t.Errorf("'ü' backwards-compat: file should be overwritten, got %q", data)
+	}
+}
+
+// Konflikt → "u" weiterhin akzeptieren (Backwards-Compat)
+func TestDeployFileConflictOverwriteWithU(t *testing.T) {
+	dir := t.TempDir()
+	dst := filepath.Join(dir, "file.txt")
+	writeTestFile(t, dst, "user-modified")
+
+	cfg := &config.Config{
+		DeployedFiles: map[string]string{"file.txt": hashBytes([]byte("original"))},
+	}
+
+	out := &strings.Builder{}
+	err := deployFile(dst, "file.txt", []byte("remote-new"), cfg, out, strings.NewReader("u\n"))
+	if err != nil {
+		t.Fatalf("deployFile: %v", err)
+	}
+	data, _ := os.ReadFile(dst)
+	if string(data) != "remote-new" {
+		t.Errorf("'u' backwards-compat: file should be overwritten, got %q", data)
+	}
+}
+
+// Konflikt → leere Eingabe (Enter) → behalten
+func TestDeployFileConflictEmptyInputKeeps(t *testing.T) {
+	dir := t.TempDir()
+	dst := filepath.Join(dir, "file.txt")
+	writeTestFile(t, dst, "user-modified")
+
+	cfg := &config.Config{
+		DeployedFiles: map[string]string{"file.txt": hashBytes([]byte("original"))},
+	}
+
+	out := &strings.Builder{}
+	err := deployFile(dst, "file.txt", []byte("remote-new"), cfg, out, strings.NewReader("\n"))
+	if err != nil {
+		t.Fatalf("deployFile: %v", err)
+	}
+	data, _ := os.ReadFile(dst)
+	if string(data) != "user-modified" {
+		t.Errorf("empty input: file should be kept, got %q", data)
+	}
+}
+
+// Konflikt → unbekannte Eingabe → behalten
+func TestDeployFileConflictUnknownInputKeeps(t *testing.T) {
+	dir := t.TempDir()
+	dst := filepath.Join(dir, "file.txt")
+	writeTestFile(t, dst, "user-modified")
+
+	cfg := &config.Config{
+		DeployedFiles: map[string]string{"file.txt": hashBytes([]byte("original"))},
+	}
+
+	out := &strings.Builder{}
+	err := deployFile(dst, "file.txt", []byte("remote-new"), cfg, out, strings.NewReader("xyz\n"))
+	if err != nil {
+		t.Fatalf("deployFile: %v", err)
+	}
+	data, _ := os.ReadFile(dst)
+	if string(data) != "user-modified" {
+		t.Errorf("unknown input: file should be kept, got %q", data)
+	}
+}
+
+// Prompt-Text zeigt neues o/k-Format
+func TestDeployFileConflictPromptText(t *testing.T) {
+	dir := t.TempDir()
+	dst := filepath.Join(dir, "file.txt")
+	writeTestFile(t, dst, "user-modified")
+
+	cfg := &config.Config{
+		DeployedFiles: map[string]string{"file.txt": hashBytes([]byte("original"))},
+	}
+
+	out := &strings.Builder{}
+	_ = deployFile(dst, "file.txt", []byte("remote-new"), cfg, out, strings.NewReader("k\n"))
+
+	prompt := out.String()
+	if !strings.Contains(prompt, "[o]verwrite") {
+		t.Errorf("prompt should contain '[o]verwrite', got: %q", prompt)
+	}
+	if !strings.Contains(prompt, "[k]eep") {
+		t.Errorf("prompt should contain '[k]eep', got: %q", prompt)
+	}
+}

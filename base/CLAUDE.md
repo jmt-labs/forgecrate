@@ -49,12 +49,14 @@ Das Tool zeigt bei einem echten Konflikt:
 KONFLIKT: .claude/settings.json
   Deine Version: <erste Zeile der lokalen Datei, max. 80 Zeichen>
   Neue Version:  <erste Zeile des Upstream>
-  [o]verwrite / [k]eep (Standard: behalten):
+  [o]verwrite / [k]eep (default: keep):
 ```
 
 **Entscheidung:**
-- `o` (overwrite) — Upstream-Version übernehmen, lokale Änderungen gehen verloren; alternativ `ü` oder `u` (Rückwärtskompatibilität)
-- `k` oder Enter — Lokale Version behalten, Upstream-Update wird übersprungen; der Hash der lokalen Version wird als neue Basis gespeichert — beim nächsten Update entsteht erneut ein Konflikt, falls Upstream sich weiter ändert; alternativ `b` (Rückwärtskompatibilität)
+- `o` — Upstream-Version übernehmen, lokale Änderungen gehen verloren
+- `k` oder Enter — Lokale Version behalten, Upstream-Update wird übersprungen; der Hash der lokalen Version wird als neue Basis gespeichert — beim nächsten Update entsteht erneut ein Konflikt, falls Upstream sich weiter ändert
+- `ü` oder `u` — wie `o` (Backwards-Kompatibilität)
+- `b` — wie `k` (Backwards-Kompatibilität)
 
 **Faustregel:**
 - Für `settings.json` und CLAUDE.md: Overrides in die CUSTOM-Sektion auslagern

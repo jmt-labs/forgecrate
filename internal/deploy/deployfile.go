@@ -64,7 +64,7 @@ func deployFile(dstPath, rel string, newContent []byte, cfg *config.Config, w io
 	fmt.Fprintf(w, "\nKONFLIKT: %s\n", rel)
 	fmt.Fprintf(w, "  Deine Version: %s\n", firstLine(diskData))
 	fmt.Fprintf(w, "  Neue Version:  %s\n", firstLine(newContent))
-	fmt.Fprintf(w, "  [o]verwrite / [k]eep (Standard: behalten): ")
+	fmt.Fprintf(w, "  [o]verwrite / [k]eep (default: keep): ")
 
 	scanner := bufio.NewScanner(r)
 	scanner.Scan()
