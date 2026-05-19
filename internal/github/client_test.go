@@ -47,7 +47,7 @@ func TestDownloadAndExtract(t *testing.T) {
 	client := gh.New(srv.URL)
 	dir := t.TempDir()
 
-	if err := client.Download("markus", "claude-setup", "main", dir); err != nil {
+	if err := client.Download("jmt-labs", "forgecrate", "main", dir); err != nil {
 		t.Fatalf("Download: %v", err)
 	}
 
@@ -67,7 +67,7 @@ func TestDownloadHTTPError(t *testing.T) {
 	defer srv.Close()
 
 	client := gh.New(srv.URL)
-	err := client.Download("markus", "claude-setup", "main", t.TempDir())
+	err := client.Download("jmt-labs", "forgecrate", "main", t.TempDir())
 	if err == nil {
 		t.Fatal("expected error for 404 response")
 	}
@@ -85,7 +85,7 @@ func TestDownloadPathTraversal(t *testing.T) {
 	defer srv.Close()
 
 	client := gh.New(srv.URL)
-	err := client.Download("markus", "claude-setup", "main", t.TempDir())
+	err := client.Download("jmt-labs", "forgecrate", "main", t.TempDir())
 	if err == nil {
 		t.Fatal("expected error for path traversal attempt")
 	}

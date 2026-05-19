@@ -1,4 +1,4 @@
-# Claude Setup Implementation Plan
+# forgecrate Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -107,7 +107,7 @@ import (
 func main() {
 	root := &cobra.Command{
 		Use:   "forgecrate",
-		Short: "Reproduzierbares Claude-Setup für Repos",
+		Short: "Reproducible Claude Code configuration for Git repositories.",
 	}
 	root.AddCommand(newInitCmd())
 	root.AddCommand(newUpdateCmd())
@@ -135,7 +135,7 @@ func newInitCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "init",
-		Short: "Initialisiert Claude-Setup im aktuellen Repo",
+		Short: "Initialisiert forgecrate im aktuellen Repo",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			fmt.Printf("init: profile=%s flavors=%v\n", profile, flavors)
 			return nil
@@ -163,7 +163,7 @@ func newUpdateCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "update",
-		Short: "Aktualisiert Claude-Setup im aktuellen Repo",
+		Short: "Aktualisiert forgecrate im aktuellen Repo",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			fmt.Printf("update: profile=%s\n", profile)
 			return nil
@@ -1367,7 +1367,7 @@ func newInitCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "init",
-		Short: "Initialisiert Claude-Setup im aktuellen Repo",
+		Short: "Initialisiert forgecrate im aktuellen Repo",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cwd, err := os.Getwd()
 			if err != nil {
@@ -1445,7 +1445,7 @@ func newUpdateCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "update",
-		Short: "Aktualisiert Claude-Setup im aktuellen Repo",
+		Short: "Aktualisiert forgecrate im aktuellen Repo",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cwd, err := os.Getwd()
 			if err != nil {
@@ -1528,7 +1528,7 @@ git commit -m "feat: wire init and update commands with github+deploy"
 <!-- GENERATED:BEGIN -->
 # Claude-Konfiguration
 
-Dieses Repository verwendet ein reproduzierbares Claude-Setup.
+Dieses Repository verwendet ein reproduzierbares forgecrate.
 Die generierten Abschnitte dieser Datei werden bei `forgecrate update` überschrieben.
 Eigene Anpassungen gehören in den CUSTOM-Abschnitt.
 
@@ -1618,7 +1618,7 @@ Gilt für alle Agenten (Codex, Claude Code, etc.) die in diesem Repo arbeiten.
 PROFILE=$(grep 'profile:' .forgecrate.yaml 2>/dev/null | awk '{print $2}')
 FLAVORS=$(grep -A5 'flavors:' .forgecrate.yaml 2>/dev/null | grep '  -' | awk '{print $2}' | tr '\n' ',' | sed 's/,$//')
 
-echo "## Claude Setup — Aktive Konfiguration"
+echo "## forgecrate — Aktive Konfiguration"
 echo "Profil: ${PROFILE:-unbekannt} | Flavors: ${FLAVORS:-keine}"
 echo ""
 echo "Pflicht-Skills: brainstorming → tdd → verification-before-completion | debugging bei Bugs"
@@ -1947,7 +1947,7 @@ git commit -m "feat: add e2e tests for init/update/idempotency/profile-switch"
   <text x="400" y="52" font-family="monospace" font-size="28" font-weight="bold"
         fill="#e6edf3" text-anchor="middle" letter-spacing="2">forgecrate</text>
   <text x="400" y="82" font-family="monospace" font-size="14"
-        fill="#8b949e" text-anchor="middle">Reproduzierbares Claude-Setup für jedes Repo</text>
+        fill="#8b949e" text-anchor="middle">Reproducible Claude Code configuration for Git repositories</text>
   <text x="400" y="106" font-family="monospace" font-size="11"
         fill="#6e7681" text-anchor="middle">Go Binary · Layer System · Hooks · GitHub</text>
 </svg>
@@ -2190,12 +2190,12 @@ git commit -m "feat: add SVG banner and technical documentation"
 
 ```markdown
 <div align="center">
-  <img src="assets/banner.svg" alt="forgecrate — Reproduzierbares Claude-Setup" width="100%">
+  <img src="assets/banner.svg" alt="forgecrate — Reproducible forgecrate" width="100%">
 </div>
 
 # forgecrate
 
-forgecrate deployt ein reproduzierbares Claude-Setup in beliebige Repos. Ein globales Go-Binary holt Konfiguration, Skills und Hooks von GitHub und compositioniert sie per Layer-System ins Ziel-Repo.
+forgecrate deployt ein reproduzierbares forgecrate in beliebige Repos. Ein globales Go-Binary holt Konfiguration, Skills und Hooks von GitHub und compositioniert sie per Layer-System ins Ziel-Repo.
 
 Stack: Go Binary · GitHub API · Layer-System · Hooks · Skills
 

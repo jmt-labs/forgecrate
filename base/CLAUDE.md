@@ -1,6 +1,6 @@
 # Claude-Konfiguration
 
-Dieses Repository verwendet ein reproduzierbares Claude-Setup.
+Dieses Repository verwendet ein reproduzierbares forgecrate.
 Die generierten Abschnitte dieser Datei werden bei `forgecrate update` überschrieben.
 Eigene Anpassungen gehören in den CUSTOM-Abschnitt.
 

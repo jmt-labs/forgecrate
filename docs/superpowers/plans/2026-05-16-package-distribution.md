@@ -553,7 +553,7 @@
 
   From:
   ```markdown
-  forgecrate deployt ein reproduzierbares Claude-Setup in beliebige Repos. Ein globales Go-Binary holt Konfiguration, Skills und Hooks von GitHub und compositioniert sie per Layer-System ins Ziel-Repo.
+  forgecrate deployt ein reproduzierbares forgecrate in beliebige Repos. Ein globales Go-Binary holt Konfiguration, Skills und Hooks von GitHub und compositioniert sie per Layer-System ins Ziel-Repo.
   ```
 
   To:

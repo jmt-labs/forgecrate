@@ -1,4 +1,4 @@
-# Claude Setup Advisor
+# forgecrate Advisor
 
 Analysiert ein Repo und empfiehlt das passende `forgecrate`-Profil und die passenden Flavors.
 

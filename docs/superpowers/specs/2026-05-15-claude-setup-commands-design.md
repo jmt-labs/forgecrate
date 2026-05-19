@@ -33,14 +33,14 @@ Skill auch tatsächlich installiert wird.
 | Command-Datei | Slash-Command | Ruft auf |
 |---|---|---|
 | `forgecrate-advisor.md` | `/forgecrate-advisor` | `Skill("forgecrate-advisor")` |
-| `claude-setup-release.md` | `/forgecrate-release` | `Skill("release")` |
-| `claude-setup-repo-health.md` | `/forgecrate-repo-health` | `Skill("repo-health")` |
-| `claude-setup-repo-onboarding.md` | `/forgecrate-repo-onboarding` | `Skill("repo-onboarding")` |
-| `claude-setup-db-migration.md` | `/forgecrate-db-migration` | `Skill("db-migration")` |
-| `claude-setup-test-coverage.md` | `/forgecrate-test-coverage` | `Skill("test-coverage")` |
-| `claude-setup-pr-checklist.md` | `/forgecrate-pr-checklist` | `Skill("pr-checklist")` |
-| `claude-setup-accessibility-audit.md` | `/forgecrate-accessibility-audit` | `Skill("accessibility-audit")` |
-| `claude-setup-github-release.md` | `/forgecrate-github-release` | `Skill("github-release")` |
+| `forgecrate-release.md` | `/forgecrate-release` | `Skill("release")` |
+| `forgecrate-repo-health.md` | `/forgecrate-repo-health` | `Skill("repo-health")` |
+| `forgecrate-repo-onboarding.md` | `/forgecrate-repo-onboarding` | `Skill("repo-onboarding")` |
+| `forgecrate-db-migration.md` | `/forgecrate-db-migration` | `Skill("db-migration")` |
+| `forgecrate-test-coverage.md` | `/forgecrate-test-coverage` | `Skill("test-coverage")` |
+| `forgecrate-pr-checklist.md` | `/forgecrate-pr-checklist` | `Skill("pr-checklist")` |
+| `forgecrate-accessibility-audit.md` | `/forgecrate-accessibility-audit` | `Skill("accessibility-audit")` |
+| `forgecrate-github-release.md` | `/forgecrate-github-release` | `Skill("github-release")` |
 
 ### Dateiformat
 

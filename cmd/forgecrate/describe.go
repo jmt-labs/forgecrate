@@ -16,13 +16,13 @@ func newDescribeCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "describe <profile|flavor> <name>",
 		Short: "Zeigt eine detaillierte Beschreibung eines Profils oder Flavors",
-		Example: `  claude-setup describe profile backend
-  claude-setup describe flavor tdd`,
+		Example: `  forgecrate describe profile backend
+  forgecrate describe flavor tdd`,
 		Args: cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			kind, name := args[0], args[1]
 
-			srcDir, err := os.MkdirTemp("", "claude-setup-*")
+			srcDir, err := os.MkdirTemp("", "forgecrate-*")
 			if err != nil {
 				return err
 			}
@@ -32,9 +32,9 @@ func newDescribeCmd() *cobra.Command {
 				}
 			}()
 
-			fmt.Println("Fetching jmt-labs/claude-setup@main ...")
+			fmt.Println("Fetching jmt-labs/forgecrate@main ...")
 			client := gh.Default()
-			if err := client.Download("jmt-labs", "claude-setup", "main", srcDir); err != nil {
+			if err := client.Download("jmt-labs", "forgecrate", "main", srcDir); err != nil {
 				return fmt.Errorf("download: %w", err)
 			}
 

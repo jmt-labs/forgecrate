@@ -48,9 +48,9 @@ func TestDeployIncludesGetbetterCommand(t *testing.T) {
 	if err := deploy.Run(localSource(t), dst, cfg); err != nil {
 		t.Fatalf("deploy.Run: %v", err)
 	}
-	path := filepath.Join(dst, ".claude", "commands", "claude-setup-getbetter.md")
+	path := filepath.Join(dst, ".claude", "commands", "forgecrate-getbetter.md")
 	if _, err := os.Stat(path); err != nil {
-		t.Errorf("getbetter command missing: claude-setup-getbetter.md")
+		t.Errorf("getbetter command missing: forgecrate-getbetter.md")
 	}
 }
 ```

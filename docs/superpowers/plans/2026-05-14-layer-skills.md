@@ -409,7 +409,7 @@ Nummerierte Liste nach Priorität:
 - [ ] **Schritt 4: `base/skills/forgecrate-advisor/SKILL.md` anlegen**
 
 ```markdown
-# Claude Setup Advisor
+# forgecrate Advisor
 
 Analysiert das aktuelle Repo und empfiehlt das passende forgecrate Profil und Flavor.
 

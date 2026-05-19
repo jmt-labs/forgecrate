@@ -64,7 +64,7 @@ var allFlavors = []flavorCase{
 		name:             "gitops",
 		contentMarker:    "GitOps-Flavor",
 		expectedSkills:   []string{"gitops-drift-check"},
-		expectedCommands: []string{"claude-setup-gitops-status.md"},
+		expectedCommands: []string{"forgecrate-gitops-status.md"},
 	},
 }
 

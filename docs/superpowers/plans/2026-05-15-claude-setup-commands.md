@@ -36,9 +36,9 @@ func TestBaseCommandsDeployed(t *testing.T) {
 
 	baseCommands := []string{
 		"forgecrate-advisor.md",
-		"claude-setup-release.md",
-		"claude-setup-repo-health.md",
-		"claude-setup-repo-onboarding.md",
+		"forgecrate-release.md",
+		"forgecrate-repo-health.md",
+		"forgecrate-repo-onboarding.md",
 	}
 
 	for _, f := range baseCommands {
@@ -86,7 +86,7 @@ description: Analysiere dieses Repo und empfehle das passende forgecrate-Profil 
 Use the Skill tool to invoke the "forgecrate-advisor" skill.
 ```
 
-- [ ] **Step 3: `claude-setup-release.md` erstellen**
+- [ ] **Step 3: `forgecrate-release.md` erstellen**
 
 Inhalt von `base/.claude/commands/forgecrate-release.md`:
 
@@ -98,7 +98,7 @@ description: Führe einen vollständigen Release-Zyklus durch
 Use the Skill tool to invoke the "release" skill.
 ```
 
-- [ ] **Step 4: `claude-setup-repo-health.md` erstellen**
+- [ ] **Step 4: `forgecrate-repo-health.md` erstellen**
 
 Inhalt von `base/.claude/commands/forgecrate-repo-health.md`:
 
@@ -110,7 +110,7 @@ description: Analysiere das Repo auf Verbesserungspotenzial und gib eine prioris
 Use the Skill tool to invoke the "repo-health" skill.
 ```
 
-- [ ] **Step 5: `claude-setup-repo-onboarding.md` erstellen**
+- [ ] **Step 5: `forgecrate-repo-onboarding.md` erstellen**
 
 Inhalt von `base/.claude/commands/forgecrate-repo-onboarding.md`:
 
@@ -164,9 +164,9 @@ func TestProfileFlavorCommandsDeployed(t *testing.T) {
 	}
 
 	expectedCommands := []string{
-		"claude-setup-db-migration.md",
-		"claude-setup-test-coverage.md",
-		"claude-setup-pr-checklist.md",
+		"forgecrate-db-migration.md",
+		"forgecrate-test-coverage.md",
+		"forgecrate-pr-checklist.md",
 	}
 
 	for _, f := range expectedCommands {
@@ -184,7 +184,7 @@ func TestProfileFlavorCommandsDeployed(t *testing.T) {
 go test ./e2e/ -run TestProfileFlavorCommandsDeployed -v
 ```
 
-Erwartet: FAIL mit `missing command: claude-setup-db-migration.md`
+Erwartet: FAIL mit `missing command: forgecrate-db-migration.md`
 
 ---
 
@@ -207,7 +207,7 @@ mkdir -p flavors/strict-review/.claude/commands
 mkdir -p flavors/github/.claude/commands
 ```
 
-- [ ] **Step 2: `claude-setup-db-migration.md` erstellen**
+- [ ] **Step 2: `forgecrate-db-migration.md` erstellen**
 
 Inhalt von `profiles/backend/.claude/commands/forgecrate-db-migration.md`:
 
@@ -219,7 +219,7 @@ description: Führe durch Erstellung und Review einer Datenbankmigrierung
 Use the Skill tool to invoke the "db-migration" skill.
 ```
 
-- [ ] **Step 3: `claude-setup-accessibility-audit.md` erstellen**
+- [ ] **Step 3: `forgecrate-accessibility-audit.md` erstellen**
 
 Inhalt von `profiles/frontend/.claude/commands/forgecrate-accessibility-audit.md`:
 
@@ -231,7 +231,7 @@ description: Prüfe Barrierefreiheit in geänderten UI-Komponenten
 Use the Skill tool to invoke the "accessibility-audit" skill.
 ```
 
-- [ ] **Step 4: `claude-setup-test-coverage.md` erstellen**
+- [ ] **Step 4: `forgecrate-test-coverage.md` erstellen**
 
 Inhalt von `flavors/tdd/.claude/commands/forgecrate-test-coverage.md`:
 
@@ -243,7 +243,7 @@ description: Analysiere Testabdeckung und schlage den nächsten konkreten Test v
 Use the Skill tool to invoke the "test-coverage" skill.
 ```
 
-- [ ] **Step 5: `claude-setup-pr-checklist.md` erstellen**
+- [ ] **Step 5: `forgecrate-pr-checklist.md` erstellen**
 
 Inhalt von `flavors/strict-review/.claude/commands/forgecrate-pr-checklist.md`:
 
@@ -255,7 +255,7 @@ description: Systematische Überprüfung vor gh pr create
 Use the Skill tool to invoke the "pr-checklist" skill.
 ```
 
-- [ ] **Step 6: `claude-setup-github-release.md` erstellen**
+- [ ] **Step 6: `forgecrate-github-release.md` erstellen**
 
 Inhalt von `flavors/github/.claude/commands/forgecrate-github-release.md`:
 

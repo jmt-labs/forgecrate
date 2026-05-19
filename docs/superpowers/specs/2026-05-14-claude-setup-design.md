@@ -1,11 +1,11 @@
-# Claude Setup — Design Spec
+# forgecrate — Design Spec
 
 **Datum:** 2026-05-14  
 **Status:** Genehmigt
 
 ## Ziel
 
-Ein reproduzierbares, per Go-Binary verwaltetes Claude-Setup, das alle relevanten Claude-Dateien (CLAUDE.md, AGENTS.md, settings.json, Skills, Hooks) in ein Ziel-Repo deployt. Das Setup ist pro Repo konfigurierbar (Profile + Flavors + lokale Overrides) und erzwingt die Einhaltung definierter Workflows via Hooks und Pflicht-Skills.
+Ein reproduzierbares, per Go-Binary verwaltetes forgecrate, das alle relevanten Claude-Dateien (CLAUDE.md, AGENTS.md, settings.json, Skills, Hooks) in ein Ziel-Repo deployt. Das Setup ist pro Repo konfigurierbar (Profile + Flavors + lokale Overrides) und erzwingt die Einhaltung definierter Workflows via Hooks und Pflicht-Skills.
 
 ## Prinzipien
 
@@ -252,7 +252,7 @@ Diagramme werden als SVG unter `assets/` abgelegt und in die Docs eingebettet:
 
 ```
 <div align="center">
-  <img src="assets/banner.svg" alt="forgecrate — Reproduzierbares Claude-Setup" width="100%">
+  <img src="assets/banner.svg" alt="forgecrate — Reproducible forgecrate" width="100%">
 </div>
 
 # forgecrate
