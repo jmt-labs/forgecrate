@@ -32,7 +32,7 @@ Analysiert ein Repo und empfiehlt das passende `forgecrate`-Profil und die passe
 4. **Arbeitsweise abfragen** — stelle diese Fragen nacheinander:
 
    a. "Ist das ein Prototyp oder Solo-Projekt ohne formalen Review-Prozess?"
-      - Ja → empfehle `minimal` (schließt `strict-review` und `tdd` aus, weiter mit Schritt 5)
+      - Ja → empfehle `minimal` (fügt keine weiteren Pflicht-Skills hinzu; das Compose-System ist additiv, d. h. `minimal` deaktiviert weder `strict-review` noch `tdd` — es kombiniert sie einfach nicht; weiter mit Schritt 5)
       - Nein → weiter mit b
 
    b. "Arbeitest du im Team mit PR-Reviews?"

@@ -3,3 +3,6 @@
 # decken typische Backend-Workflows vollständig ab.
 plugins: []
 mcp: []
+skills:
+  - name: db-migration
+    source: db-migration

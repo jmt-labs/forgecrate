@@ -1,1 +1,11 @@
 /claude-setup
+/forgecrate
+coverage.out
+
+# Generierter Ordner — wird durch `forgecrate update` aus base/skills/ befüllt.
+# Quelle der Wahrheit: base/skills/ (und flavors/*/skills/).
+# Änderungen hier vornehmen — nicht in .claude/skills/.
+.claude/skills/
+
+# Temporäre Agent-Worktrees (von Claude Code Sub-Agents erstellt)
+.claude/worktrees/

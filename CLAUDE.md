@@ -1,3 +1,6 @@
+<!-- HINWEIS: Diese Datei (Root-CLAUDE.md) wird MANUELL gepflegt und ist kein generierter Output.
+     Sie überschreibt/ergänzt die Inhalte aus base/CLAUDE.md für dieses Repository.
+     base/CLAUDE.md wird bei `forgecrate update` neu generiert; diese Datei bleibt unverändert. -->
 <!-- GENERATED:BEGIN -->
 # Claude-Konfiguration
 
@@ -50,12 +53,12 @@ Das Tool zeigt bei einem echten Konflikt:
 KONFLIKT: .claude/settings.json
   Deine Version: <erste Zeile der lokalen Datei, max. 80 Zeichen>
   Neue Version:  <erste Zeile des Upstream>
-  [ü]berschreiben / [b]ehalten (Standard: behalten):
+  [o]verwrite / [k]eep (Standard: behalten):
 ```
 
 **Entscheidung:**
-- `ü` oder `u` — Upstream-Version übernehmen, lokale Änderungen gehen verloren
-- `b` oder Enter — Lokale Version behalten, Upstream-Update wird übersprungen; der Hash der lokalen Version wird als neue Basis gespeichert — beim nächsten Update entsteht erneut ein Konflikt, falls Upstream sich weiter ändert
+- `o` (overwrite) — Upstream-Version übernehmen, lokale Änderungen gehen verloren; alternativ `ü` oder `u` (Rückwärtskompatibilität)
+- `k` oder Enter — Lokale Version behalten, Upstream-Update wird übersprungen; der Hash der lokalen Version wird als neue Basis gespeichert — beim nächsten Update entsteht erneut ein Konflikt, falls Upstream sich weiter ändert; alternativ `b` (Rückwärtskompatibilität)
 
 **Faustregel:**
 - Für `settings.json` und CLAUDE.md: Overrides in die CUSTOM-Sektion auslagern
