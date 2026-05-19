@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <defs>
+    <linearGradient id="brand" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#2cd4d4"/>
+      <stop offset="100%" stop-color="#3fcf6e"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="256" height="256" rx="48" fill="#0d1117"/>
+
+  <g transform="translate(40, 68)">
+    <path d="M 0 35 L 55 5 L 110 35 L 55 65 Z" fill="url(#brand)" opacity="0.18"/>
+    <path d="M 0 35 L 55 5 L 110 35 L 55 65 Z" fill="none" stroke="url(#brand)" stroke-width="5" stroke-linejoin="round"/>
+
+    <path d="M 0 35 L 0 105 L 55 135 L 55 65 Z" fill="url(#brand)" opacity="0.10"/>
+    <path d="M 0 35 L 0 105 L 55 135 L 55 65 Z" fill="none" stroke="url(#brand)" stroke-width="5" stroke-linejoin="round"/>
+
+    <path d="M 110 35 L 110 105 L 55 135 L 55 65 Z" fill="url(#brand)" opacity="0.14"/>
+    <path d="M 110 35 L 110 105 L 55 135 L 55 65 Z" fill="none" stroke="url(#brand)" stroke-width="5" stroke-linejoin="round"/>
+
+    <line x1="27.5" y1="50" x2="27.5" y2="120" stroke="url(#brand)" stroke-width="2.5" opacity="0.55"/>
+    <line x1="82.5" y1="50" x2="82.5" y2="120" stroke="url(#brand)" stroke-width="2.5" opacity="0.55"/>
+  </g>
+
+  <g stroke="url(#brand)" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 160 110 L 192 110 L 204 98"/>
+    <path d="M 160 134 L 200 134"/>
+    <path d="M 160 158 L 200 158 L 212 170"/>
+  </g>
+  <g fill="url(#brand)">
+    <circle cx="210" cy="92" r="6"/>
+    <circle cx="206" cy="134" r="6"/>
+    <circle cx="218" cy="176" r="6"/>
+  </g>
+</svg>
