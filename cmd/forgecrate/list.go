@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"sort"
 
-	gh "github.com/jmt-labs/claude-setup/internal/github"
+	gh "github.com/jmt-labs/forgecrate/internal/github"
 	"github.com/spf13/cobra"
 )
 

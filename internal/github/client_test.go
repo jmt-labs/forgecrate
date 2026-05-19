@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	gh "github.com/jmt-labs/claude-setup/internal/github"
+	gh "github.com/jmt-labs/forgecrate/internal/github"
 )
 
 func makeTarGz(t *testing.T, files map[string]string) []byte {

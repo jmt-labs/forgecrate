@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/jmt-labs/claude-setup/internal/extensions"
+	"github.com/jmt-labs/forgecrate/internal/extensions"
 )
 
 func TestWriteMCPJsonStdio(t *testing.T) {

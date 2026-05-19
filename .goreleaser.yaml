@@ -5,8 +5,8 @@ before:
     - go mod tidy
 
 builds:
-  - main: ./cmd/claude-setup/
-    binary: claude-setup
+  - main: ./cmd/forgecrate/
+    binary: forgecrate
     env:
       - CGO_ENABLED=0
     ldflags:
@@ -33,17 +33,17 @@ checksum:
   name_template: "checksums.txt"
 
 nfpms:
-  - package_name: claude-setup
+  - package_name: forgecrate
     maintainer: Markus Hartmann <markush1986@gmail.com>
     description: Reproducible Claude Code setup for any repository.
-    homepage: https://github.com/jmt-labs/claude-setup
+    homepage: https://github.com/jmt-labs/forgecrate
     license: MIT
     formats:
       - deb
     bindir: /usr/local/bin
 
 brews:
-  - name: claude-setup
+  - name: forgecrate
     repository:
       owner: jmt-labs
       name: homebrew-tap
@@ -51,21 +51,21 @@ brews:
     commit_author:
       name: goreleaserbot
       email: bot@goreleaser.com
-    homepage: https://github.com/jmt-labs/claude-setup
+    homepage: https://github.com/jmt-labs/forgecrate
     description: Reproducible Claude Code setup for any repository.
     install: |
-      bin.install "claude-setup"
+      bin.install "forgecrate"
     test: |
-      system "#{bin}/claude-setup", "--version"
+      system "#{bin}/forgecrate", "--version"
 
 # TODO: Chocolatey-Publishing aktivieren, sobald Account auf community.chocolatey.org angelegt
 #       und CHOCOLATEY_API_KEY als CI Secret gesetzt ist.
 # chocolateys:
-#   - name: claude-setup
-#     title: claude-setup
+#   - name: forgecrate
+#     title: forgecrate
 #     owners: jmt-labs
 #     description: Reproducible Claude Code setup for any repository.
-#     license_url: https://github.com/jmt-labs/claude-setup/blob/main/LICENSE
+#     license_url: https://github.com/jmt-labs/forgecrate/blob/main/LICENSE
 #     require_license_acceptance: false
 #     api_key: "{{ .Env.CHOCOLATEY_API_KEY }}"
 #     source_repo: "https://push.chocolatey.org/"
