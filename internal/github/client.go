@@ -9,34 +9,104 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
+	"time"
+)
+
+const (
+	defaultTimeout    = 30 * time.Second
+	defaultRetryDelay = 1 * time.Second
+	maxRetries        = 3
 )
 
 type Client struct {
-	baseURL string
+	baseURL    string
+	httpClient *http.Client
+	retryDelay time.Duration
 }
 
 func New(baseURL string) *Client {
-	return &Client{baseURL: baseURL}
+	return &Client{
+		baseURL:    baseURL,
+		httpClient: &http.Client{Timeout: defaultTimeout},
+		retryDelay: defaultRetryDelay,
+	}
 }
 
 func Default() *Client {
-	return &Client{baseURL: "https://api.github.com"}
+	return New("https://api.github.com")
+}
+
+// SetHTTPTimeout overrides the HTTP client timeout. Useful for testing.
+func (c *Client) SetHTTPTimeout(d time.Duration) {
+	c.httpClient.Timeout = d
+}
+
+// SetRetryDelay overrides the base delay between retries. Useful for testing.
+func (c *Client) SetRetryDelay(d time.Duration) {
+	c.retryDelay = d
 }
 
 func (c *Client) Download(owner, repo, ref, destDir string) error {
 	url := fmt.Sprintf("%s/repos/%s/%s/tarball/%s", c.baseURL, owner, repo, ref)
-	resp, err := http.Get(url)
+
+	var lastErr error
+	for attempt := 0; attempt < maxRetries; attempt++ {
+		if attempt > 0 {
+			delay := c.retryDelay * time.Duration(1<<uint(attempt-1))
+			time.Sleep(delay)
+		}
+
+		resp, err := c.do(url)
+		if err != nil {
+			return fmt.Errorf("http get: %w", err)
+		}
+
+		switch {
+		case resp.StatusCode == http.StatusOK:
+			defer resp.Body.Close()
+			return extractTarGz(resp.Body, destDir)
+
+		case resp.StatusCode == http.StatusTooManyRequests:
+			reset := resp.Header.Get("X-RateLimit-Reset")
+			resp.Body.Close()
+			if reset != "" {
+				ts, parseErr := strconv.ParseInt(reset, 10, 64)
+				if parseErr == nil {
+					resetTime := time.Unix(ts, 0)
+					lastErr = fmt.Errorf("rate limit exceeded (429): resets at %s", resetTime.UTC().Format(time.RFC3339))
+				} else {
+					lastErr = fmt.Errorf("rate limit exceeded (429): X-RateLimit-Reset=%s", reset)
+				}
+			} else {
+				lastErr = fmt.Errorf("rate limit exceeded (429)")
+			}
+
+		case resp.StatusCode >= 500:
+			resp.Body.Close()
+			lastErr = fmt.Errorf("server error: %s", resp.Status)
+
+		default:
+			resp.Body.Close()
+			return fmt.Errorf("unexpected status: %s", resp.Status)
+		}
+	}
+
+	return fmt.Errorf("after %d attempts: %w", maxRetries, lastErr)
+}
+
+func (c *Client) do(url string) (*http.Response, error) {
+	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
-		return fmt.Errorf("http get: %w", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("unexpected status: %s", resp.Status)
+		return nil, err
 	}
 
-	return extractTarGz(resp.Body, destDir)
+	if token := os.Getenv("GITHUB_TOKEN"); token != "" {
+		req.Header.Set("Authorization", "Bearer "+token)
+	}
+
+	return c.httpClient.Do(req)
 }
 
 func extractTarGz(r io.Reader, destDir string) (err error) {
