@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/jmt-labs/claude-setup/internal/config"
-	"github.com/jmt-labs/claude-setup/internal/deploy"
+	"github.com/jmt-labs/forgecrate/internal/config"
+	"github.com/jmt-labs/forgecrate/internal/deploy"
 )
 
 type profileCase struct {
@@ -64,7 +64,7 @@ var allFlavors = []flavorCase{
 		name:             "gitops",
 		contentMarker:    "GitOps-Flavor",
 		expectedSkills:   []string{"gitops-drift-check"},
-		expectedCommands: []string{"claude-setup-gitops-status.md"},
+		expectedCommands: []string{"forgecrate-gitops-status.md"},
 	},
 }
 
@@ -76,7 +76,7 @@ func TestAllProfiles(t *testing.T) {
 			dst := t.TempDir()
 			cfg := config.Config{
 				Version: "1.0",
-				Source:  "github.com/jmt-labs/claude-setup",
+				Source:  "github.com/jmt-labs/forgecrate",
 				Ref:     "main",
 				Profile: tc.name,
 				Flavors: []string{},
@@ -100,12 +100,12 @@ func TestAllProfiles(t *testing.T) {
 				}
 			}
 
-			yamlContent, err := os.ReadFile(filepath.Join(dst, ".claude-setup.yaml"))
+			yamlContent, err := os.ReadFile(filepath.Join(dst, ".forgecrate.yaml"))
 			if err != nil {
-				t.Fatalf(".claude-setup.yaml not found: %v", err)
+				t.Fatalf(".forgecrate.yaml not found: %v", err)
 			}
 			if !strings.Contains(string(yamlContent), tc.name) {
-				t.Errorf(".claude-setup.yaml does not contain profile %q", tc.name)
+				t.Errorf(".forgecrate.yaml does not contain profile %q", tc.name)
 			}
 		})
 	}
@@ -119,7 +119,7 @@ func TestAllFlavors(t *testing.T) {
 			dst := t.TempDir()
 			cfg := config.Config{
 				Version: "1.0",
-				Source:  "github.com/jmt-labs/claude-setup",
+				Source:  "github.com/jmt-labs/forgecrate",
 				Ref:     "main",
 				Profile: "backend",
 				Flavors: []string{tc.name},
@@ -150,12 +150,12 @@ func TestAllFlavors(t *testing.T) {
 				}
 			}
 
-			yamlContent, err := os.ReadFile(filepath.Join(dst, ".claude-setup.yaml"))
+			yamlContent, err := os.ReadFile(filepath.Join(dst, ".forgecrate.yaml"))
 			if err != nil {
-				t.Fatalf(".claude-setup.yaml not found: %v", err)
+				t.Fatalf(".forgecrate.yaml not found: %v", err)
 			}
 			if !strings.Contains(string(yamlContent), tc.name) {
-				t.Errorf(".claude-setup.yaml does not contain flavor %q", tc.name)
+				t.Errorf(".forgecrate.yaml does not contain flavor %q", tc.name)
 			}
 		})
 	}
@@ -165,7 +165,7 @@ func TestMultipleFlavors(t *testing.T) {
 	dst := t.TempDir()
 	cfg := config.Config{
 		Version: "1.0",
-		Source:  "github.com/jmt-labs/claude-setup",
+		Source:  "github.com/jmt-labs/forgecrate",
 		Ref:     "main",
 		Profile: "backend",
 		Flavors: []string{"tdd", "github"},

@@ -1,7 +1,7 @@
 # Claude-Konfiguration
 
-Dieses Repository verwendet ein reproduzierbares Claude-Setup.
-Die generierten Abschnitte dieser Datei werden bei `claude-setup update` überschrieben.
+Dieses Repository verwendet ein reproduzierbares forgecrate.
+Die generierten Abschnitte dieser Datei werden bei `forgecrate update` überschrieben.
 Eigene Anpassungen gehören in den CUSTOM-Abschnitt.
 
 ## Pflicht-Skills
@@ -37,7 +37,7 @@ Beim Session-Start: `ls HANDOFF.md 2>/dev/null` ausführen. Falls vorhanden: Dat
 - YAGNI: keine ungefragten Features
 - Änderungen immer über Branch + PR, nie direkt auf `main`
 
-## Konfliktbehandlung beim Deploy (`claude-setup update`)
+## Konfliktbehandlung beim Deploy (`forgecrate update`)
 
 Ein Konflikt entsteht nur, wenn **beides** gleichzeitig zutrifft: die lokale Datei wurde seit dem letzten Deploy geändert, **und** die neue Upstream-Version unterscheidet sich von der lokalen Version. Stimmt die lokale Änderung zufällig mit dem Upstream überein, wird kein Konflikt ausgelöst.
 
@@ -143,4 +143,4 @@ Aktuelle Bibliotheks-Dokumentation direkt aus den Source-Repositories abrufen. A
 
 **Verwende es NICHT für:** GitHub-Inhalte (→ github MCP), lokale Dateien (→ Read), allgemeine Programmierkonzepte.
 
-**Keine Konfiguration nötig** — wird beim ersten `claude-setup init/update` automatisch als Projekt-MCP-Server eingerichtet.
+**Keine Konfiguration nötig** — wird beim ersten `forgecrate init/update` automatisch als Projekt-MCP-Server eingerichtet.

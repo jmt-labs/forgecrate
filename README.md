@@ -1,53 +1,57 @@
 <div align="center">
-  <img src="assets/banner.svg" alt="claude-setup — Reproduzierbares Claude-Setup" width="100%">
+  <img src="assets/banner.svg" alt="forgecrate — Reproducible Claude Code configuration" width="100%">
 </div>
 
-[![Latest Release](https://img.shields.io/github/v/release/jmt-labs/claude-setup)](https://github.com/jmt-labs/claude-setup/releases/latest)
-[![CI](https://github.com/jmt-labs/claude-setup/actions/workflows/ci.yml/badge.svg)](https://github.com/jmt-labs/claude-setup/actions/workflows/ci.yml)
+> **Formerly known as `claude-setup`.** See [MIGRATION.md](MIGRATION.md) for upgrade notes.
+
+[![Latest Release](https://img.shields.io/github/v/release/jmt-labs/forgecrate)](https://github.com/jmt-labs/forgecrate/releases/latest)
+[![CI](https://github.com/jmt-labs/forgecrate/actions/workflows/ci.yml/badge.svg)](https://github.com/jmt-labs/forgecrate/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-# claude-setup
+# forgecrate
 
-**claude-setup** installiert eine reproduzierbare [Claude Code](https://claude.ai/code)-Konfiguration in beliebige Git-Repositories. Ein einzelnes Go-Binary lädt Profile, Flavors, Hooks und MCP-Server-Definitionen von GitHub und komponiert sie über ein Schichtsystem in das Ziel-Repository.
+**forgecrate** installs a reproducible [Claude Code](https://claude.ai/code) configuration into any Git repository. A single Go binary downloads profiles, flavors, hooks and MCP server definitions from GitHub and composes them through a layering system into the target repository.
 
 ```sh
-claude-setup init --profile backend --flavors tdd,strict-review
+forgecrate init --profile backend --flavors tdd,strict-review
 ```
 
-Damit ist Claude Code im Repo sofort einsatzbereit: mit passendem Workflow-Enforcement, Slash-Commands, Branch-Protection und fünf vorintegrierten MCP-Servern — ohne manuelle Konfiguration.
+Claude Code is immediately ready to use: with workflow enforcement, slash-commands, branch protection and five pre-integrated MCP servers — no manual configuration needed.
+
+> Part of the jmt-labs toolchain → [forgedeck](https://github.com/jmt-labs/forgedeck)
 
 ---
 
-## Inhalt
+## Contents
 
-- [Was wird deployt?](#was-wird-deployt)
+- [What gets deployed?](#what-gets-deployed)
 - [Installation](#installation)
-- [Schnellstart](#schnellstart)
-- [Das Schichtsystem](#das-schichtsystem)
-- [Profile](#profile)
+- [Quickstart](#quickstart)
+- [The layer system](#the-layer-system)
+- [Profiles](#profiles)
 - [Flavors](#flavors)
-- [CLI-Referenz](#cli-referenz)
-- [Anpassung & lokale Overrides](#anpassung--lokale-overrides)
-- [Skills & Slash-Commands](#skills--slash-commands)
-- [MCP-Server](#mcp-server)
-- [Konflikte beim Update](#konflikte-beim-update)
-- [Weiterführende Dokumentation](#weiterführende-dokumentation)
-- [Entwicklung & Tests](#entwicklung--tests)
+- [CLI reference](#cli-reference)
+- [Customization & local overrides](#customization--local-overrides)
+- [Skills & slash-commands](#skills--slash-commands)
+- [MCP servers](#mcp-servers)
+- [Update conflicts](#update-conflicts)
+- [Further documentation](#further-documentation)
+- [Development & tests](#development--tests)
 
 ---
 
-## Was wird deployt?
+## What gets deployed?
 
-Nach `claude-setup init` liegen folgende Dateien im Repository:
+After `forgecrate init`, the following files are present in the repository:
 
-| Datei / Verzeichnis | Zweck |
+| File / Directory | Purpose |
 |---|---|
-| `CLAUDE.md` | Verhaltensregeln und Workflow für Claude Code |
-| `AGENTS.md` | Richtlinien für Claude Code Agents |
-| `.claude/settings.json` | Modell, Hooks, Plugins, Permissions, MCP-Server |
-| `.claude/commands/` | Slash-Commands (Skills) |
-| `.claude/hooks/` | Pre-Tool- und UserPromptSubmit-Hooks |
-| `.claude-setup.yaml` | Deployment-State (Profil, Flavors, Datei-Hashes) |
+| `CLAUDE.md` | Behavior rules and workflow for Claude Code |
+| `AGENTS.md` | Guidelines for Claude Code agents |
+| `.claude/settings.json` | Model, hooks, plugins, permissions, MCP servers |
+| `.claude/commands/` | Slash-commands (skills) |
+| `.claude/hooks/` | Pre-tool and UserPromptSubmit hooks |
+| `.forgecrate.yaml` | Deployment state (profile, flavors, file hashes) |
 
 ---
 
@@ -57,13 +61,13 @@ Nach `claude-setup init` liegen folgende Dateien im Repository:
 
 ```sh
 brew tap jmt-labs/tap
-brew install claude-setup
+brew install forgecrate
 ```
 
 ### Chocolatey (Windows)
 
 ```sh
-choco install claude-setup
+choco install forgecrate
 ```
 
 ### apt (Ubuntu / Debian)
@@ -75,236 +79,236 @@ curl -fsSL https://jmt-labs.github.io/apt/KEY.gpg \
 echo "deb [signed-by=/etc/apt/keyrings/jmt-labs.gpg] https://jmt-labs.github.io/apt stable main" \
   | sudo tee /etc/apt/sources.list.d/jmt-labs.list
 
-sudo apt update && sudo apt install claude-setup
+sudo apt update && sudo apt install forgecrate
 ```
 
 ### go install
 
 ```sh
-go install github.com/jmt-labs/claude-setup/cmd/claude-setup@latest
+go install github.com/jmt-labs/forgecrate/cmd/forgecrate@latest
 ```
 
-### curl (ohne Paketmanager)
+### curl (without package manager)
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/jmt-labs/claude-setup/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/jmt-labs/forgecrate/main/install.sh | bash
 ```
 
-Bestimmte Version installieren:
+Install a specific version:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/jmt-labs/claude-setup/main/install.sh | bash -s v1.0.0
+curl -fsSL https://raw.githubusercontent.com/jmt-labs/forgecrate/main/install.sh | bash -s v1.0.0
 ```
 
 ---
 
-## Schnellstart
+## Quickstart
 
-**1. Repository initialisieren**
+**1. Initialize a repository**
 
 ```sh
-cd mein-projekt
-claude-setup init --profile backend --flavors tdd,strict-review
+cd my-project
+forgecrate init --profile backend --flavors tdd,strict-review
 ```
 
-**2. Auf den neuesten Stand aktualisieren**
+**2. Update to the latest version**
 
 ```sh
-claude-setup update
+forgecrate update
 ```
 
-**3. Profil wechseln**
+**3. Switch profile**
 
 ```sh
-claude-setup update --profile fullstack
+forgecrate update --profile fullstack
 ```
 
-**4. Verfügbare Optionen einsehen**
+**4. List available options**
 
 ```sh
-claude-setup list profile    # alle Profile
-claude-setup list flavor     # alle Flavors
-claude-setup describe profile backend   # Details zu einem Profil
+forgecrate list profile    # all profiles
+forgecrate list flavor     # all flavors
+forgecrate describe profile backend   # details for a profile
 ```
 
 ---
 
-## Das Schichtsystem
+## The layer system
 
-claude-setup komponiert die Konfiguration aus drei übereinanderliegenden Schichten. Jede Schicht erweitert oder überschreibt die darunterliegende:
+`forgecrate` composes configuration from three stacked layers. Each layer extends or overrides the one below:
 
 ```
 ┌─────────────────────────────┐
-│  overrides (lokal, optional) │  Höchste Priorität — nie überschrieben
+│  overrides (local, optional) │  Highest priority — never overwritten
 ├─────────────────────────────┤
-│  flavors   (mehrere wählbar) │  z. B. tdd + strict-review
+│  flavors   (multiple)        │  e.g. tdd + strict-review
 ├─────────────────────────────┤
-│  profile   (eines wählbar)   │  z. B. backend
+│  profile   (one)             │  e.g. backend
 ├─────────────────────────────┤
-│  base      (immer aktiv)     │  Niedrigste Priorität — immer deployt
+│  base      (always active)   │  Lowest priority — always deployed
 └─────────────────────────────┘
 ```
 
-**Kompositionsregeln:**
+**Composition rules:**
 
-| Dateiart | Strategie |
+| File type | Strategy |
 |---|---|
-| `CLAUDE.md` / `AGENTS.md` | Textblöcke der Schichten werden aneinandergehängt |
-| `.claude/settings.json` | Deep-Merge — tiefere Schichten gewinnen bei Konflikten |
-| `.claude/commands/` | Additive Kopie — spätere Schichten überschreiben frühere |
-| `.claude/hooks/` | Additive Kopie |
+| `CLAUDE.md` / `AGENTS.md` | Text blocks from layers are concatenated |
+| `.claude/settings.json` | Deep-merge — deeper layers win on conflicts |
+| `.claude/commands/` | Additive copy — later layers overwrite earlier ones |
+| `.claude/hooks/` | Additive copy |
 
-Der Inhalt der Schichten stammt direkt aus diesem Repository unter `base/`, `profiles/` und `flavors/`.
+Layer contents come directly from this repository under `base/`, `profiles/` and `flavors/`.
 
 ---
 
-## Profile
+## Profiles
 
-Ein Profil legt den fachlichen Kontext des Projekts fest. Es ist genau **eines** pro Repository aktiv.
+A profile sets the technical context of the project. Exactly **one** is active per repository.
 
 ### `backend`
 
-Optimiert für Server-Anwendungen, REST-APIs und Datenbankzugriffe.
+Optimized for server applications, REST APIs and database access.
 
-- API-Design: REST-First, klar benannte Fehlercodes
-- Datenbankzugriffe: typsicher, ausschließlich parametrisierte Queries
-- Bevorzugt Integrationstests gegenüber reinen Unit-Tests mit Mocks
-- Keine ORM-Magic — explizite Queries sind lesbarer
+- API design: REST-first, clearly named error codes
+- Database access: type-safe, exclusively parameterized queries
+- Prefers integration tests over pure unit tests with mocks
+- No ORM magic — explicit queries are more readable
 
 ### `frontend`
 
-Optimiert für komponentenbasierte UI-Entwicklung.
+Optimized for component-based UI development.
 
-- Komponentenarchitektur und State-Management
-- Barrierefreiheit (Accessibility) als First-Class-Anforderung
-- Visual Regression und Snapshot Tests
+- Component architecture and state management
+- Accessibility as a first-class requirement
+- Visual regression and snapshot tests
 
 ### `fullstack`
 
-Kombiniert Backend- und Frontend-Kontext in einem Profil.
+Combines backend and frontend context in one profile.
 
-- Shared Types zwischen Client und Server
-- End-to-End-Tests über den gesamten Stack
-- Klare Grenze zwischen API-Vertrag und Implementierung
+- Shared types between client and server
+- End-to-end tests across the full stack
+- Clear boundary between API contract and implementation
 
 ---
 
 ## Flavors
 
-Flavors ergänzen ein Profil um querschnittliche Praktiken. **Mehrere Flavors** können gleichzeitig aktiv sein.
+Flavors add cross-cutting practices to a profile. **Multiple flavors** can be active simultaneously.
 
 ### `tdd` — Test-Driven Development
 
-Erzwingt den klassischen Red-Green-Refactor-Zyklus:
+Enforces the classic Red-Green-Refactor cycle:
 
-1. Test schreiben → ausführen (muss scheitern)
-2. Minimale Implementierung → Test muss bestehen
-3. Refactoring → Tests müssen weiterhin bestehen
-4. Committen
+1. Write test → run (must fail)
+2. Minimal implementation → test must pass
+3. Refactoring → tests must continue to pass
+4. Commit
 
-Regeln:
-- Kein Produktionscode ohne vorherigen Test
-- Test-Namen beschreiben Verhalten, nicht Implementierung
-- Mocks nur an Systemgrenzen (externe APIs, Datenbanken)
-- Vor jedem Bug-Fix: Regressionstest schreiben
+Rules:
+- No production code without a prior test
+- Test names describe behavior, not implementation
+- Mocks only at system boundaries (external APIs, databases)
+- Before every bug fix: write a regression test
 
-### `strict-review` — Pflicht-Code-Review
+### `strict-review` — Mandatory code review
 
-Erzwingt strukturierte Überprüfung vor jedem Commit:
+Enforces structured review before every commit:
 
-- Pflichtaufruf von `superpowers:requesting-code-review` vor jedem Commit
-- Keine direkten Commits auf `main` / `master`
-- PR-Beschreibung enthält: Was geändert wurde, Warum, Wie getestet
-- Breaking Changes werden explizit kommuniziert
+- Mandatory call of `superpowers:requesting-code-review` before every commit
+- No direct commits to `main` / `master`
+- PR description contains: what changed, why, how tested
+- Breaking changes are explicitly communicated
 
 ### `minimal`
 
-Nur grundlegendes Workflow-Enforcement. Geeignet für Projekte, die einen leichten Einstieg bevorzugen.
+Only basic workflow enforcement. Suitable for projects that prefer a lightweight start.
 
 ### `gitops`
 
-Für Infrastructure-as-Code und GitOps-Workflows:
+For Infrastructure-as-Code and GitOps workflows:
 
-- ArgoCD-App-Topologie wird respektiert
-- Clusterweite Regeln (Kyverno, Gatekeeper, RULES.md) werden eingehalten
-- Deployments ausschließlich über ArgoCD — keine direkten `kubectl apply`-Kommandos
-- Skill: `/claude-setup-gitops-status` für Cluster-Überblick
+- ArgoCD app topology is respected
+- Cluster-wide rules (Kyverno, Gatekeeper, RULES.md) are enforced
+- Deployments exclusively via ArgoCD — no direct `kubectl apply` commands
+- Skill: `/forgecrate-gitops-status` for cluster overview
 
 ---
 
-## CLI-Referenz
+## CLI reference
 
-### `claude-setup init`
+### `forgecrate init`
 
-Führt eine erstmalige Konfiguration des Repositories durch.
+Performs first-time configuration of the repository.
 
 ```sh
-claude-setup init [--profile <name>] [--flavors <name,name,...>]
+forgecrate init [--profile <name>] [--flavors <name,name,...>]
 ```
 
-| Flag | Standard | Beschreibung |
+| Flag | Default | Description |
 |---|---|---|
-| `--profile` | `backend` | Aktives Profil |
-| `--flavors` | _(keiner)_ | Kommaseparierte Liste aktiver Flavors |
+| `--profile` | `backend` | Active profile |
+| `--flavors` | _(none)_ | Comma-separated list of active flavors |
 
-**Ablauf:** Tarball von GitHub herunterladen → Schichten komponieren → Dateien schreiben → `.claude-setup.yaml` anlegen.
+**Flow:** Download tarball from GitHub → compose layers → write files → create `.forgecrate.yaml`.
 
 ---
 
-### `claude-setup update`
+### `forgecrate update`
 
-Aktualisiert die Konfiguration auf die neueste Version des Upstream-Repositories.
+Updates the configuration to the latest version of the upstream repository.
 
 ```sh
-claude-setup update [--profile <name>]
+forgecrate update [--profile <name>]
 ```
 
-| Flag | Standard | Beschreibung |
+| Flag | Default | Description |
 |---|---|---|
-| `--profile` | _(aktuell)_ | Profil wechseln |
+| `--profile` | _(current)_ | Switch profile |
 
-Bei Konflikten zwischen lokalen Änderungen und dem Upstream wird interaktiv gefragt (siehe [Konflikte beim Update](#konflikte-beim-update)).
+When conflicts exist between local changes and upstream, an interactive prompt appears (see [Update conflicts](#update-conflicts)).
 
 ---
 
-### `claude-setup list`
+### `forgecrate list`
 
-Listet alle verfügbaren Profile oder Flavors auf.
+Lists all available profiles or flavors.
 
 ```sh
-claude-setup list profile
-claude-setup list flavor
+forgecrate list profile
+forgecrate list flavor
 ```
 
 ---
 
-### `claude-setup describe`
+### `forgecrate describe`
 
-Zeigt eine detaillierte Beschreibung eines Profils oder Flavors.
+Shows a detailed description of a profile or flavor.
 
 ```sh
-claude-setup describe profile backend
-claude-setup describe flavor tdd
+forgecrate describe profile backend
+forgecrate describe flavor tdd
 ```
 
 ---
 
-## Anpassung & lokale Overrides
+## Customization & local overrides
 
-Alle lokalen Anpassungen bleiben bei `claude-setup update` **erhalten**. Es gibt drei Mechanismen:
+All local customizations are **preserved** on `forgecrate update`. Three mechanisms are available:
 
-### CUSTOM-Blöcke in Markdown
+### CUSTOM blocks in Markdown
 
-In `CLAUDE.md` und `AGENTS.md` können eigene Anweisungen in einen geschützten Block geschrieben werden:
+In `CLAUDE.md` and `AGENTS.md`, custom instructions can be written in a protected block:
 
 ```markdown
 <!-- CUSTOM:BEGIN -->
-Hier stehen projektspezifische Anweisungen,
-die nie vom Update überschrieben werden.
+Project-specific instructions here,
+never overwritten by updates.
 <!-- CUSTOM:END -->
 ```
 
-### Settings-Overrides
+### Settings overrides
 
 ```json
 // .claude/overrides/settings.override.json
@@ -315,63 +319,63 @@ die nie vom Update überschrieben werden.
 }
 ```
 
-Diese Datei wird beim Merge mit der höchsten Priorität behandelt.
+This file is merged with the highest priority.
 
-### Eigene Slash-Commands
+### Custom slash-commands
 
 ```
-.claude/commands/overrides/mein-command.md
+.claude/commands/overrides/my-command.md
 ```
 
-Eigene Skills in diesem Verzeichnis ergänzen die verwalteten Commands und werden nie überschrieben.
+Custom skills in this directory complement the managed commands and are never overwritten.
 
 ---
 
-## Skills & Slash-Commands
+## Skills & slash-commands
 
-claude-setup deployt eine Reihe vordefinierter Skills, die direkt in Claude Code als Slash-Commands verfügbar sind:
+`forgecrate` deploys a set of predefined skills, available directly in Claude Code as slash-commands:
 
-| Command | Beschreibung |
+| Command | Description |
 |---|---|
-| `/claude-setup-advisor` | Analysiert das Repo und empfiehlt passendes Profil + Flavors |
-| `/claude-setup-repo-onboarding` | Erstellt strukturierten Codebase-Überblick für `CLAUDE.md` |
-| `/claude-setup-repo-health` | Findet Verbesserungspotenzial und liefert priorisierte Liste |
-| `/claude-setup-test-coverage` | Analysiert Testabdeckung und schlägt nächsten konkreten Test vor |
-| `/claude-setup-pr-checklist` | Systematische Überprüfung vor `gh pr create` |
-| `/claude-setup-db-migration` | Begleitet Erstellung und Review einer Datenbankmigration |
-| `/claude-setup-release` | Führt vollständigen Release-Zyklus durch |
+| `/forgecrate-advisor` | Analyzes the repo and recommends the right profile + flavors |
+| `/forgecrate-repo-onboarding` | Creates a structured codebase overview for `CLAUDE.md` |
+| `/forgecrate-repo-health` | Finds improvement potential and delivers a prioritized list |
+| `/forgecrate-test-coverage` | Analyzes test coverage and suggests the next concrete test |
+| `/forgecrate-pr-checklist` | Systematic review before `gh pr create` |
+| `/forgecrate-db-migration` | Guides creation and review of a database migration |
+| `/forgecrate-release` | Runs a complete release cycle |
 
-Über die [Superpowers-Skills](https://github.com/anthropics/claude-code-superpowers) stehen zusätzlich Pflicht-Skills zur Verfügung, die automatisch in den Entwicklungs-Workflow eingebunden sind (Brainstorming, TDD, Code-Review, Debugging).
+Via [Superpowers skills](https://github.com/anthropics/claude-code-superpowers), additional mandatory skills are available and automatically integrated into the development workflow (brainstorming, TDD, code review, debugging).
 
 ---
 
-## MCP-Server
+## MCP servers
 
-Die Basis-Konfiguration enthält fünf vorintegrierte MCP-Server:
+The base configuration includes five pre-integrated MCP servers:
 
-| Server | Transport | Zweck |
+| Server | Transport | Purpose |
 |---|---|---|
-| `github` | HTTP (GitHub Copilot) | Issues, PRs, Code-Suche, Branches, Labels |
-| `fetch` | stdio (`npx`) | Externe Webinhalte — Dokumentation, RFCs, Changelogs |
-| `memory` | stdio (`npx`) | Persistentes projektübergreifendes Wissen (`.claude/memory.json`) |
-| `context-mode` | stdio (`npx`) | Automatische Context-Optimierung und Session-History-Suche |
-| `context7` | stdio (`npx`) | Aktuelle Bibliotheks-Dokumentation direkt aus den Quell-Repos |
+| `github` | HTTP (GitHub Copilot) | Issues, PRs, code search, branches, labels |
+| `fetch` | stdio (`npx`) | External web content — docs, RFCs, changelogs |
+| `memory` | stdio (`npx`) | Persistent cross-session knowledge (`.claude/memory.json`) |
+| `context-mode` | stdio (`npx`) | Automatic context optimization and session history search |
+| `context7` | stdio (`npx`) | Current library documentation directly from source repos |
 
-**Voraussetzung für `github`:** Die Umgebungsvariable `GITHUB_PERSONAL_ACCESS_TOKEN` muss gesetzt sein.
+**Requirement for `github`:** The `GITHUB_PERSONAL_ACCESS_TOKEN` environment variable must be set.
 
-**Voraussetzung für stdio-Server:** Node.js / `npx` muss im PATH verfügbar sein.
+**Requirement for stdio servers:** Node.js / `npx` must be available in PATH.
 
 ---
 
-## Konflikte beim Update
+## Update conflicts
 
-Beim `claude-setup update` vergleicht das Tool jede verwaltete Datei mit einem SHA256-Hash, der beim letzten Deploy gespeichert wurde.
+During `forgecrate update`, the tool compares each managed file against a SHA256 hash stored at the last deploy.
 
-Ein **Konflikt** entsteht nur, wenn **beide** Bedingungen zutreffen:
-- Die lokale Datei wurde seit dem letzten Deploy manuell verändert **und**
-- die neue Upstream-Version weicht von der lokalen Version ab
+A **conflict** only arises when **both** conditions are met:
+- The local file was manually changed since the last deploy **and**
+- the new upstream version differs from the local version
 
-In diesem Fall erscheint eine interaktive Abfrage:
+In that case, an interactive prompt appears:
 
 ```
 KONFLIKT: .claude/settings.json
@@ -380,68 +384,69 @@ KONFLIKT: .claude/settings.json
   [ü]berschreiben / [b]ehalten (Standard: behalten):
 ```
 
-| Eingabe | Ergebnis |
+| Input | Result |
 |---|---|
-| `ü` oder `u` | Upstream-Version übernehmen, lokale Änderungen gehen verloren |
-| `b` oder Enter | Lokale Version behalten, der lokale Hash wird als neue Basis gespeichert |
+| `ü` or `u` | Take upstream version, local changes are lost |
+| `b` or Enter | Keep local version, local hash becomes the new baseline |
 
-**Empfehlung:** Eigene Anpassungen in CUSTOM-Blöcke oder Override-Dateien auslagern — dann entstehen gar keine Konflikte.
+**Recommendation:** Put custom changes in CUSTOM blocks or override files — then no conflicts arise.
 
 ---
 
-## Weiterführende Dokumentation
+## Further documentation
 
-| Thema | Dokument |
+| Topic | Document |
 |---|---|
-| Architektur und Komponenten | [docs/architecture.md](docs/architecture.md) |
-| Schichtsystem (Kompositionsregeln) | [docs/layer-system.md](docs/layer-system.md) |
-| Abläufe: init, update, enforcement | [docs/flows.md](docs/flows.md) |
-| Hook-Referenz | [docs/hooks.md](docs/hooks.md) |
-| Profile & Flavors (Details) | [docs/profiles-flavors.md](docs/profiles-flavors.md) |
-| Entwicklung & Tests | [docs/development.md](docs/development.md) |
+| Architecture and components | [docs/architecture.md](docs/architecture.md) |
+| Layer system (composition rules) | [docs/layer-system.md](docs/layer-system.md) |
+| Flows: init, update, enforcement | [docs/flows.md](docs/flows.md) |
+| Hook reference | [docs/hooks.md](docs/hooks.md) |
+| Profiles & flavors (details) | [docs/profiles-flavors.md](docs/profiles-flavors.md) |
+| Development & tests | [docs/development.md](docs/development.md) |
+| Migration from `claude-setup` | [MIGRATION.md](MIGRATION.md) |
 
 ---
 
-## Entwicklung & Tests
+## Development & tests
 
-**Voraussetzungen:** Go 1.22+, `make`
+**Prerequisites:** Go 1.22+, `make`
 
 ```sh
-# Unit-Tests
+# Unit tests
 make test
 
-# End-to-End-Tests (gegen ein lokales Test-Repository)
+# End-to-end tests
 make test-e2e
 
-# Codequalität prüfen
+# Code quality check
 make quality
 
-# Binary lokal bauen
+# Build binary locally
 make build
 
-# Release (erfordert GoReleaser + GitHub Token)
+# Release (requires GoReleaser + GitHub token)
 make release
 ```
 
-**Repository-Struktur:**
+**Repository structure:**
 
-| Pfad | Zweck |
+| Path | Purpose |
 |---|---|
-| `cmd/claude-setup/` | CLI-Einstiegspunkt (Cobra) |
-| `internal/compose/` | Markdown-, JSON- und Skills-Merge-Logik |
-| `internal/deploy/` | Deployment-Orchestrierung und Konflikt-Handling |
-| `internal/config/` | `.claude-setup.yaml` lesen/schreiben |
-| `internal/github/` | GitHub API Client (Tarball-Download) |
-| `internal/extensions/` | Claude Extension Handling |
-| `base/` | Basis-Layer — immer deployt |
-| `profiles/` | Profil-Layer — je eines wählbar |
-| `flavors/` | Flavor-Layer — mehrere kombinierbar |
-| `e2e/` | End-to-End-Tests |
+| `cmd/forgecrate/` | CLI entry point (Cobra) |
+| `internal/compose/` | Markdown, JSON and skills merge logic |
+| `internal/deploy/` | Deployment orchestration and conflict handling |
+| `internal/config/` | `.forgecrate.yaml` read/write |
+| `internal/github/` | GitHub API client (tarball download) |
+| `internal/extensions/` | Claude extension handling |
+| `base/` | Base layer — always deployed |
+| `profiles/` | Profile layer — one selectable |
+| `flavors/` | Flavor layer — multiple combinable |
+| `e2e/` | End-to-end tests |
 
-Beiträge sind willkommen — bitte einen Issue anlegen und den Entwicklungs-Workflow aus [CLAUDE.md](CLAUDE.md) beachten.
+Contributions welcome — please open an issue and follow the development workflow from [CLAUDE.md](CLAUDE.md).
 
 ---
 
-## Lizenz
+## License
 
 [MIT](LICENSE) — Copyright (c) jmt-labs

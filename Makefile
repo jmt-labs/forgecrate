@@ -19,12 +19,12 @@ quality:
 	go build ./...
 
 build:
-	go build -o claude-setup ./cmd/claude-setup/
+	go build -o forgecrate ./cmd/forgecrate/
 
 release:
 	goreleaser release --clean
 
 clean:
 	go clean -testcache
-	rm -f claude-setup
+	rm -f forgecrate claude-setup
 	rm -rf dist/

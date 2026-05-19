@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"sort"
 
-	gh "github.com/jmt-labs/claude-setup/internal/github"
+	gh "github.com/jmt-labs/forgecrate/internal/github"
 	"github.com/spf13/cobra"
 )
 
@@ -15,15 +15,15 @@ func newListCmd() *cobra.Command {
 		Use:   "list",
 		Short: "Listet verfügbare Profile und Flavors auf",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			srcDir, err := os.MkdirTemp("", "claude-setup-*")
+			srcDir, err := os.MkdirTemp("", "forgecrate-*")
 			if err != nil {
 				return err
 			}
 			defer os.RemoveAll(srcDir)
 
-			fmt.Println("Fetching jmt-labs/claude-setup@main ...")
+			fmt.Println("Fetching jmt-labs/forgecrate@main ...")
 			client := gh.Default()
-			if err := client.Download("jmt-labs", "claude-setup", "main", srcDir); err != nil {
+			if err := client.Download("jmt-labs", "forgecrate", "main", srcDir); err != nil {
 				return fmt.Errorf("download: %w", err)
 			}
 

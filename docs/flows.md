@@ -3,9 +3,9 @@
 ## init-Flow
 
 ```
-claude-setup init --profile backend --flavors tdd
+forgecrate init --profile backend --flavors tdd
         │
-        ├── .claude-setup.yaml lesen (falls vorhanden)
+        ├── .forgecrate.yaml lesen (falls vorhanden)
         ├── GitHub tarball downloaden → tmpDir
         ├── Layer compositionieren: base → profile → flavors
         │       ├── CLAUDE.md: MergeMarkdown(layers, existing)
@@ -13,16 +13,16 @@ claude-setup init --profile backend --flavors tdd
         │       ├── settings.json: DeepMergeJSON(base, profile, overrides)
         │       └── commands/: MergeSkills(srcDirs, dest)
         ├── Hooks nach .claude/hooks/ kopieren
-        ├── .claude-setup.yaml schreiben
+        ├── .forgecrate.yaml schreiben
         └── Done.
 ```
 
 ## update-Flow
 
 ```
-claude-setup update [--profile <p>]
+forgecrate update [--profile <p>]
         │
-        ├── .claude-setup.yaml lesen (Fehler wenn nicht vorhanden)
+        ├── .forgecrate.yaml lesen (Fehler wenn nicht vorhanden)
         ├── Profile überschreiben wenn --profile angegeben
         ├── GitHub tarball downloaden → tmpDir
         ├── Layer rekompositionieren (overrides/ unangetastet)

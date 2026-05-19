@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/jmt-labs/claude-setup/internal/compose"
+	"github.com/jmt-labs/forgecrate/internal/compose"
 )
 
 func TestCompose(t *testing.T) {

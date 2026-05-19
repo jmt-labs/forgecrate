@@ -6,9 +6,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/jmt-labs/claude-setup/internal/compose"
-	"github.com/jmt-labs/claude-setup/internal/config"
-	"github.com/jmt-labs/claude-setup/internal/extensions"
+	"github.com/jmt-labs/forgecrate/internal/compose"
+	"github.com/jmt-labs/forgecrate/internal/config"
+	"github.com/jmt-labs/forgecrate/internal/extensions"
 )
 
 func Run(sourceDir, destDir string, cfg config.Config) error {
@@ -54,7 +54,7 @@ func RunWithClaude(sourceDir, destDir string, cfg config.Config, claudeBin strin
 		return fmt.Errorf("skills: %w", err)
 	}
 
-	cfgPath := filepath.Join(destDir, ".claude-setup.yaml")
+	cfgPath := filepath.Join(destDir, ".forgecrate.yaml")
 	if err := config.Write(cfgPath, cfg); err != nil {
 		return fmt.Errorf("write config: %w", err)
 	}

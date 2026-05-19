@@ -4,13 +4,13 @@
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│                   claude-setup Repo                  │
-│  base/ · profiles/ · flavors/ · cmd/claude-setup/   │
+│                   forgecrate Repo                  │
+│  base/ · profiles/ · flavors/ · cmd/forgecrate/   │
 └───────────────────────┬─────────────────────────────┘
                         │ GitHub API (tarball)
                         ▼
               ┌─────────────────┐
-              │  claude-setup   │  ← globales Go-Binary
+              │  forgecrate   │  ← globales Go-Binary
               │    Binary       │
               └────────┬────────┘
                        │ compose + deploy
@@ -21,7 +21,7 @@
         │  .claude/settings.json       │
         │  .claude/commands/           │
         │  .claude/hooks/              │
-        │  .claude-setup.yaml          │
+        │  .forgecrate.yaml          │
         └──────────────────────────────┘
 ```
 

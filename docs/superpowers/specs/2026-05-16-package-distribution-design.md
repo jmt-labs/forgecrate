@@ -5,11 +5,11 @@
 
 ## Ziel
 
-Den Release-Workflow um drei Paketformate erweitern, sodass Nutzer `claude-setup` über ihren nativen Paketmanager installieren können:
+Den Release-Workflow um drei Paketformate erweitern, sodass Nutzer `forgecrate` über ihren nativen Paketmanager installieren können:
 
-- **Homebrew** (`brew install jmt-labs/tap/claude-setup`) — macOS & Linux
-- **Chocolatey** (`choco install claude-setup`) — Windows, Community-Repo
-- **apt** (`apt install claude-setup`) — Ubuntu/Debian via GitHub-Pages-hosted apt-Repository
+- **Homebrew** (`brew install jmt-labs/tap/forgecrate`) — macOS & Linux
+- **Chocolatey** (`choco install forgecrate`) — Windows, Community-Repo
+- **apt** (`apt install forgecrate`) — Ubuntu/Debian via GitHub-Pages-hosted apt-Repository
 
 ## Architektur
 
@@ -69,9 +69,9 @@ Das bisherige manuelle `GOOS=... go build`-Target entfällt. GoReleaser legt sei
 ```
 conf/
   distributions          # reprepro-Konfiguration (initial committen)
-pool/main/c/claude-setup/
-  claude-setup_<version>_amd64.deb
-  claude-setup_<version>_arm64.deb
+pool/main/c/forgecrate/
+  forgecrate_<version>_amd64.deb
+  forgecrate_<version>_arm64.deb
 dists/stable/
   Release, Release.gpg, InRelease
   main/binary-amd64/Packages, Packages.gz
@@ -92,17 +92,17 @@ KEY.gpg                  # Public Key für Nutzer
 ```bash
 # Homebrew (macOS/Linux)
 brew tap jmt-labs/tap
-brew install claude-setup
+brew install forgecrate
 
 # Chocolatey (Windows)
-choco install claude-setup
+choco install forgecrate
 
 # Ubuntu/Debian
 curl -fsSL https://jmt-labs.github.io/apt/KEY.gpg \
   | sudo gpg --dearmor -o /etc/apt/keyrings/jmt-labs.gpg
 echo "deb [signed-by=/etc/apt/keyrings/jmt-labs.gpg] https://jmt-labs.github.io/apt stable main" \
   | sudo tee /etc/apt/sources.list.d/jmt-labs.list
-sudo apt update && sudo apt install claude-setup
+sudo apt update && sudo apt install forgecrate
 ```
 
 ## User-facing Dokumentation (README.md)
@@ -116,10 +116,10 @@ Der bestehende README-Installations-Abschnitt wird grundlegend überarbeitet: kl
 
 ### Homebrew (macOS / Linux)
 brew tap jmt-labs/tap
-brew install claude-setup
+brew install forgecrate
 
 ### Chocolatey (Windows)
-choco install claude-setup
+choco install forgecrate
 
 ### apt (Ubuntu / Debian)
 curl -fsSL https://jmt-labs.github.io/apt/KEY.gpg \
@@ -127,13 +127,13 @@ curl -fsSL https://jmt-labs.github.io/apt/KEY.gpg \
 echo "deb [signed-by=/etc/apt/keyrings/jmt-labs.gpg] \
   https://jmt-labs.github.io/apt stable main" \
   | sudo tee /etc/apt/sources.list.d/jmt-labs.list
-sudo apt update && sudo apt install claude-setup
+sudo apt update && sudo apt install forgecrate
 
 ### go install
-go install github.com/jmt-labs/claude-setup/cmd/claude-setup@latest
+go install github.com/jmt-labs/forgecrate/cmd/forgecrate@latest
 
 ### curl (ohne Paketmanager)
-curl -fsSL https://raw.githubusercontent.com/jmt-labs/claude-setup/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/jmt-labs/forgecrate/main/install.sh | bash
 ```
 
 **Weitere README-Verbesserungen:**

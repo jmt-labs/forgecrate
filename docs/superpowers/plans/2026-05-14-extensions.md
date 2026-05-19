@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Jeder Layer kann eine `extensions.yaml` deklarieren; `claude-setup init/update` merged alle aktiven Layer und installiert Plugins und MCP-Server via `claude`-CLI.
+**Goal:** Jeder Layer kann eine `extensions.yaml` deklarieren; `forgecrate init/update` merged alle aktiven Layer und installiert Plugins und MCP-Server via `claude`-CLI.
 
 **Architecture:** Neues Package `internal/extensions` mit Typen, Merge-Logik und Installer. `deploy.Run()` ruft nach `copyHooks()` den neuen Schritt `installExtensions()` auf. Jeder Layer (base, profile, flavors) kann optional eine `extensions.yaml` enthalten.
 
@@ -41,7 +41,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/markus/claude-setup/internal/extensions"
+	"github.com/jmt-labs/forgecrate/internal/extensions"
 )
 
 func TestLoad(t *testing.T) {
@@ -191,7 +191,7 @@ func Merge(layers []Extensions) Extensions {
 go test ./internal/extensions/...
 ```
 
-Erwartet: `ok  github.com/markus/claude-setup/internal/extensions`
+Erwartet: `ok  github.com/jmt-labs/forgecrate/internal/extensions`
 
 - [ ] **Schritt 5: Commit**
 
@@ -221,7 +221,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/markus/claude-setup/internal/extensions"
+	"github.com/jmt-labs/forgecrate/internal/extensions"
 )
 
 func fakeClaude(t *testing.T) (path string, argsFile string) {
@@ -377,7 +377,7 @@ func envPairs(env map[string]string) []string {
 go test ./internal/extensions/...
 ```
 
-Erwartet: `ok  github.com/markus/claude-setup/internal/extensions`
+Erwartet: `ok  github.com/jmt-labs/forgecrate/internal/extensions`
 
 - [ ] **Schritt 5: Commit**
 
@@ -447,7 +447,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/markus/claude-setup/internal/config"
+	"github.com/jmt-labs/forgecrate/internal/config"
 )
 ```
 
@@ -472,9 +472,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/markus/claude-setup/internal/compose"
-	"github.com/markus/claude-setup/internal/config"
-	"github.com/markus/claude-setup/internal/extensions"
+	"github.com/jmt-labs/forgecrate/internal/compose"
+	"github.com/jmt-labs/forgecrate/internal/config"
+	"github.com/jmt-labs/forgecrate/internal/extensions"
 )
 
 func Run(sourceDir, destDir string, cfg config.Config) error {
@@ -500,7 +500,7 @@ func RunWithClaude(sourceDir, destDir string, cfg config.Config, claudeBin strin
 		return fmt.Errorf("extensions: %w", err)
 	}
 
-	cfgPath := filepath.Join(destDir, ".claude-setup.yaml")
+	cfgPath := filepath.Join(destDir, ".forgecrate.yaml")
 	if err := config.Write(cfgPath, cfg); err != nil {
 		return fmt.Errorf("write config: %w", err)
 	}

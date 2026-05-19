@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/jmt-labs/claude-setup/internal/config"
+	"github.com/jmt-labs/forgecrate/internal/config"
 )
 
 func deployFile(dstPath, rel string, newContent []byte, cfg *config.Config, w io.Writer, r io.Reader) error {

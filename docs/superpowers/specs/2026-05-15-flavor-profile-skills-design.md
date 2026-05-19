@@ -4,7 +4,7 @@
 
 ## Ziel
 
-Fünf neue SKILL.md-Dateien für bestehende Profile und Flavors, ein neuer `github`-Flavor, und ein Bug-Fix im `claude-setup-advisor`. Kein Go-Code — alles Markdown-Inhaltserstellung. Ein PR.
+Fünf neue SKILL.md-Dateien für bestehende Profile und Flavors, ein neuer `github`-Flavor, und ein Bug-Fix im `forgecrate-advisor`. Kein Go-Code — alles Markdown-Inhaltserstellung. Ein PR.
 
 ## Neuer Flavor: `github`
 
@@ -14,7 +14,7 @@ Fünf neue SKILL.md-Dateien für bestehende Profile und Flavors, ein neuer `gith
 - `extensions.yaml` — leer (kein Plugin erforderlich)
 - `skills/github-release/SKILL.md` — Skill (siehe unten)
 
-Der Flavor ist unabhängig vom Profil aktivierbar: `claude-setup run --profile backend --flavor github`.
+Der Flavor ist unabhängig vom Profil aktivierbar: `forgecrate run --profile backend --flavor github`.
 
 ## Neue Skills
 
@@ -76,7 +76,7 @@ Führt durch Erstellung und Review einer Datenbankmigrierung:
    - Kompatibel mit laufender Anwendung (Blue-Green-fähig)?
 4. Checkliste ausgeben — offene Punkte müssen vor dem Commit adressiert sein
 
-## Bug-Fix: `claude-setup-advisor`
+## Bug-Fix: `forgecrate-advisor`
 
 `minimal`-Flavor steht in der Tabelle, wird aber in der Entscheidungslogik nie empfohlen. Fix: Schritt 4 bekommt eine dritte Frage:
 

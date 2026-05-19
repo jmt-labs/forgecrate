@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/jmt-labs/claude-setup/internal/extensions"
+	"github.com/jmt-labs/forgecrate/internal/extensions"
 )
 
 func fakeClaude(t *testing.T) (path string, argsFile string) {

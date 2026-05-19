@@ -1,16 +1,16 @@
-# Claude Setup — Design Spec
+# forgecrate — Design Spec
 
 **Datum:** 2026-05-14  
 **Status:** Genehmigt
 
 ## Ziel
 
-Ein reproduzierbares, per Go-Binary verwaltetes Claude-Setup, das alle relevanten Claude-Dateien (CLAUDE.md, AGENTS.md, settings.json, Skills, Hooks) in ein Ziel-Repo deployt. Das Setup ist pro Repo konfigurierbar (Profile + Flavors + lokale Overrides) und erzwingt die Einhaltung definierter Workflows via Hooks und Pflicht-Skills.
+Ein reproduzierbares, per Go-Binary verwaltetes forgecrate, das alle relevanten Claude-Dateien (CLAUDE.md, AGENTS.md, settings.json, Skills, Hooks) in ein Ziel-Repo deployt. Das Setup ist pro Repo konfigurierbar (Profile + Flavors + lokale Overrides) und erzwingt die Einhaltung definierter Workflows via Hooks und Pflicht-Skills.
 
 ## Prinzipien
 
 - Kein manuelles Installationsskript — ein globales Binary reicht
-- Keine globale Config für mehrere Repos — jedes Repo hat seine eigene `.claude-setup.yaml`
+- Keine globale Config für mehrere Repos — jedes Repo hat seine eigene `.forgecrate.yaml`
 - Hooks sind schlank und gezielt, kein Payload-Overload
 - Overrides werden nie überschrieben
 
@@ -18,10 +18,10 @@ Ein reproduzierbares, per Go-Binary verwaltetes Claude-Setup, das alle relevante
 
 ## Abschnitt 1: Repo-Struktur
 
-### Source-Repo (`claude-setup` auf GitHub)
+### Source-Repo (`forgecrate` auf GitHub)
 
 ```
-claude-setup/
+forgecrate/
 ├── base/                        # Layer 1 — immer deployt
 │   ├── CLAUDE.md
 │   ├── AGENTS.md
@@ -41,7 +41,7 @@ claude-setup/
 │   ├── tdd/
 │   ├── strict-review/
 │   └── minimal/
-└── cmd/claude-setup/            # Go-Binary Source
+└── cmd/forgecrate/            # Go-Binary Source
     └── main.go
 ```
 
@@ -49,7 +49,7 @@ claude-setup/
 
 ```
 mein-projekt/
-├── .claude-setup.yaml           # Ankerdatei
+├── .forgecrate.yaml           # Ankerdatei
 ├── CLAUDE.md                    # Composited (base + profile + flavors)
 ├── AGENTS.md
 └── .claude/
@@ -60,11 +60,11 @@ mein-projekt/
         └── settings.override.json
 ```
 
-### Ankerdatei `.claude-setup.yaml`
+### Ankerdatei `.forgecrate.yaml`
 
 ```yaml
 version: "1.0"
-source: "github.com/markus/claude-setup"
+source: "github.com/jmt-labs/forgecrate"
 ref: "main"
 profile: backend
 flavors:
@@ -79,29 +79,29 @@ flavors:
 ### Installation
 
 ```bash
-go install github.com/markus/claude-setup/cmd/claude-setup@latest
+go install github.com/jmt-labs/forgecrate/cmd/forgecrate@latest
 ```
 
 ### Befehle
 
 ```bash
-claude-setup init --profile backend --flavors tdd,strict-review
-claude-setup update
-claude-setup update --profile fullstack
+forgecrate init --profile backend --flavors tdd,strict-review
+forgecrate update
+forgecrate update --profile fullstack
 ```
 
 ### `init`-Ablauf
 
-1. Liest `.claude-setup.yaml` falls vorhanden (idempotent)
+1. Liest `.forgecrate.yaml` falls vorhanden (idempotent)
 2. Holt Source-Stand von GitHub (API oder `git clone --depth=1`)
 3. Kompositioniert Layer: `base` → `profile` → `flavors`
 4. Schreibt Dateien ins Ziel-Repo
-5. Schreibt `.claude-setup.yaml`
+5. Schreibt `.forgecrate.yaml`
 6. Berührt `overrides/` nicht
 
 ### `update`-Ablauf
 
-1. Liest `.claude-setup.yaml`
+1. Liest `.forgecrate.yaml`
 2. Holt neuen Stand von GitHub
 3. Rekompositioniert alle generierten Dateien
 4. `overrides/` bleibt unangetastet
@@ -194,7 +194,7 @@ Alle internen Funktionen des Binary werden unit-getestet. Schwerpunkte:
 | `compose` | Deep JSON Merge für settings.json (Konfliktauflösung, Override-Precedence) |
 | `compose` | Skills-Komposition (Additiv, Override-Erkennung) |
 | `github` | GitHub-API-Client (gemockt) — Tarball-Download, Ref-Auflösung |
-| `config` | `.claude-setup.yaml` Lesen/Schreiben, Validierung |
+| `config` | `.forgecrate.yaml` Lesen/Schreiben, Validierung |
 
 ```bash
 go test ./...
@@ -252,10 +252,10 @@ Diagramme werden als SVG unter `assets/` abgelegt und in die Docs eingebettet:
 
 ```
 <div align="center">
-  <img src="assets/banner.svg" alt="claude-setup — Reproduzierbares Claude-Setup" width="100%">
+  <img src="assets/banner.svg" alt="forgecrate — Reproducible forgecrate" width="100%">
 </div>
 
-# claude-setup
+# forgecrate
 
 Kurzbeschreibung (1 Satz).
 
@@ -268,8 +268,8 @@ Stack: Go · GitHub API · Layer-System · Hooks
 Voraussetzungen: Go 1.22+, GitHub-Zugriff.
 
 ```sh
-go install github.com/markus/claude-setup/cmd/claude-setup@latest
-claude-setup init --profile backend --flavors tdd
+go install github.com/jmt-labs/forgecrate/cmd/forgecrate@latest
+forgecrate init --profile backend --flavors tdd
 ```
 
 ---
@@ -293,7 +293,7 @@ claude-setup init --profile backend --flavors tdd
 | base/ | Basis-Layer — immer deployt |
 | profiles/ | Profil-Layer |
 | flavors/ | Flavor-Layer |
-| cmd/claude-setup/ | Go-Binary |
+| cmd/forgecrate/ | Go-Binary |
 ```
 
 ---

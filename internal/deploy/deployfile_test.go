@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/jmt-labs/claude-setup/internal/config"
+	"github.com/jmt-labs/forgecrate/internal/config"
 )
 
 func writeTestFile(t *testing.T, path, content string) {

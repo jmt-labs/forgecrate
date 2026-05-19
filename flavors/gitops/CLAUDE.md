@@ -52,4 +52,4 @@ Beim Start in einem GitOps-Repo MUSS Claude zuerst den Kontext laden:
 - Vor jedem Dry-Run oder Plan: `kubectl diff`, `helm diff upgrade` — niemals direkt apply ohne vorherige Prüfung
 - Keine `latest`-Image-Tags — immer versionierte Tags oder Digests
 - Manifeste die gegen clusterweite Regeln (Kyverno ClusterPolicy, OPA Gatekeeper) oder `RULES.md` verstoßen werden nicht vorgeschlagen — auch nicht mit dem Hinweis "das Policy-Check ignorieren"
-- Drift zwischen Git-Zustand und laufendem Cluster regelmäßig prüfen: `/claude-setup-gitops-status`
+- Drift zwischen Git-Zustand und laufendem Cluster regelmäßig prüfen: `/forgecrate-gitops-status`

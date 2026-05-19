@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Einen opt-in Flavor `getbetter` anlegen, der einen `/claude-setup-getbetter`-Slash-Command und einen Skill bereitstellt, mit dem Claude Session-Erkenntnisse in `.claude/GETBETTER.md` reflektiert und persistent speichert.
+**Goal:** Einen opt-in Flavor `getbetter` anlegen, der einen `/forgecrate-getbetter`-Slash-Command und einen Skill bereitstellt, mit dem Claude Session-Erkenntnisse in `.claude/GETBETTER.md` reflektiert und persistent speichert.
 
 **Architecture:** Rein dateibasiert — kein Go-Code. Der Flavor besteht aus drei Markdown-Dateien: `CLAUDE.md` (Lese-Instruktion), `SKILL.md` (Synthese-Ablauf), Command-Wrapper. Der bestehende `composeSkills()`-Mechanismus in `compose.go` deployt alles automatisch.
 
@@ -22,7 +22,7 @@ func TestDeployIncludesGetbetterFlavorSkill(t *testing.T) {
 	dst := t.TempDir()
 	cfg := config.Config{
 		Version: "1.0",
-		Source:  "github.com/jmt-labs/claude-setup",
+		Source:  "github.com/jmt-labs/forgecrate",
 		Ref:     "main",
 		Profile: "backend",
 		Flavors: []string{"getbetter"},
@@ -40,7 +40,7 @@ func TestDeployIncludesGetbetterCommand(t *testing.T) {
 	dst := t.TempDir()
 	cfg := config.Config{
 		Version: "1.0",
-		Source:  "github.com/jmt-labs/claude-setup",
+		Source:  "github.com/jmt-labs/forgecrate",
 		Ref:     "main",
 		Profile: "backend",
 		Flavors: []string{"getbetter"},
@@ -48,9 +48,9 @@ func TestDeployIncludesGetbetterCommand(t *testing.T) {
 	if err := deploy.Run(localSource(t), dst, cfg); err != nil {
 		t.Fatalf("deploy.Run: %v", err)
 	}
-	path := filepath.Join(dst, ".claude", "commands", "claude-setup-getbetter.md")
+	path := filepath.Join(dst, ".claude", "commands", "forgecrate-getbetter.md")
 	if _, err := os.Stat(path); err != nil {
-		t.Errorf("getbetter command missing: claude-setup-getbetter.md")
+		t.Errorf("getbetter command missing: forgecrate-getbetter.md")
 	}
 }
 ```
@@ -166,7 +166,7 @@ git commit -m "feat: getbetter flavor — Skill"
 ### Task 4: Slash-Command anlegen
 
 **Files:**
-- Create: `flavors/getbetter/.claude/commands/claude-setup-getbetter.md`
+- Create: `flavors/getbetter/.claude/commands/forgecrate-getbetter.md`
 
 - [ ] **Step 1: Command-Datei erstellen**
 
@@ -197,7 +197,7 @@ Erwartet: alle PASS, kein FAIL
 - [ ] **Step 4: Commit**
 
 ```bash
-git add flavors/getbetter/.claude/commands/claude-setup-getbetter.md
+git add flavors/getbetter/.claude/commands/forgecrate-getbetter.md
 git commit -m "feat: getbetter flavor — Slash-Command"
 ```
 
@@ -222,7 +222,7 @@ gh pr create \
 ## Was
 
 Fügt einen opt-in Flavor \`getbetter\` hinzu mit:
-- \`/claude-setup-getbetter\` Slash-Command
+- \`/forgecrate-getbetter\` Slash-Command
 - Skill, der Session-Erkenntnisse in \`.claude/GETBETTER.md\` synthetisiert
 - CLAUDE.md-Instruktion: GETBETTER.md am Sessionbeginn zwingend lesen
 

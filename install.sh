@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO="jmt-labs/claude-setup"
+REPO="jmt-labs/forgecrate"
 VERSION="${1:-latest}"
 
 # OS erkennen
@@ -33,7 +33,7 @@ else
   API_URL="https://api.github.com/repos/${REPO}/releases/tags/${VERSION}"
 fi
 
-PATTERN="claude-setup-${OS}-${ARCH}"
+PATTERN="forgecrate-${OS}-${ARCH}"
 DOWNLOAD_URL=$(curl -fsSL "$API_URL" \
   | grep "browser_download_url" \
   | grep "$PATTERN" \
@@ -59,10 +59,10 @@ trap 'rm -f "$TMP"' EXIT
 echo "Lade ${DOWNLOAD_URL##*/} herunter..."
 curl -fsSL -o "$TMP" "$DOWNLOAD_URL"
 chmod +x "$TMP"
-mv "$TMP" "$INSTALL_DIR/claude-setup"
+mv "$TMP" "$INSTALL_DIR/forgecrate"
 trap - EXIT
 
-echo "Installiert: $INSTALL_DIR/claude-setup"
+echo "Installiert: $INSTALL_DIR/forgecrate"
 
 # Warnung wenn Verzeichnis nicht im PATH
 if ! echo "$PATH" | tr ':' '\n' | grep -qx "$INSTALL_DIR"; then

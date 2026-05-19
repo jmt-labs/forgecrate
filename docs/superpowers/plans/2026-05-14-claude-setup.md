@@ -1,8 +1,8 @@
-# Claude Setup Implementation Plan
+# forgecrate Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Ein globales Go-Binary (`claude-setup`) das ein Layer-basiertes Claude-Konfigurations-Setup (CLAUDE.md, AGENTS.md, settings.json, Skills, Hooks) von GitHub in beliebige Ziel-Repos deployt.
+**Goal:** Ein globales Go-Binary (`forgecrate`) das ein Layer-basiertes Claude-Konfigurations-Setup (CLAUDE.md, AGENTS.md, settings.json, Skills, Hooks) von GitHub in beliebige Ziel-Repos deployt.
 
 **Architecture:** Layer-System mit drei Ebenen (base → profile → flavors), compositioniert durch das Binary und in das Ziel-Repo geschrieben. Lokale Overrides (`<!-- CUSTOM:BEGIN/END -->` in Markdown, `overrides/` für Skills) werden nie überschrieben. Hooks in settings.json erzwingen Pflicht-Skills zur Laufzeit.
 
@@ -13,14 +13,14 @@
 ## Dateistruktur
 
 ```
-claude-setup/
-├── cmd/claude-setup/
+forgecrate/
+├── cmd/forgecrate/
 │   ├── main.go              # Einstiegspunkt, cobra root command
 │   ├── init.go              # init subcommand
 │   └── update.go            # update subcommand
 ├── internal/
 │   ├── config/
-│   │   ├── config.go        # .claude-setup.yaml lesen/schreiben
+│   │   ├── config.go        # .forgecrate.yaml lesen/schreiben
 │   │   └── config_test.go
 │   ├── github/
 │   │   ├── client.go        # GitHub API: Tarball-Download
@@ -78,15 +78,15 @@ claude-setup/
 
 **Files:**
 - Create: `go.mod`
-- Create: `cmd/claude-setup/main.go`
-- Create: `cmd/claude-setup/init.go`
-- Create: `cmd/claude-setup/update.go`
+- Create: `cmd/forgecrate/main.go`
+- Create: `cmd/forgecrate/init.go`
+- Create: `cmd/forgecrate/update.go`
 
 - [ ] **Schritt 1: go.mod anlegen**
 
 ```bash
-cd /Users/markus/repo/claude-setup
-go mod init github.com/markus/claude-setup
+cd /Users/markus/repo/forgecrate
+go mod init github.com/jmt-labs/forgecrate
 go get github.com/spf13/cobra@latest
 go get gopkg.in/yaml.v3@latest
 ```
@@ -94,7 +94,7 @@ go get gopkg.in/yaml.v3@latest
 - [ ] **Schritt 2: main.go schreiben**
 
 ```go
-// cmd/claude-setup/main.go
+// cmd/forgecrate/main.go
 package main
 
 import (
@@ -106,8 +106,8 @@ import (
 
 func main() {
 	root := &cobra.Command{
-		Use:   "claude-setup",
-		Short: "Reproduzierbares Claude-Setup für Repos",
+		Use:   "forgecrate",
+		Short: "Reproducible Claude Code configuration for Git repositories.",
 	}
 	root.AddCommand(newInitCmd())
 	root.AddCommand(newUpdateCmd())
@@ -121,7 +121,7 @@ func main() {
 - [ ] **Schritt 3: init.go Skeleton schreiben**
 
 ```go
-// cmd/claude-setup/init.go
+// cmd/forgecrate/init.go
 package main
 
 import (
@@ -135,7 +135,7 @@ func newInitCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "init",
-		Short: "Initialisiert Claude-Setup im aktuellen Repo",
+		Short: "Initialisiert forgecrate im aktuellen Repo",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			fmt.Printf("init: profile=%s flavors=%v\n", profile, flavors)
 			return nil
@@ -150,7 +150,7 @@ func newInitCmd() *cobra.Command {
 - [ ] **Schritt 4: update.go Skeleton schreiben**
 
 ```go
-// cmd/claude-setup/update.go
+// cmd/forgecrate/update.go
 package main
 
 import (
@@ -163,7 +163,7 @@ func newUpdateCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "update",
-		Short: "Aktualisiert Claude-Setup im aktuellen Repo",
+		Short: "Aktualisiert forgecrate im aktuellen Repo",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			fmt.Printf("update: profile=%s\n", profile)
 			return nil
@@ -177,10 +177,10 @@ func newUpdateCmd() *cobra.Command {
 - [ ] **Schritt 5: Build prüfen**
 
 ```bash
-go build ./cmd/claude-setup/
+go build ./cmd/forgecrate/
 ```
 
-Erwartung: Binary `claude-setup` ohne Fehler.
+Erwartung: Binary `forgecrate` ohne Fehler.
 
 - [ ] **Schritt 6: Committen**
 
@@ -191,7 +191,7 @@ git commit -m "feat: add Go module and cobra CLI skeleton"
 
 ---
 
-### Task 2: Config-Paket (`.claude-setup.yaml`)
+### Task 2: Config-Paket (`.forgecrate.yaml`)
 
 **Files:**
 - Create: `internal/config/config.go`
@@ -208,16 +208,16 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/markus/claude-setup/internal/config"
+	"github.com/jmt-labs/forgecrate/internal/config"
 )
 
 func TestReadWrite(t *testing.T) {
 	dir := t.TempDir()
-	path := filepath.Join(dir, ".claude-setup.yaml")
+	path := filepath.Join(dir, ".forgecrate.yaml")
 
 	cfg := config.Config{
 		Version: "1.0",
-		Source:  "github.com/markus/claude-setup",
+		Source:  "github.com/jmt-labs/forgecrate",
 		Ref:     "main",
 		Profile: "backend",
 		Flavors: []string{"tdd", "strict-review"},
@@ -241,7 +241,7 @@ func TestReadWrite(t *testing.T) {
 }
 
 func TestReadMissing(t *testing.T) {
-	_, err := config.Read("/nonexistent/.claude-setup.yaml")
+	_, err := config.Read("/nonexistent/.forgecrate.yaml")
 	if !os.IsNotExist(err) {
 		t.Errorf("expected not-exist error, got %v", err)
 	}
@@ -312,7 +312,7 @@ Erwartung: `PASS`
 
 ```bash
 git add internal/config/
-git commit -m "feat: add config package for .claude-setup.yaml"
+git commit -m "feat: add config package for .forgecrate.yaml"
 ```
 
 ---
@@ -339,7 +339,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	gh "github.com/markus/claude-setup/internal/github"
+	gh "github.com/jmt-labs/forgecrate/internal/github"
 )
 
 func makeTarGz(files map[string]string) []byte {
@@ -371,7 +371,7 @@ func TestDownloadAndExtract(t *testing.T) {
 	client := gh.New(srv.URL)
 	dir := t.TempDir()
 
-	if err := client.Download("markus", "claude-setup", "main", dir); err != nil {
+	if err := client.Download("markus", "forgecrate", "main", dir); err != nil {
 		t.Fatalf("Download: %v", err)
 	}
 
@@ -529,7 +529,7 @@ package compose_test
 import (
 	"testing"
 
-	"github.com/markus/claude-setup/internal/compose"
+	"github.com/jmt-labs/forgecrate/internal/compose"
 )
 
 func TestMergeMarkdownInit(t *testing.T) {
@@ -671,7 +671,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/markus/claude-setup/internal/compose"
+	"github.com/jmt-labs/forgecrate/internal/compose"
 )
 
 func TestDeepMergeJSON(t *testing.T) {
@@ -813,7 +813,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/markus/claude-setup/internal/compose"
+	"github.com/jmt-labs/forgecrate/internal/compose"
 )
 
 func TestMergeSkills(t *testing.T) {
@@ -966,7 +966,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/markus/claude-setup/internal/compose"
+	"github.com/jmt-labs/forgecrate/internal/compose"
 )
 
 func TestCompose(t *testing.T) {
@@ -1195,8 +1195,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/markus/claude-setup/internal/config"
-	"github.com/markus/claude-setup/internal/deploy"
+	"github.com/jmt-labs/forgecrate/internal/config"
+	"github.com/jmt-labs/forgecrate/internal/deploy"
 )
 
 func TestDeploy(t *testing.T) {
@@ -1211,7 +1211,7 @@ func TestDeploy(t *testing.T) {
 
 	cfg := config.Config{
 		Version: "1.0",
-		Source:  "github.com/markus/claude-setup",
+		Source:  "github.com/jmt-labs/forgecrate",
 		Ref:     "main",
 		Profile: "backend",
 		Flavors: []string{},
@@ -1221,9 +1221,9 @@ func TestDeploy(t *testing.T) {
 		t.Fatalf("Run: %v", err)
 	}
 
-	// .claude-setup.yaml geschrieben
-	if _, err := os.Stat(filepath.Join(dst, ".claude-setup.yaml")); err != nil {
-		t.Errorf(".claude-setup.yaml missing")
+	// .forgecrate.yaml geschrieben
+	if _, err := os.Stat(filepath.Join(dst, ".forgecrate.yaml")); err != nil {
+		t.Errorf(".forgecrate.yaml missing")
 	}
 
 	// Hooks kopiert
@@ -1260,8 +1260,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/markus/claude-setup/internal/compose"
-	"github.com/markus/claude-setup/internal/config"
+	"github.com/jmt-labs/forgecrate/internal/compose"
+	"github.com/jmt-labs/forgecrate/internal/config"
 )
 
 // Run compositioniert alle Layer und schreibt das Ergebnis ins destDir.
@@ -1280,7 +1280,7 @@ func Run(sourceDir, destDir string, cfg config.Config) error {
 		return fmt.Errorf("hooks: %w", err)
 	}
 
-	cfgPath := filepath.Join(destDir, ".claude-setup.yaml")
+	cfgPath := filepath.Join(destDir, ".forgecrate.yaml")
 	if err := config.Write(cfgPath, cfg); err != nil {
 		return fmt.Errorf("write config: %w", err)
 	}
@@ -1342,22 +1342,22 @@ git commit -m "feat: add deploy package wiring compose and config write"
 ### Task 9: `init`- und `update`-Commands verdrahten
 
 **Files:**
-- Modify: `cmd/claude-setup/init.go`
-- Modify: `cmd/claude-setup/update.go`
+- Modify: `cmd/forgecrate/init.go`
+- Modify: `cmd/forgecrate/update.go`
 
 - [ ] **Schritt 1: init.go mit echter Logik überschreiben**
 
 ```go
-// cmd/claude-setup/init.go
+// cmd/forgecrate/init.go
 package main
 
 import (
 	"fmt"
 	"os"
 
-	"github.com/markus/claude-setup/internal/config"
-	"github.com/markus/claude-setup/internal/deploy"
-	gh "github.com/markus/claude-setup/internal/github"
+	"github.com/jmt-labs/forgecrate/internal/config"
+	"github.com/jmt-labs/forgecrate/internal/deploy"
+	gh "github.com/jmt-labs/forgecrate/internal/github"
 	"github.com/spf13/cobra"
 )
 
@@ -1367,19 +1367,19 @@ func newInitCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "init",
-		Short: "Initialisiert Claude-Setup im aktuellen Repo",
+		Short: "Initialisiert forgecrate im aktuellen Repo",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cwd, err := os.Getwd()
 			if err != nil {
 				return err
 			}
 
-			cfgPath := cwd + "/.claude-setup.yaml"
+			cfgPath := cwd + "/.forgecrate.yaml"
 			cfg, err := config.Read(cfgPath)
 			if os.IsNotExist(err) {
 				cfg = config.Config{
 					Version: "1.0",
-					Source:  "github.com/markus/claude-setup",
+					Source:  "github.com/jmt-labs/forgecrate",
 					Ref:     "main",
 					Profile: profile,
 					Flavors: flavors,
@@ -1395,10 +1395,10 @@ func newInitCmd() *cobra.Command {
 				cfg.Flavors = flavors
 			}
 
-			owner, repo := "markus", "claude-setup"
+			owner, repo := "markus", "forgecrate"
 			fmt.Printf("Fetching %s/%s@%s ...\n", owner, repo, cfg.Ref)
 
-			srcDir, err := os.MkdirTemp("", "claude-setup-*")
+			srcDir, err := os.MkdirTemp("", "forgecrate-*")
 			if err != nil {
 				return err
 			}
@@ -1427,16 +1427,16 @@ func newInitCmd() *cobra.Command {
 - [ ] **Schritt 2: update.go mit echter Logik überschreiben**
 
 ```go
-// cmd/claude-setup/update.go
+// cmd/forgecrate/update.go
 package main
 
 import (
 	"fmt"
 	"os"
 
-	"github.com/markus/claude-setup/internal/config"
-	"github.com/markus/claude-setup/internal/deploy"
-	gh "github.com/markus/claude-setup/internal/github"
+	"github.com/jmt-labs/forgecrate/internal/config"
+	"github.com/jmt-labs/forgecrate/internal/deploy"
+	gh "github.com/jmt-labs/forgecrate/internal/github"
 	"github.com/spf13/cobra"
 )
 
@@ -1445,16 +1445,16 @@ func newUpdateCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "update",
-		Short: "Aktualisiert Claude-Setup im aktuellen Repo",
+		Short: "Aktualisiert forgecrate im aktuellen Repo",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cwd, err := os.Getwd()
 			if err != nil {
 				return err
 			}
 
-			cfg, err := config.Read(cwd + "/.claude-setup.yaml")
+			cfg, err := config.Read(cwd + "/.forgecrate.yaml")
 			if os.IsNotExist(err) {
-				return fmt.Errorf(".claude-setup.yaml nicht gefunden — erst 'claude-setup init' ausführen")
+				return fmt.Errorf(".forgecrate.yaml nicht gefunden — erst 'forgecrate init' ausführen")
 			} else if err != nil {
 				return err
 			}
@@ -1463,10 +1463,10 @@ func newUpdateCmd() *cobra.Command {
 				cfg.Profile = profile
 			}
 
-			owner, repo := "markus", "claude-setup"
+			owner, repo := "markus", "forgecrate"
 			fmt.Printf("Fetching %s/%s@%s ...\n", owner, repo, cfg.Ref)
 
-			srcDir, err := os.MkdirTemp("", "claude-setup-*")
+			srcDir, err := os.MkdirTemp("", "forgecrate-*")
 			if err != nil {
 				return err
 			}
@@ -1494,10 +1494,10 @@ func newUpdateCmd() *cobra.Command {
 - [ ] **Schritt 3: Build + Smoketest**
 
 ```bash
-go build ./cmd/claude-setup/
-./claude-setup --help
-./claude-setup init --help
-./claude-setup update --help
+go build ./cmd/forgecrate/
+./forgecrate --help
+./forgecrate init --help
+./forgecrate update --help
 ```
 
 Erwartung: Hilfe-Text ohne Fehler.
@@ -1505,7 +1505,7 @@ Erwartung: Hilfe-Text ohne Fehler.
 - [ ] **Schritt 4: Committen**
 
 ```bash
-git add cmd/claude-setup/
+git add cmd/forgecrate/
 git commit -m "feat: wire init and update commands with github+deploy"
 ```
 
@@ -1528,8 +1528,8 @@ git commit -m "feat: wire init and update commands with github+deploy"
 <!-- GENERATED:BEGIN -->
 # Claude-Konfiguration
 
-Dieses Repository verwendet ein reproduzierbares Claude-Setup.
-Die generierten Abschnitte dieser Datei werden bei `claude-setup update` überschrieben.
+Dieses Repository verwendet ein reproduzierbares forgecrate.
+Die generierten Abschnitte dieser Datei werden bei `forgecrate update` überschrieben.
 Eigene Anpassungen gehören in den CUSTOM-Abschnitt.
 
 ## Pflicht-Skills
@@ -1615,10 +1615,10 @@ Gilt für alle Agenten (Codex, Claude Code, etc.) die in diesem Repo arbeiten.
 # Erinnerung an Pflicht-Skills — wird bei jeder User-Nachricht ausgegeben.
 # Schlank halten: nur wenige Zeilen, vollständig cached nach erster Ausführung.
 
-PROFILE=$(grep 'profile:' .claude-setup.yaml 2>/dev/null | awk '{print $2}')
-FLAVORS=$(grep -A5 'flavors:' .claude-setup.yaml 2>/dev/null | grep '  -' | awk '{print $2}' | tr '\n' ',' | sed 's/,$//')
+PROFILE=$(grep 'profile:' .forgecrate.yaml 2>/dev/null | awk '{print $2}')
+FLAVORS=$(grep -A5 'flavors:' .forgecrate.yaml 2>/dev/null | grep '  -' | awk '{print $2}' | tr '\n' ',' | sed 's/,$//')
 
-echo "## Claude Setup — Aktive Konfiguration"
+echo "## forgecrate — Aktive Konfiguration"
 echo "Profil: ${PROFILE:-unbekannt} | Flavors: ${FLAVORS:-keine}"
 echo ""
 echo "Pflicht-Skills: brainstorming → tdd → verification-before-completion | debugging bei Bugs"
@@ -1762,11 +1762,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/markus/claude-setup/internal/config"
-	"github.com/markus/claude-setup/internal/deploy"
+	"github.com/jmt-labs/forgecrate/internal/config"
+	"github.com/jmt-labs/forgecrate/internal/deploy"
 )
 
-// localSource gibt den Pfad zum lokalen claude-setup Repo zurück.
+// localSource gibt den Pfad zum lokalen forgecrate Repo zurück.
 // E2E-Tests laufen gegen lokale Quellen, nicht gegen GitHub.
 func localSource(t *testing.T) string {
 	t.Helper()
@@ -1782,7 +1782,7 @@ func TestInitCreatesExpectedFiles(t *testing.T) {
 	dst := t.TempDir()
 	cfg := config.Config{
 		Version: "1.0",
-		Source:  "github.com/markus/claude-setup",
+		Source:  "github.com/jmt-labs/forgecrate",
 		Ref:     "main",
 		Profile: "backend",
 		Flavors: []string{"tdd"},
@@ -1793,7 +1793,7 @@ func TestInitCreatesExpectedFiles(t *testing.T) {
 	}
 
 	requiredFiles := []string{
-		".claude-setup.yaml",
+		".forgecrate.yaml",
 		"CLAUDE.md",
 		"AGENTS.md",
 		".claude/settings.json",
@@ -1812,7 +1812,7 @@ func TestInitIsIdempotent(t *testing.T) {
 	dst := t.TempDir()
 	cfg := config.Config{
 		Version: "1.0",
-		Source:  "github.com/markus/claude-setup",
+		Source:  "github.com/jmt-labs/forgecrate",
 		Ref:     "main",
 		Profile: "backend",
 		Flavors: []string{},
@@ -1845,7 +1845,7 @@ func TestUpdatePreservesOverrides(t *testing.T) {
 	dst := t.TempDir()
 	cfg := config.Config{
 		Version: "1.0",
-		Source:  "github.com/markus/claude-setup",
+		Source:  "github.com/jmt-labs/forgecrate",
 		Ref:     "main",
 		Profile: "backend",
 		Flavors: []string{},
@@ -1880,7 +1880,7 @@ func TestUpdatePreservesOverrides(t *testing.T) {
 func TestProfileSwitch(t *testing.T) {
 	dst := t.TempDir()
 
-	cfg := config.Config{Version: "1.0", Source: "github.com/markus/claude-setup", Ref: "main", Profile: "backend", Flavors: []string{}}
+	cfg := config.Config{Version: "1.0", Source: "github.com/jmt-labs/forgecrate", Ref: "main", Profile: "backend", Flavors: []string{}}
 	if err := deploy.Run(localSource(t), dst, cfg); err != nil {
 		t.Fatalf("init backend: %v", err)
 	}
@@ -1890,9 +1890,9 @@ func TestProfileSwitch(t *testing.T) {
 		t.Fatalf("update to frontend: %v", err)
 	}
 
-	yamlContent, _ := os.ReadFile(filepath.Join(dst, ".claude-setup.yaml"))
+	yamlContent, _ := os.ReadFile(filepath.Join(dst, ".forgecrate.yaml"))
 	if !strings.Contains(string(yamlContent), "frontend") {
-		t.Error("profile not updated in .claude-setup.yaml")
+		t.Error("profile not updated in .forgecrate.yaml")
 	}
 
 	claudeMD, _ := os.ReadFile(filepath.Join(dst, "CLAUDE.md"))
@@ -1905,7 +1905,7 @@ func TestProfileSwitch(t *testing.T) {
 - [ ] **Schritt 2: E2E-Tests ausführen**
 
 ```bash
-cd /Users/markus/repo/claude-setup
+cd /Users/markus/repo/forgecrate
 go test ./e2e/... -v
 ```
 
@@ -1945,9 +1945,9 @@ git commit -m "feat: add e2e tests for init/update/idempotency/profile-switch"
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 120" width="800" height="120">
   <rect width="800" height="120" fill="#0d1117"/>
   <text x="400" y="52" font-family="monospace" font-size="28" font-weight="bold"
-        fill="#e6edf3" text-anchor="middle" letter-spacing="2">claude-setup</text>
+        fill="#e6edf3" text-anchor="middle" letter-spacing="2">forgecrate</text>
   <text x="400" y="82" font-family="monospace" font-size="14"
-        fill="#8b949e" text-anchor="middle">Reproduzierbares Claude-Setup für jedes Repo</text>
+        fill="#8b949e" text-anchor="middle">Reproducible Claude Code configuration for Git repositories</text>
   <text x="400" y="106" font-family="monospace" font-size="11"
         fill="#6e7681" text-anchor="middle">Go Binary · Layer System · Hooks · GitHub</text>
 </svg>
@@ -1962,13 +1962,13 @@ git commit -m "feat: add e2e tests for init/update/idempotency/profile-switch"
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│                   claude-setup Repo                  │
-│  base/ · profiles/ · flavors/ · cmd/claude-setup/   │
+│                   forgecrate Repo                  │
+│  base/ · profiles/ · flavors/ · cmd/forgecrate/   │
 └───────────────────────┬─────────────────────────────┘
                         │ GitHub API (tarball)
                         ▼
               ┌─────────────────┐
-              │  claude-setup   │  ← globales Go-Binary
+              │  forgecrate   │  ← globales Go-Binary
               │    Binary       │
               └────────┬────────┘
                        │ compose + deploy
@@ -1979,7 +1979,7 @@ git commit -m "feat: add e2e tests for init/update/idempotency/profile-switch"
         │  .claude/settings.json       │
         │  .claude/commands/           │
         │  .claude/hooks/              │
-        │  .claude-setup.yaml          │
+        │  .forgecrate.yaml          │
         └──────────────────────────────┘
 ```
 
@@ -2001,9 +2001,9 @@ Layer 3: overrides/     → lokal, nie überschrieben
 ## init-Flow
 
 ```
-claude-setup init --profile backend --flavors tdd
+forgecrate init --profile backend --flavors tdd
         │
-        ├── .claude-setup.yaml lesen (falls vorhanden)
+        ├── .forgecrate.yaml lesen (falls vorhanden)
         ├── GitHub tarball downloaden → tmpDir
         ├── Layer compositionieren: base → profile → flavors
         │       ├── CLAUDE.md: MergeMarkdown(layers, existing)
@@ -2011,16 +2011,16 @@ claude-setup init --profile backend --flavors tdd
         │       ├── settings.json: DeepMergeJSON(base, profile, overrides)
         │       └── commands/: MergeSkills(srcDirs, dest)
         ├── Hooks nach .claude/hooks/ kopieren
-        ├── .claude-setup.yaml schreiben
+        ├── .forgecrate.yaml schreiben
         └── Done.
 ```
 
 ## update-Flow
 
 ```
-claude-setup update [--profile <p>]
+forgecrate update [--profile <p>]
         │
-        ├── .claude-setup.yaml lesen (Fehler wenn nicht vorhanden)
+        ├── .forgecrate.yaml lesen (Fehler wenn nicht vorhanden)
         ├── Profile überschreiben wenn --profile angegeben
         ├── GitHub tarball downloaden → tmpDir
         ├── Layer rekompositionieren (overrides/ unangetastet)
@@ -2162,7 +2162,7 @@ go test ./e2e/...    # E2E-Tests (gegen lokales Repo)
 ## Binary bauen
 
 ```bash
-go build ./cmd/claude-setup/
+go build ./cmd/forgecrate/
 ```
 
 ## Neues Profil hinzufügen
@@ -2190,12 +2190,12 @@ git commit -m "feat: add SVG banner and technical documentation"
 
 ```markdown
 <div align="center">
-  <img src="assets/banner.svg" alt="claude-setup — Reproduzierbares Claude-Setup" width="100%">
+  <img src="assets/banner.svg" alt="forgecrate — Reproducible forgecrate" width="100%">
 </div>
 
-# claude-setup
+# forgecrate
 
-claude-setup deployt ein reproduzierbares Claude-Setup in beliebige Repos. Ein globales Go-Binary holt Konfiguration, Skills und Hooks von GitHub und compositioniert sie per Layer-System ins Ziel-Repo.
+forgecrate deployt ein reproduzierbares forgecrate in beliebige Repos. Ein globales Go-Binary holt Konfiguration, Skills und Hooks von GitHub und compositioniert sie per Layer-System ins Ziel-Repo.
 
 Stack: Go Binary · GitHub API · Layer-System · Hooks · Skills
 
@@ -2206,10 +2206,10 @@ Stack: Go Binary · GitHub API · Layer-System · Hooks · Skills
 Voraussetzungen: Go 1.22+
 
 ```sh
-go install github.com/markus/claude-setup/cmd/claude-setup@latest
+go install github.com/jmt-labs/forgecrate/cmd/forgecrate@latest
 
 # Im Ziel-Repo:
-claude-setup init --profile backend --flavors tdd
+forgecrate init --profile backend --flavors tdd
 ```
 
 Danach enthält das Repo:
@@ -2221,13 +2221,13 @@ CLAUDE.md · AGENTS.md · .claude/settings.json · .claude/commands/ · .claude/
 Aktualisieren:
 
 ```sh
-claude-setup update
+forgecrate update
 ```
 
 Profil wechseln:
 
 ```sh
-claude-setup update --profile fullstack
+forgecrate update --profile fullstack
 ```
 
 ---
@@ -2252,10 +2252,10 @@ claude-setup update --profile fullstack
 | `base/` | Basis-Layer — immer deployt |
 | `profiles/` | Profil-Layer — eines wählbar |
 | `flavors/` | Flavor-Layer — mehrere kombinierbar |
-| `cmd/claude-setup/` | Go-Binary (init, update) |
+| `cmd/forgecrate/` | Go-Binary (init, update) |
 | `internal/compose/` | Markdown-, JSON- und Skills-Merge-Logik |
 | `internal/github/` | GitHub API Client |
-| `internal/config/` | `.claude-setup.yaml` Lesen/Schreiben |
+| `internal/config/` | `.forgecrate.yaml` Lesen/Schreiben |
 | `internal/deploy/` | Deployment-Koordination |
 | `e2e/` | End-to-End-Tests |
 
@@ -2303,8 +2303,8 @@ git commit -m "feat: add README in forgedeck style"
 - [ ] **Build-Check**
 
 ```bash
-go build ./cmd/claude-setup/
-./claude-setup --help
+go build ./cmd/forgecrate/
+./forgecrate --help
 ```
 
 - [ ] **Alle Tests bestehen**

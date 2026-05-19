@@ -21,7 +21,7 @@
 | `base/skills/release/SKILL.md` | Neu | Release-Workflow-Skill |
 | `base/skills/repo-onboarding/SKILL.md` | Neu | Repo-Überblick-Skill |
 | `base/skills/repo-health/SKILL.md` | Neu | Repo-Analyse-Skill |
-| `base/skills/claude-setup-advisor/SKILL.md` | Neu | Profil/Flavor-Empfehlungs-Skill |
+| `base/skills/forgecrate-advisor/SKILL.md` | Neu | Profil/Flavor-Empfehlungs-Skill |
 
 ---
 
@@ -239,7 +239,7 @@ git commit -m "feat(deploy): add copySkills step — distribute skill files to t
 - Create: `base/skills/release/SKILL.md`
 - Create: `base/skills/repo-onboarding/SKILL.md`
 - Create: `base/skills/repo-health/SKILL.md`
-- Create: `base/skills/claude-setup-advisor/SKILL.md`
+- Create: `base/skills/forgecrate-advisor/SKILL.md`
 
 Hinweis: Reine Markdown-Inhalte — kein TDD-Zyklus. Korrektheit wird durch die bestehende Test-Suite (kein Regressions-Fehler) und manuelle Sichtprüfung bestätigt.
 
@@ -310,7 +310,7 @@ Bestätige Tag und Remote.
 ```markdown
 # Repo Onboarding Skill
 
-Erkundet das Repo und erstellt einen strukturierten Überblick — nützlich beim ersten Einstieg oder nach `claude-setup run`.
+Erkundet das Repo und erstellt einen strukturierten Überblick — nützlich beim ersten Einstieg oder nach `forgecrate run`.
 
 ## Schritte
 
@@ -406,12 +406,12 @@ Nummerierte Liste nach Priorität:
 ```
 ```
 
-- [ ] **Schritt 4: `base/skills/claude-setup-advisor/SKILL.md` anlegen**
+- [ ] **Schritt 4: `base/skills/forgecrate-advisor/SKILL.md` anlegen**
 
 ```markdown
-# Claude Setup Advisor
+# forgecrate Advisor
 
-Analysiert das aktuelle Repo und empfiehlt das passende claude-setup Profil und Flavor.
+Analysiert das aktuelle Repo und empfiehlt das passende forgecrate Profil und Flavor.
 
 ## Verfügbare Optionen
 
@@ -445,16 +445,16 @@ Frage je eine Frage:
 ```
 Empfehlung für dieses Repo:
 
-  claude-setup run --profile PROFIL [--flavor FLAVOR]
+  forgecrate run --profile PROFIL [--flavor FLAVOR]
 
 Begründung:
 - Profil PROFIL: [erkannte Signale]
 - Flavor FLAVOR: [Grund]
 ```
 
-Falls claude-setup noch nicht installiert:
+Falls forgecrate noch nicht installiert:
 ```
-go install github.com/jmt-labs/claude-setup/cmd/claude-setup@latest
+go install github.com/jmt-labs/forgecrate/cmd/forgecrate@latest
 ```
 ```
 
@@ -470,5 +470,5 @@ Erwartet: alle Pakete `ok`.
 
 ```bash
 git add base/skills/
-git commit -m "feat(base): add release, repo-onboarding, repo-health, claude-setup-advisor skills"
+git commit -m "feat(base): add release, repo-onboarding, repo-health, forgecrate-advisor skills"
 ```

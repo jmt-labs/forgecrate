@@ -22,7 +22,7 @@ func TestDeployIncludesParallelisierungSection(t *testing.T) {
 	dst := t.TempDir()
 	cfg := config.Config{
 		Version: "1.0",
-		Source:  "github.com/jmt-labs/claude-setup",
+		Source:  "github.com/jmt-labs/forgecrate",
 		Ref:     "main",
 		Profile: "backend",
 		Flavors: []string{},

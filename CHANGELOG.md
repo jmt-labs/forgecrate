@@ -4,6 +4,14 @@
 
 ### Added
 - feat(frontend): Skill `ui-ux-audit` für tiefgehende UI/UX-Reviews mit automatischer Erstellung kleinteiliger GitHub-Issues. Ergänzt den bestehenden `accessibility-audit`-Skill um einen ganzheitlichen Audit über alle UI-Bereiche (Auth, Hauptworkflow, Wizards/Dialoge, Settings) mit Severity-Bewertung.
+- feat: handoff- und issue-resolver-Skills sowie MCP-Konfiguration (`.mcp.json` cleanup, `MEMORY_FILE_PATH` konfiguriert)
+
+### Changed
+- **Renamed from `claude-setup` to `forgecrate`** — see [MIGRATION.md](MIGRATION.md)
+  - Binary: `claude-setup` → `forgecrate` (old name still works with deprecation warning for one minor version)
+  - Config file: `.claude-setup.yaml` → `.forgecrate.yaml` (auto-migrated on first run)
+  - All skill commands: `claude-setup-*` → `forgecrate-*`
+  - Go module: `github.com/jmt-labs/claude-setup` → `github.com/jmt-labs/forgecrate`
 
 ## [v0.0.3] - 2026-05-17
 

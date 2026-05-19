@@ -73,7 +73,7 @@
   
   Copy the token.
 
-- [ ] **Step 5: Set CI Secrets in `jmt-labs/claude-setup`**
+- [ ] **Step 5: Set CI Secrets in `jmt-labs/forgecrate`**
 
   GitHub → Settings → Secrets and variables → Actions → New repository secret:
 
@@ -114,7 +114,7 @@
   mkdir -p conf
   cat > conf/distributions <<'EOF'
   Origin: jmt-labs
-  Label: claude-setup
+  Label: forgecrate
   Codename: stable
   Architectures: amd64 arm64
   Components: main
@@ -156,7 +156,7 @@
     | sudo gpg --dearmor -o /etc/apt/keyrings/jmt-labs.gpg
   echo "deb [signed-by=/etc/apt/keyrings/jmt-labs.gpg] https://jmt-labs.github.io/apt stable main" \
     | sudo tee /etc/apt/sources.list.d/jmt-labs.list
-  sudo apt update && sudo apt install claude-setup
+  sudo apt update && sudo apt install forgecrate
   ```
   EOF
   ```
@@ -173,7 +173,7 @@
 
 ## Task 3: GoReleaser Configuration
 
-**Files (in `jmt-labs/claude-setup`):**
+**Files (in `jmt-labs/forgecrate`):**
 - Create: `.goreleaser.yaml`
 - Create: `LICENSE`
 
@@ -215,8 +215,8 @@
       - go mod tidy
 
   builds:
-    - main: ./cmd/claude-setup/
-      binary: claude-setup
+    - main: ./cmd/forgecrate/
+      binary: forgecrate
       env:
         - CGO_ENABLED=0
       goos:
@@ -241,35 +241,35 @@
     name_template: "checksums.txt"
 
   nfpms:
-    - package_name: claude-setup
+    - package_name: forgecrate
       maintainer: Markus Hartmann <markush1986@gmail.com>
       description: Reproducible Claude Code setup for any repository.
-      homepage: https://github.com/jmt-labs/claude-setup
+      homepage: https://github.com/jmt-labs/forgecrate
       license: MIT
       formats:
         - deb
       bindir: /usr/local/bin
 
   brews:
-    - name: claude-setup
+    - name: forgecrate
       repository:
         owner: jmt-labs
         name: homebrew-tap
         token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
-      homepage: https://github.com/jmt-labs/claude-setup
+      homepage: https://github.com/jmt-labs/forgecrate
       description: Reproducible Claude Code setup for any repository.
       install: |
-        bin.install "claude-setup"
+        bin.install "forgecrate"
       test: |
-        system "#{bin}/claude-setup", "--version"
+        system "#{bin}/forgecrate", "--version"
 
   chocolateys:
-    - name: claude-setup
-      title: claude-setup
+    - name: forgecrate
+      title: forgecrate
       owners: jmt-labs
       description: Reproducible Claude Code setup for any repository.
-      homepage: https://github.com/jmt-labs/claude-setup
-      license_url: https://github.com/jmt-labs/claude-setup/blob/main/LICENSE
+      homepage: https://github.com/jmt-labs/forgecrate
+      license_url: https://github.com/jmt-labs/forgecrate/blob/main/LICENSE
       require_license_acceptance: false
       api_key: "{{ .Env.CHOCOLATEY_API_KEY }}"
       source_repo: "https://push.chocolatey.org/"
@@ -308,11 +308,11 @@
   ```makefile
   release:
   	mkdir -p dist
-  	GOOS=linux   GOARCH=amd64 go build -o dist/claude-setup-linux-amd64       ./cmd/claude-setup/
-  	GOOS=linux   GOARCH=arm64 go build -o dist/claude-setup-linux-arm64       ./cmd/claude-setup/
-  	GOOS=windows GOARCH=amd64 go build -o dist/claude-setup-windows-amd64.exe ./cmd/claude-setup/
-  	GOOS=windows GOARCH=arm64 go build -o dist/claude-setup-windows-arm64.exe ./cmd/claude-setup/
-  	GOOS=darwin  GOARCH=arm64 go build -o dist/claude-setup-darwin-arm64      ./cmd/claude-setup/
+  	GOOS=linux   GOARCH=amd64 go build -o dist/forgecrate-linux-amd64       ./cmd/forgecrate/
+  	GOOS=linux   GOARCH=arm64 go build -o dist/forgecrate-linux-arm64       ./cmd/forgecrate/
+  	GOOS=windows GOARCH=amd64 go build -o dist/forgecrate-windows-amd64.exe ./cmd/forgecrate/
+  	GOOS=windows GOARCH=arm64 go build -o dist/forgecrate-windows-arm64.exe ./cmd/forgecrate/
+  	GOOS=darwin  GOARCH=arm64 go build -o dist/forgecrate-darwin-arm64      ./cmd/forgecrate/
   ```
 
   With:
@@ -327,7 +327,7 @@
   make build
   ```
 
-  Expected: `go build -o claude-setup ./cmd/claude-setup/` — no errors.
+  Expected: `go build -o forgecrate ./cmd/forgecrate/` — no errors.
 
 - [ ] **Step 3: Update clean target to remove goreleaser artifacts**
 
@@ -426,7 +426,7 @@
           run: |
             mkdir -p /tmp/debs
             gh release download ${{ github.event.inputs.version }} \
-              --repo jmt-labs/claude-setup \
+              --repo jmt-labs/forgecrate \
               --pattern "*.deb" \
               --dir /tmp/debs
           env:
@@ -481,13 +481,13 @@
 
   ```sh
   brew tap jmt-labs/tap
-  brew install claude-setup
+  brew install forgecrate
   ```
 
   ### Chocolatey (Windows)
 
   ```sh
-  choco install claude-setup
+  choco install forgecrate
   ```
 
   ### apt (Ubuntu / Debian)
@@ -497,25 +497,25 @@
     | sudo gpg --dearmor -o /etc/apt/keyrings/jmt-labs.gpg
   echo "deb [signed-by=/etc/apt/keyrings/jmt-labs.gpg] https://jmt-labs.github.io/apt stable main" \
     | sudo tee /etc/apt/sources.list.d/jmt-labs.list
-  sudo apt update && sudo apt install claude-setup
+  sudo apt update && sudo apt install forgecrate
   ```
 
   ### go install
 
   ```sh
-  go install github.com/jmt-labs/claude-setup/cmd/claude-setup@latest
+  go install github.com/jmt-labs/forgecrate/cmd/forgecrate@latest
   ```
 
   ### curl (manual install, no package manager)
 
   ```sh
-  curl -fsSL https://raw.githubusercontent.com/jmt-labs/claude-setup/main/install.sh | bash
+  curl -fsSL https://raw.githubusercontent.com/jmt-labs/forgecrate/main/install.sh | bash
   ```
 
   Specific version:
 
   ```sh
-  curl -fsSL https://raw.githubusercontent.com/jmt-labs/claude-setup/main/install.sh | bash -s v1.0.0
+  curl -fsSL https://raw.githubusercontent.com/jmt-labs/forgecrate/main/install.sh | bash -s v1.0.0
   ```
 
   ---
@@ -525,7 +525,7 @@
   Initialize a repository:
 
   ```sh
-  claude-setup init --profile backend --flavors tdd
+  forgecrate init --profile backend --flavors tdd
   ```
 
   This writes:
@@ -537,28 +537,28 @@
   Update to the latest version:
 
   ```sh
-  claude-setup update
+  forgecrate update
   ```
 
   Switch profile:
 
   ```sh
-  claude-setup update --profile fullstack
+  forgecrate update --profile fullstack
   ```
   ```
 
 - [ ] **Step 2: Update the opening description to English**
 
-  Replace the German paragraph after `# claude-setup`:
+  Replace the German paragraph after `# forgecrate`:
 
   From:
   ```markdown
-  claude-setup deployt ein reproduzierbares Claude-Setup in beliebige Repos. Ein globales Go-Binary holt Konfiguration, Skills und Hooks von GitHub und compositioniert sie per Layer-System ins Ziel-Repo.
+  forgecrate deployt ein reproduzierbares forgecrate in beliebige Repos. Ein globales Go-Binary holt Konfiguration, Skills und Hooks von GitHub und compositioniert sie per Layer-System ins Ziel-Repo.
   ```
 
   To:
   ```markdown
-  **claude-setup** deploys a reproducible [Claude Code](https://claude.ai/code) configuration to any repository. A single Go binary fetches profiles, skills, hooks, and MCP server definitions from GitHub and composes them into the target repo via a layered configuration system.
+  **forgecrate** deploys a reproducible [Claude Code](https://claude.ai/code) configuration to any repository. A single Go binary fetches profiles, skills, hooks, and MCP server definitions from GitHub and composes them into the target repo via a layered configuration system.
   ```
 
 - [ ] **Step 3: Add version badge after the banner image**
@@ -566,7 +566,7 @@
   After the closing `</div>` tag (line 3), add:
 
   ```markdown
-  [![Latest Release](https://img.shields.io/github/v/release/jmt-labs/claude-setup)](https://github.com/jmt-labs/claude-setup/releases/latest)
+  [![Latest Release](https://img.shields.io/github/v/release/jmt-labs/forgecrate)](https://github.com/jmt-labs/forgecrate/releases/latest)
   ```
 
 - [ ] **Step 4: Commit**
@@ -608,16 +608,16 @@
 
   ```bash
   # Homebrew
-  brew tap jmt-labs/tap && brew install claude-setup
+  brew tap jmt-labs/tap && brew install forgecrate
 
   # Chocolatey (Windows VM oder CI)
-  choco install claude-setup
+  choco install forgecrate
 
   # apt
   curl -fsSL https://jmt-labs.github.io/apt/KEY.gpg \
     | sudo gpg --dearmor -o /etc/apt/keyrings/jmt-labs.gpg
   echo "deb [signed-by=/etc/apt/keyrings/jmt-labs.gpg] https://jmt-labs.github.io/apt stable main" \
     | sudo tee /etc/apt/sources.list.d/jmt-labs.list
-  sudo apt update && sudo apt install claude-setup
-  claude-setup --version
+  sudo apt update && sudo apt install forgecrate
+  forgecrate --version
   ```

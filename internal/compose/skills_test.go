@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/jmt-labs/claude-setup/internal/compose"
+	"github.com/jmt-labs/forgecrate/internal/compose"
 )
 
 func TestMergeSkills(t *testing.T) {

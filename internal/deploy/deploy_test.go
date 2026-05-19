@@ -9,8 +9,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/jmt-labs/claude-setup/internal/config"
-	"github.com/jmt-labs/claude-setup/internal/deploy"
+	"github.com/jmt-labs/forgecrate/internal/config"
+	"github.com/jmt-labs/forgecrate/internal/deploy"
 )
 
 func TestDeploy(t *testing.T) {
@@ -24,7 +24,7 @@ func TestDeploy(t *testing.T) {
 
 	cfg := config.Config{
 		Version: "1.0",
-		Source:  "github.com/jmt-labs/claude-setup",
+		Source:  "github.com/jmt-labs/forgecrate",
 		Ref:     "main",
 		Profile: "backend",
 		Flavors: []string{},
@@ -34,8 +34,8 @@ func TestDeploy(t *testing.T) {
 		t.Fatalf("Run: %v", err)
 	}
 
-	if _, err := os.Stat(filepath.Join(dst, ".claude-setup.yaml")); err != nil {
-		t.Errorf(".claude-setup.yaml missing")
+	if _, err := os.Stat(filepath.Join(dst, ".forgecrate.yaml")); err != nil {
+		t.Errorf(".forgecrate.yaml missing")
 	}
 
 	if _, err := os.Stat(filepath.Join(dst, ".claude", "hooks", "prompt-submit.sh")); err != nil {
@@ -171,7 +171,7 @@ func TestDeployTracksSettingsHash(t *testing.T) {
 		t.Fatalf("first deploy: %v", err)
 	}
 
-	written, err := config.Read(filepath.Join(dst, ".claude-setup.yaml"))
+	written, err := config.Read(filepath.Join(dst, ".forgecrate.yaml"))
 	if err != nil {
 		t.Fatalf("read config: %v", err)
 	}
@@ -190,14 +190,14 @@ func TestDeploySecondRunIsStable(t *testing.T) {
 		t.Fatalf("first deploy: %v", err)
 	}
 
-	written, _ := config.Read(filepath.Join(dst, ".claude-setup.yaml"))
+	written, _ := config.Read(filepath.Join(dst, ".forgecrate.yaml"))
 	hashBefore := written.DeployedFiles[".claude/settings.json"]
 
 	if err := deploy.Run(src, dst, written); err != nil {
 		t.Fatalf("second deploy: %v", err)
 	}
 
-	after, _ := config.Read(filepath.Join(dst, ".claude-setup.yaml"))
+	after, _ := config.Read(filepath.Join(dst, ".forgecrate.yaml"))
 	if after.DeployedFiles[".claude/settings.json"] != hashBefore {
 		t.Error("hash changed on clean second deploy — should be stable")
 	}
@@ -240,7 +240,7 @@ func TestDeployConflictIsShown(t *testing.T) {
 	os.WriteFile(filepath.Join(src, "base", ".claude", "settings.json"), []byte(`{"model":"upstream-update"}`), 0644)
 
 	// Zweiter Deploy: Konflikt erwartet — Nutzer wählt "behalten"
-	cfg2, _ := config.Read(filepath.Join(dst, ".claude-setup.yaml"))
+	cfg2, _ := config.Read(filepath.Join(dst, ".forgecrate.yaml"))
 	var out strings.Builder
 	if err := deploy.RunWithClaude(src, dst, cfg2, "claude", &out, strings.NewReader("b\n")); err != nil {
 		t.Fatalf("second deploy: %v", err)
@@ -275,7 +275,7 @@ func TestDeployConflictOverwriteReplacesFile(t *testing.T) {
 	os.WriteFile(settingsPath, []byte(`{"model":"user-modified"}`), 0644)
 	os.WriteFile(filepath.Join(src, "base", ".claude", "settings.json"), []byte(`{"model":"upstream-update"}`), 0644)
 
-	cfg2, _ := config.Read(filepath.Join(dst, ".claude-setup.yaml"))
+	cfg2, _ := config.Read(filepath.Join(dst, ".forgecrate.yaml"))
 	if err := deploy.RunWithClaude(src, dst, cfg2, "claude", io.Discard, strings.NewReader("ü\n")); err != nil {
 		t.Fatalf("second deploy: %v", err)
 	}
@@ -304,7 +304,7 @@ func TestDeployConflictEmptyInputKeepsUserFile(t *testing.T) {
 	os.WriteFile(settingsPath, []byte(`{"model":"user-modified"}`), 0644)
 	os.WriteFile(filepath.Join(src, "base", ".claude", "settings.json"), []byte(`{"model":"upstream-update"}`), 0644)
 
-	cfg2, _ := config.Read(filepath.Join(dst, ".claude-setup.yaml"))
+	cfg2, _ := config.Read(filepath.Join(dst, ".forgecrate.yaml"))
 	if err := deploy.RunWithClaude(src, dst, cfg2, "claude", io.Discard, strings.NewReader("\n")); err != nil {
 		t.Fatalf("second deploy: %v", err)
 	}

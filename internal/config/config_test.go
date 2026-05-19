@@ -7,16 +7,16 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/jmt-labs/claude-setup/internal/config"
+	"github.com/jmt-labs/forgecrate/internal/config"
 )
 
 func TestReadWrite(t *testing.T) {
 	dir := t.TempDir()
-	path := filepath.Join(dir, ".claude-setup.yaml")
+	path := filepath.Join(dir, ".forgecrate.yaml")
 
 	want := config.Config{
 		Version: "1.0",
-		Source:  "github.com/jmt-labs/claude-setup",
+		Source:  "github.com/jmt-labs/forgecrate",
 		Ref:     "main",
 		Profile: "backend",
 		Flavors: []string{"tdd", "strict-review"},
@@ -49,7 +49,7 @@ func TestReadWrite(t *testing.T) {
 }
 
 func TestReadMissing(t *testing.T) {
-	_, err := config.Read("/nonexistent/.claude-setup.yaml")
+	_, err := config.Read("/nonexistent/.forgecrate.yaml")
 	if !errors.Is(err, os.ErrNotExist) {
 		t.Errorf("expected ErrNotExist, got %v", err)
 	}
@@ -57,11 +57,11 @@ func TestReadMissing(t *testing.T) {
 
 func TestDeployedFilesRoundtrip(t *testing.T) {
 	dir := t.TempDir()
-	path := filepath.Join(dir, ".claude-setup.yaml")
+	path := filepath.Join(dir, ".forgecrate.yaml")
 
 	cfg := config.Config{
 		Version: "1.0",
-		Source:  "github.com/jmt-labs/claude-setup",
+		Source:  "github.com/jmt-labs/forgecrate",
 		Ref:     "main",
 		Profile: "backend",
 		Flavors: []string{"tdd"},
@@ -90,7 +90,7 @@ func TestDeployedFilesRoundtrip(t *testing.T) {
 
 func TestDeployedFilesOmittedWhenEmpty(t *testing.T) {
 	dir := t.TempDir()
-	path := filepath.Join(dir, ".claude-setup.yaml")
+	path := filepath.Join(dir, ".forgecrate.yaml")
 
 	cfg := config.Config{Version: "1.0", Source: "s", Ref: "r", Profile: "p"}
 	if err := config.Write(path, cfg); err != nil {

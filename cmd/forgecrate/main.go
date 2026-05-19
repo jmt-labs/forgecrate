@@ -1,9 +1,10 @@
-// cmd/claude-setup/main.go
+// cmd/forgecrate/main.go
 package main
 
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 )
@@ -11,9 +12,12 @@ import (
 var version = "dev"
 
 func main() {
+	if filepath.Base(os.Args[0]) == "claude-setup" {
+		fmt.Fprintln(os.Stderr, "Warning: 'claude-setup' is deprecated, use 'forgecrate' instead.")
+	}
 	root := &cobra.Command{
-		Use:     "claude-setup",
-		Short:   "Reproduzierbares Claude-Setup für Repos",
+		Use:     "forgecrate",
+		Short:   "Reproducible Claude Code configuration for Git repositories.",
 		Version: version,
 	}
 	root.AddCommand(newInitCmd())

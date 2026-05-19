@@ -1,4 +1,4 @@
-module github.com/jmt-labs/claude-setup
+module github.com/jmt-labs/forgecrate
 
 go 1.24.2
 

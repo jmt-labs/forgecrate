@@ -6,11 +6,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/jmt-labs/claude-setup/internal/config"
-	"github.com/jmt-labs/claude-setup/internal/deploy"
+	"github.com/jmt-labs/forgecrate/internal/config"
+	"github.com/jmt-labs/forgecrate/internal/deploy"
 )
 
-// localSource gibt den Pfad zum lokalen claude-setup Repo zurück.
+// localSource gibt den Pfad zum lokalen forgecrate Repo zurück.
 func localSource(t *testing.T) string {
 	t.Helper()
 	wd, err := os.Getwd()
@@ -24,7 +24,7 @@ func TestInitCreatesExpectedFiles(t *testing.T) {
 	dst := t.TempDir()
 	cfg := config.Config{
 		Version: "1.0",
-		Source:  "github.com/jmt-labs/claude-setup",
+		Source:  "github.com/jmt-labs/forgecrate",
 		Ref:     "main",
 		Profile: "backend",
 		Flavors: []string{"tdd"},
@@ -35,7 +35,7 @@ func TestInitCreatesExpectedFiles(t *testing.T) {
 	}
 
 	requiredFiles := []string{
-		".claude-setup.yaml",
+		".forgecrate.yaml",
 		"CLAUDE.md",
 		"AGENTS.md",
 		".claude/settings.json",
@@ -54,7 +54,7 @@ func TestInitIsIdempotent(t *testing.T) {
 	dst := t.TempDir()
 	cfg := config.Config{
 		Version: "1.0",
-		Source:  "github.com/jmt-labs/claude-setup",
+		Source:  "github.com/jmt-labs/forgecrate",
 		Ref:     "main",
 		Profile: "backend",
 		Flavors: []string{},
@@ -85,7 +85,7 @@ func TestUpdatePreservesOverrides(t *testing.T) {
 	dst := t.TempDir()
 	cfg := config.Config{
 		Version: "1.0",
-		Source:  "github.com/jmt-labs/claude-setup",
+		Source:  "github.com/jmt-labs/forgecrate",
 		Ref:     "main",
 		Profile: "backend",
 		Flavors: []string{},
@@ -116,7 +116,7 @@ func TestUpdatePreservesOverrides(t *testing.T) {
 func TestProfileSwitch(t *testing.T) {
 	dst := t.TempDir()
 
-	cfg := config.Config{Version: "1.0", Source: "github.com/jmt-labs/claude-setup", Ref: "main", Profile: "backend", Flavors: []string{}}
+	cfg := config.Config{Version: "1.0", Source: "github.com/jmt-labs/forgecrate", Ref: "main", Profile: "backend", Flavors: []string{}}
 	if err := deploy.Run(localSource(t), dst, cfg); err != nil {
 		t.Fatalf("init backend: %v", err)
 	}
@@ -126,9 +126,9 @@ func TestProfileSwitch(t *testing.T) {
 		t.Fatalf("update to frontend: %v", err)
 	}
 
-	yamlContent, _ := os.ReadFile(filepath.Join(dst, ".claude-setup.yaml"))
+	yamlContent, _ := os.ReadFile(filepath.Join(dst, ".forgecrate.yaml"))
 	if !strings.Contains(string(yamlContent), "frontend") {
-		t.Error("profile not updated in .claude-setup.yaml")
+		t.Error("profile not updated in .forgecrate.yaml")
 	}
 
 	claudeMD, _ := os.ReadFile(filepath.Join(dst, "CLAUDE.md"))
@@ -141,7 +141,7 @@ func TestDeployIncludesBaseSkills(t *testing.T) {
 	dst := t.TempDir()
 	cfg := config.Config{
 		Version: "1.0",
-		Source:  "github.com/jmt-labs/claude-setup",
+		Source:  "github.com/jmt-labs/forgecrate",
 		Ref:     "main",
 		Profile: "backend",
 		Flavors: []string{},
@@ -149,7 +149,7 @@ func TestDeployIncludesBaseSkills(t *testing.T) {
 	if err := deploy.Run(localSource(t), dst, cfg); err != nil {
 		t.Fatalf("deploy.Run: %v", err)
 	}
-	skills := []string{"release", "repo-onboarding", "repo-health", "claude-setup-advisor"}
+	skills := []string{"release", "repo-onboarding", "repo-health", "forgecrate-advisor"}
 	for _, s := range skills {
 		path := filepath.Join(dst, ".claude", "skills", s, "SKILL.md")
 		if _, err := os.Stat(path); err != nil {
@@ -162,7 +162,7 @@ func TestDeployIncludesProfileSkill(t *testing.T) {
 	dst := t.TempDir()
 	cfg := config.Config{
 		Version: "1.0",
-		Source:  "github.com/jmt-labs/claude-setup",
+		Source:  "github.com/jmt-labs/forgecrate",
 		Ref:     "main",
 		Profile: "frontend",
 		Flavors: []string{},
@@ -180,7 +180,7 @@ func TestDeployIncludesFlavorSkill(t *testing.T) {
 	dst := t.TempDir()
 	cfg := config.Config{
 		Version: "1.0",
-		Source:  "github.com/jmt-labs/claude-setup",
+		Source:  "github.com/jmt-labs/forgecrate",
 		Ref:     "main",
 		Profile: "backend",
 		Flavors: []string{"github"},
@@ -198,7 +198,7 @@ func TestBaseCommandsDeployed(t *testing.T) {
 	dst := t.TempDir()
 	cfg := config.Config{
 		Version: "1.0",
-		Source:  "github.com/jmt-labs/claude-setup",
+		Source:  "github.com/jmt-labs/forgecrate",
 		Ref:     "main",
 		Profile: "backend",
 		Flavors: []string{},
@@ -209,10 +209,10 @@ func TestBaseCommandsDeployed(t *testing.T) {
 	}
 
 	baseCommands := []string{
-		"claude-setup-advisor.md",
-		"claude-setup-release.md",
-		"claude-setup-repo-health.md",
-		"claude-setup-repo-onboarding.md",
+		"forgecrate-advisor.md",
+		"forgecrate-release.md",
+		"forgecrate-repo-health.md",
+		"forgecrate-repo-onboarding.md",
 	}
 
 	for _, f := range baseCommands {
@@ -227,7 +227,7 @@ func TestProfileFlavorCommandsDeployed(t *testing.T) {
 	dst := t.TempDir()
 	cfg := config.Config{
 		Version: "1.0",
-		Source:  "github.com/jmt-labs/claude-setup",
+		Source:  "github.com/jmt-labs/forgecrate",
 		Ref:     "main",
 		Profile: "backend",
 		Flavors: []string{"tdd", "strict-review"},
@@ -238,9 +238,9 @@ func TestProfileFlavorCommandsDeployed(t *testing.T) {
 	}
 
 	expectedCommands := []string{
-		"claude-setup-db-migration.md",
-		"claude-setup-test-coverage.md",
-		"claude-setup-pr-checklist.md",
+		"forgecrate-db-migration.md",
+		"forgecrate-test-coverage.md",
+		"forgecrate-pr-checklist.md",
 	}
 
 	for _, f := range expectedCommands {
@@ -251,7 +251,7 @@ func TestProfileFlavorCommandsDeployed(t *testing.T) {
 	}
 
 	// frontend-Command darf bei backend-Profil nicht vorhanden sein
-	frontendOnly := filepath.Join(dst, ".claude", "commands", "claude-setup-accessibility-audit.md")
+	frontendOnly := filepath.Join(dst, ".claude", "commands", "forgecrate-accessibility-audit.md")
 	if _, err := os.Stat(frontendOnly); err == nil {
 		t.Error("frontend-only command should not be present for backend profile")
 	}
@@ -261,7 +261,7 @@ func TestConflictDetectionTracksHashes(t *testing.T) {
 	dst := t.TempDir()
 	cfg := config.Config{
 		Version: "1.0",
-		Source:  "github.com/jmt-labs/claude-setup",
+		Source:  "github.com/jmt-labs/forgecrate",
 		Ref:     "main",
 		Profile: "backend",
 		Flavors: []string{},
@@ -272,7 +272,7 @@ func TestConflictDetectionTracksHashes(t *testing.T) {
 		t.Fatalf("first deploy: %v", err)
 	}
 
-	yamlPath := filepath.Join(dst, ".claude-setup.yaml")
+	yamlPath := filepath.Join(dst, ".forgecrate.yaml")
 	written, err := config.Read(yamlPath)
 	if err != nil {
 		t.Fatalf("read config: %v", err)
@@ -299,7 +299,7 @@ func TestDeployIncludesGetbetterFlavorSkill(t *testing.T) {
 	dst := t.TempDir()
 	cfg := config.Config{
 		Version: "1.0",
-		Source:  "github.com/jmt-labs/claude-setup",
+		Source:  "github.com/jmt-labs/forgecrate",
 		Ref:     "main",
 		Profile: "backend",
 		Flavors: []string{"getbetter"},
@@ -317,7 +317,7 @@ func TestDeployIncludesGetbetterCommand(t *testing.T) {
 	dst := t.TempDir()
 	cfg := config.Config{
 		Version: "1.0",
-		Source:  "github.com/jmt-labs/claude-setup",
+		Source:  "github.com/jmt-labs/forgecrate",
 		Ref:     "main",
 		Profile: "backend",
 		Flavors: []string{"getbetter"},
@@ -325,9 +325,9 @@ func TestDeployIncludesGetbetterCommand(t *testing.T) {
 	if err := deploy.Run(localSource(t), dst, cfg); err != nil {
 		t.Fatalf("deploy.Run: %v", err)
 	}
-	path := filepath.Join(dst, ".claude", "commands", "claude-setup-getbetter.md")
+	path := filepath.Join(dst, ".claude", "commands", "forgecrate-getbetter.md")
 	if _, err := os.Stat(path); err != nil {
-		t.Errorf("getbetter command missing: claude-setup-getbetter.md")
+		t.Errorf("getbetter command missing: forgecrate-getbetter.md")
 	}
 }
 
@@ -335,7 +335,7 @@ func TestHookCommandsUseAbsolutePaths(t *testing.T) {
 	dst := t.TempDir()
 	cfg := config.Config{
 		Version: "1.0",
-		Source:  "github.com/jmt-labs/claude-setup",
+		Source:  "github.com/jmt-labs/forgecrate",
 		Ref:     "main",
 		Profile: "backend",
 		Flavors: []string{},
@@ -357,7 +357,7 @@ func TestDeployIncludesContext7MCP(t *testing.T) {
 	dst := t.TempDir()
 	cfg := config.Config{
 		Version: "1.0",
-		Source:  "github.com/jmt-labs/claude-setup",
+		Source:  "github.com/jmt-labs/forgecrate",
 		Ref:     "main",
 		Profile: "backend",
 		Flavors: []string{},
@@ -381,7 +381,7 @@ func TestDeployIncludesPlaywrightMCPFrontend(t *testing.T) {
 	dst := t.TempDir()
 	cfg := config.Config{
 		Version: "1.0",
-		Source:  "github.com/jmt-labs/claude-setup",
+		Source:  "github.com/jmt-labs/forgecrate",
 		Ref:     "main",
 		Profile: "frontend",
 		Flavors: []string{},
@@ -405,7 +405,7 @@ func TestDeployIncludesPlaywrightMCPFullstack(t *testing.T) {
 	dst := t.TempDir()
 	cfg := config.Config{
 		Version: "1.0",
-		Source:  "github.com/jmt-labs/claude-setup",
+		Source:  "github.com/jmt-labs/forgecrate",
 		Ref:     "main",
 		Profile: "fullstack",
 		Flavors: []string{},
@@ -429,7 +429,7 @@ func TestDeployIncludesParallelisierungSection(t *testing.T) {
 	dst := t.TempDir()
 	cfg := config.Config{
 		Version: "1.0",
-		Source:  "github.com/jmt-labs/claude-setup",
+		Source:  "github.com/jmt-labs/forgecrate",
 		Ref:     "main",
 		Profile: "backend",
 		Flavors: []string{},
