@@ -1,6 +1,6 @@
 # Claude Setup Advisor
 
-Analysiert ein Repo und empfiehlt das passende `claude-setup`-Profil und die passenden Flavors.
+Analysiert ein Repo und empfiehlt das passende `forgecrate`-Profil und die passenden Flavors.
 
 ## Verfügbare Profile
 
@@ -53,10 +53,10 @@ Flavors: strict-review, tdd
 Reasons: .github/workflows/ vorhanden (CI), >50 Testdateien gefunden
 
 Befehl:
-  claude-setup run --profile backend --flavor strict-review,tdd
+  forgecrate run --profile backend --flavor strict-review,tdd
 
 Alternativ ohne TDD-Disziplin:
-  claude-setup run --profile backend --flavor strict-review
+  forgecrate run --profile backend --flavor strict-review
 ```
 
-6. **Frage ob ausführen** — "Soll ich `claude-setup run` mit dieser Konfiguration jetzt ausführen?"
+6. **Frage ob ausführen** — "Soll ich `forgecrate run` mit dieser Konfiguration jetzt ausführen?"
