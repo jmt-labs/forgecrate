@@ -8,11 +8,12 @@ import (
 )
 
 type Request struct {
-	SourceDir    string
-	DestDir      string
-	Profile      string
-	Flavors      []string
-	SkipSettings bool
+	SourceDir      string
+	DestDir        string
+	Profile        string
+	Flavors        []string
+	PermissionMode string
+	SkipSettings   bool
 }
 
 func Run(req Request) error {
@@ -100,11 +101,14 @@ func ComposeSettings(req Request) ([]byte, error) {
 		}
 	}
 
-	var v any
-	if err := json.Unmarshal([]byte(merged), &v); err != nil {
+	var m map[string]any
+	if err := json.Unmarshal([]byte(merged), &m); err != nil {
 		return nil, fmt.Errorf("merged JSON invalid: %w", err)
 	}
-	out, err := json.MarshalIndent(v, "", "  ")
+	if req.PermissionMode != "" {
+		m["permissionMode"] = req.PermissionMode
+	}
+	out, err := json.MarshalIndent(m, "", "  ")
 	if err != nil {
 		return nil, fmt.Errorf("marshal: %w", err)
 	}

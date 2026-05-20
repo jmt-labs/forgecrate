@@ -20,12 +20,16 @@ func Run(sourceDir, destDir string, cfg config.Config) error {
 }
 
 func RunWithClaude(sourceDir, destDir string, cfg config.Config, claudeBin string, out io.Writer, in io.Reader) error {
+	if err := cfg.Validate(); err != nil {
+		return err
+	}
 	req := compose.Request{
-		SourceDir:    sourceDir,
-		DestDir:      destDir,
-		Profile:      cfg.Profile,
-		Flavors:      cfg.Flavors,
-		SkipSettings: true,
+		SourceDir:      sourceDir,
+		DestDir:        destDir,
+		Profile:        cfg.Profile,
+		Flavors:        cfg.Flavors,
+		PermissionMode: cfg.PermissionMode,
+		SkipSettings:   true,
 	}
 
 	// Settings: Inhalt berechnen, dann konflikt-sicher schreiben

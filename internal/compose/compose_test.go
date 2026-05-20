@@ -1,6 +1,7 @@
 package compose_test
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
@@ -83,6 +84,56 @@ func TestComposeRunSkipsSettingsWhenFlagSet(t *testing.T) {
 
 	if _, err := os.Stat(filepath.Join(dst, ".claude", "settings.json")); err == nil {
 		t.Error("settings.json should not be written when SkipSettings is true")
+	}
+}
+
+func TestComposeSettingsInjectsPermissionMode(t *testing.T) {
+	src := t.TempDir()
+	dst := t.TempDir()
+
+	settingsDir := filepath.Join(src, "base", ".claude")
+	os.MkdirAll(settingsDir, 0755)
+	os.WriteFile(filepath.Join(settingsDir, "settings.json"),
+		[]byte(`{"model":"claude-sonnet-4-6"}`), 0644)
+
+	req := compose.Request{
+		SourceDir:      src,
+		DestDir:        dst,
+		Profile:        "backend",
+		Flavors:        []string{},
+		PermissionMode: "bypass",
+	}
+	content, err := compose.ComposeSettings(req)
+	if err != nil {
+		t.Fatalf("ComposeSettings: %v", err)
+	}
+
+	var m map[string]any
+	if err := json.Unmarshal(content, &m); err != nil {
+		t.Fatalf("invalid JSON: %v", err)
+	}
+	if m["permissionMode"] != "bypass" {
+		t.Errorf("permissionMode: got %v, want bypass", m["permissionMode"])
+	}
+}
+
+func TestComposeSettingsNoPermissionModeWhenEmpty(t *testing.T) {
+	src := t.TempDir()
+	dst := t.TempDir()
+
+	settingsDir := filepath.Join(src, "base", ".claude")
+	os.MkdirAll(settingsDir, 0755)
+	os.WriteFile(filepath.Join(settingsDir, "settings.json"),
+		[]byte(`{"model":"claude-sonnet-4-6"}`), 0644)
+
+	req := compose.Request{SourceDir: src, DestDir: dst, Profile: "backend", Flavors: []string{}}
+	content, err := compose.ComposeSettings(req)
+	if err != nil {
+		t.Fatalf("ComposeSettings: %v", err)
+	}
+
+	if strings.Contains(string(content), "permissionMode") {
+		t.Error("permissionMode should not appear when PermissionMode is empty")
 	}
 }
 
