@@ -7,7 +7,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-var ValidPermissionModes = []string{"bypass", "plan", "ask", "auto"}
+var validPermissionModes = []string{"bypass", "plan", "ask", "auto"}
 
 type Config struct {
 	Version        string            `yaml:"version"`
@@ -20,7 +20,7 @@ type Config struct {
 }
 
 func ValidatePermissionMode(mode string) error {
-	for _, m := range ValidPermissionModes {
+	for _, m := range validPermissionModes {
 		if mode == m {
 			return nil
 		}
