@@ -60,7 +60,7 @@ func newInitCmd() *cobra.Command {
 				}
 				cfg.PermissionMode = permissionMode
 			} else if cfg.PermissionMode == "" {
-				cfg.PermissionMode = permissionMode
+				cfg.PermissionMode = "bypass"
 			}
 
 			owner, repo := "jmt-labs", "forgecrate"
@@ -92,6 +92,6 @@ func newInitCmd() *cobra.Command {
 	}
 	cmd.Flags().StringVar(&profile, "profile", "backend", "Profil (backend|frontend|fullstack)")
 	cmd.Flags().StringSliceVar(&flavors, "flavors", nil, "Flavors (tdd,strict-review,minimal)")
-	cmd.Flags().StringVar(&permissionMode, "permission-mode", "bypass", "Agent-Berechtigungsmodus (bypass|plan|ask|auto)")
+	cmd.Flags().StringVar(&permissionMode, "permission-mode", "", "Agent-Berechtigungsmodus (bypass|plan|ask|auto)")
 	return cmd
 }
