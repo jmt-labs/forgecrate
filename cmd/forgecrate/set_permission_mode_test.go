@@ -24,7 +24,9 @@ func TestSetPermissionModeRoundtrip(t *testing.T) {
 		},
 	}
 	cfgPath := filepath.Join(dir, ".forgecrate.yaml")
-	config.Write(cfgPath, cfg)
+	if err := config.Write(cfgPath, cfg); err != nil {
+		t.Fatalf("config.Write: %v", err)
+	}
 
 	settingsDir := filepath.Join(dir, ".claude")
 	os.MkdirAll(settingsDir, 0755)
@@ -34,12 +36,20 @@ func TestSetPermissionModeRoundtrip(t *testing.T) {
 	if err := deploy.PatchPermissionMode(dir, "bypass", &cfg); err != nil {
 		t.Fatalf("PatchPermissionMode: %v", err)
 	}
+	if cfg.DeployedFiles[".claude/settings.json"] == "sha256:old" {
+		t.Error("DeployedFiles hash was not updated")
+	}
+
 	cfg.PermissionMode = "bypass"
-	config.Write(cfgPath, cfg)
+	if err := config.Write(cfgPath, cfg); err != nil {
+		t.Fatalf("config.Write: %v", err)
+	}
 
 	data, _ := os.ReadFile(filepath.Join(settingsDir, "settings.json"))
 	var m map[string]any
-	json.Unmarshal(data, &m)
+	if err := json.Unmarshal(data, &m); err != nil {
+		t.Fatalf("json.Unmarshal: %v", err)
+	}
 	if m["permissionMode"] != "bypass" {
 		t.Errorf("permissionMode: got %v", m["permissionMode"])
 	}
