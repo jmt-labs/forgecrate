@@ -25,6 +25,7 @@ func main() {
 	root.AddCommand(newListCmd())
 	root.AddCommand(newDescribeCmd())
 	root.AddCommand(newHookCmd())
+	root.AddCommand(newSetPermissionModeCmd())
 	if err := root.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
