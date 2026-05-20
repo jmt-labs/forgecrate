@@ -1,6 +1,7 @@
 package e2e_test
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
@@ -449,5 +450,78 @@ func TestDeployIncludesParallelisierungSection(t *testing.T) {
 	}
 	if !strings.Contains(string(content), `isolation: "worktree"`) {
 		t.Error(`CLAUDE.md missing: isolation: "worktree"`)
+	}
+}
+
+func TestPermissionModeInSettings(t *testing.T) {
+	dst := t.TempDir()
+	cfg := config.Config{
+		Version:        "1.0",
+		Source:         "github.com/jmt-labs/forgecrate",
+		Ref:            "main",
+		Profile:        "backend",
+		Flavors:        []string{},
+		PermissionMode: "bypass",
+	}
+
+	if err := deploy.Run(localSource(t), dst, cfg); err != nil {
+		t.Fatalf("deploy.Run: %v", err)
+	}
+
+	data, err := os.ReadFile(filepath.Join(dst, ".claude", "settings.json"))
+	if err != nil {
+		t.Fatalf("settings.json: %v", err)
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		t.Fatalf("invalid JSON: %v", err)
+	}
+	if m["permissionMode"] != "bypass" {
+		t.Errorf("permissionMode: got %v, want bypass", m["permissionMode"])
+	}
+}
+
+func TestSetPermissionModeE2E(t *testing.T) {
+	dst := t.TempDir()
+	cfg := config.Config{
+		Version: "1.0",
+		Source:  "github.com/jmt-labs/forgecrate",
+		Ref:     "main",
+		Profile: "backend",
+		Flavors: []string{},
+	}
+
+	if err := deploy.Run(localSource(t), dst, cfg); err != nil {
+		t.Fatalf("deploy.Run: %v", err)
+	}
+
+	cfgPath := filepath.Join(dst, ".forgecrate.yaml")
+	got, err := config.Read(cfgPath)
+	if err != nil {
+		t.Fatalf("config.Read: %v", err)
+	}
+
+	if err := deploy.PatchPermissionMode(dst, "plan", &got); err != nil {
+		t.Fatalf("PatchPermissionMode: %v", err)
+	}
+	got.PermissionMode = "plan"
+	config.Write(cfgPath, got)
+
+	data, _ := os.ReadFile(filepath.Join(dst, ".claude", "settings.json"))
+	var m map[string]any
+	json.Unmarshal(data, &m)
+	if m["permissionMode"] != "plan" {
+		t.Errorf("after patch permissionMode: got %v, want plan", m["permissionMode"])
+	}
+
+	got2, _ := config.Read(cfgPath)
+	if err := deploy.Run(localSource(t), dst, got2); err != nil {
+		t.Fatalf("second deploy.Run: %v", err)
+	}
+	data2, _ := os.ReadFile(filepath.Join(dst, ".claude", "settings.json"))
+	var m2 map[string]any
+	json.Unmarshal(data2, &m2)
+	if m2["permissionMode"] != "plan" {
+		t.Errorf("after redeploy permissionMode: got %v, want plan", m2["permissionMode"])
 	}
 }
