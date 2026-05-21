@@ -39,4 +39,5 @@ Erkundet das Repo nach `forgecrate run` und erstellt einen strukturierten Überb
    - **`memory-bank/activeContext.md`** und **`memory-bank/progress.md`** — nicht anfassen, Template bleibt leer.
 
    Schreibe die Dateien mit den Read/Write-Tools direkt.
-   Anschließend: kurze Bestätigung ausgeben welche memory-bank-Dateien befüllt wurden (ein Satz je Datei).
+
+   **Fertigstellung:** Gib aus welche memory-bank-Dateien befüllt wurden — ein Satz je Datei (projectbrief.md, techContext.md, systemPatterns.md). Damit ist der Skill abgeschlossen.
