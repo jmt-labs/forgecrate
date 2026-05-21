@@ -151,6 +151,23 @@ Projektübergreifendes Wissen persistent speichern. Datei: `.claude/memory.json`
 
 **Niemals speichern:** API-Keys, Tokens, Passwörter, temporärer Zwischenstand, Code-Details die direkt aus dem Code lesbar sind.
 
+### Memory Bank (`memory-bank`)
+
+Team-geteilter Projektkontext. Verzeichnis: `./memory-bank/` (versioniert, committed).
+
+**Dateien:**
+- `projectbrief.md` — Was & Warum des Projekts
+- `activeContext.md` — Aktueller Fokus, offene Fragen, Blocker
+- `progress.md` — Was fertig ist, was läuft, was als nächstes kommt
+- `systemPatterns.md` — Architektur-Entscheidungen, ADRs, Anti-Patterns
+- `techContext.md` — Stack, Tools, technische Constraints
+
+**Schreiben:** Wenn sich Fokus, Fortschritt oder Architektur-Kontext ändert.
+
+**Lesen:** Am Session-Start, um den aktuellen Team-Kontext zu verstehen.
+
+**Abgrenzung zu `memory`:** `memory-bank` ist für laufenden Projekt-Kontext (was passiert gerade). `memory` (`.claude/memory.json`) ist für zeitlose Architektur-Entscheidungen mit Begründung.
+
 ### Context Mode (`context-mode`)
 
 Sandboxt Tool-Output automatisch — kein expliziter Aufruf nötig.
@@ -173,4 +190,4 @@ Aktuelle Bibliotheks-Dokumentation direkt aus den Source-Repositories abrufen. A
 
 ## MCP-Konfiguration: Single Source of Truth
 
-Die Datei `.mcp.json` wird aus `base/extensions.yaml` generiert — `base/extensions.yaml` ist die Quelle der Wahrheit für MCP-Server-Konfigurationen (inkl. Umgebungsvariablen wie `MEMORY_FILE_PATH`). Änderungen immer dort vornehmen, nicht direkt in `.mcp.json`.
+Die Datei `.mcp.json` wird aus `base/extensions.yaml` generiert — `base/extensions.yaml` ist die Quelle der Wahrheit für MCP-Server-Konfigurationen (inkl. Umgebungsvariablen wie `MEMORY_FILE_PATH`, `MEMORY_BANK_ROOT`). Änderungen immer dort vornehmen, nicht direkt in `.mcp.json`.

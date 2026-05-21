@@ -217,4 +217,27 @@ Die Datei `.mcp.json` wird aus `base/extensions.yaml` generiert — `base/extens
 <!-- GENERATED:END -->
 
 <!-- CUSTOM:BEGIN -->
+## Entwicklungskommandos
+
+```bash
+go build ./cmd/forgecrate          # Binary bauen
+go test ./...                       # Alle Tests ausführen
+go test ./cmd/forgecrate/... -v     # Nur CLI-Tests mit Output
+golangci-lint run ./...             # Linting
+go run ./cmd/forgecrate --help      # CLI lokal ausführen
+```
+
+## Architektur
+
+| Pfad | Zweck |
+|---|---|
+| `cmd/forgecrate/` | CLI-Entry-Points (cobra commands) |
+| `internal/config/` | `.forgecrate.yaml` lesen/schreiben |
+| `internal/deploy/` | Profil+Flavor nach Ziel-Repo deployen |
+| `internal/extensions/` | Plugin/Skill-Installation |
+| `internal/github/` | GitHub-Release-Download |
+| `base/` | Base-Layer: CLAUDE.md-Template, Hooks, Skills |
+| `profiles/` | Profil-Definitionen (backend, frontend, fullstack) |
+| `flavors/` | Flavor-Definitionen (tdd, strict-review, ...) |
+| `e2e/` | End-to-End-Tests (brauchen `plugin install superpowers`) |
 <!-- CUSTOM:END -->
