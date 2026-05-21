@@ -32,7 +32,6 @@ Das führt zu Doppelpflege und Inkonsistenz. CLAUDE.md sollte ausschließlich ve
 ## Projektkontext
 
 Nutze den `memory-bank` MCP-Server um den aktuellen Projektkontext zu lesen.
-Am Session-Start: `memory_bank_read` aufrufen.
 ```
 
 Kein Verweis auf Dateinamen — nur auf den MCP-Server.
