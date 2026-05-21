@@ -92,9 +92,13 @@ func TestComposeSettingsInjectsPermissionMode(t *testing.T) {
 	dst := t.TempDir()
 
 	settingsDir := filepath.Join(src, "base", ".claude")
-	os.MkdirAll(settingsDir, 0755)
-	os.WriteFile(filepath.Join(settingsDir, "settings.json"),
-		[]byte(`{"model":"claude-sonnet-4-6"}`), 0644)
+	if err := os.MkdirAll(settingsDir, 0755); err != nil {
+		t.Fatalf("MkdirAll: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(settingsDir, "settings.json"),
+		[]byte(`{"model":"claude-sonnet-4-6"}`), 0644); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
 
 	req := compose.Request{
 		SourceDir:      src,
@@ -122,9 +126,13 @@ func TestComposeSettingsNoPermissionModeWhenEmpty(t *testing.T) {
 	dst := t.TempDir()
 
 	settingsDir := filepath.Join(src, "base", ".claude")
-	os.MkdirAll(settingsDir, 0755)
-	os.WriteFile(filepath.Join(settingsDir, "settings.json"),
-		[]byte(`{"model":"claude-sonnet-4-6"}`), 0644)
+	if err := os.MkdirAll(settingsDir, 0755); err != nil {
+		t.Fatalf("MkdirAll: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(settingsDir, "settings.json"),
+		[]byte(`{"model":"claude-sonnet-4-6"}`), 0644); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
 
 	req := compose.Request{SourceDir: src, DestDir: dst, Profile: "backend", Flavors: []string{}}
 	content, err := compose.ComposeSettings(req)
