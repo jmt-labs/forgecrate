@@ -54,6 +54,10 @@ func RunWithClaude(sourceDir, destDir string, cfg config.Config, claudeBin strin
 		return fmt.Errorf("extensions: %w", err)
 	}
 
+	if err := scaffoldMemoryBank(sourceDir, destDir); err != nil {
+		return fmt.Errorf("memory-bank scaffold: %w", err)
+	}
+
 	if err := copySkills(sourceDir, destDir, cfg, out); err != nil {
 		return fmt.Errorf("skills: %w", err)
 	}
