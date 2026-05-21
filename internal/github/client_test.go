@@ -30,8 +30,8 @@ func makeTarGz(t *testing.T, files map[string]string) []byte {
 			t.Fatalf("tar Write: %v", err)
 		}
 	}
-	tw.Close()
-	gz.Close()
+	_ = tw.Close()
+	_ = gz.Close()
 	return buf.Bytes()
 }
 
@@ -43,7 +43,7 @@ func TestDownloadAndExtract(t *testing.T) {
 
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/x-gzip")
-		w.Write(tarball)
+		_, _ = w.Write(tarball)
 	}))
 	defer srv.Close()
 
@@ -83,7 +83,7 @@ func TestDownloadPathTraversal(t *testing.T) {
 
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/x-gzip")
-		w.Write(tarball)
+		_, _ = w.Write(tarball)
 	}))
 	defer srv.Close()
 
@@ -129,7 +129,7 @@ func TestAuthorizationHeader(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		receivedAuth = r.Header.Get("Authorization")
 		w.Header().Set("Content-Type", "application/x-gzip")
-		w.Write(tarball)
+		_, _ = w.Write(tarball)
 	}))
 	defer srv.Close()
 
@@ -153,7 +153,7 @@ func TestNoAuthorizationHeaderWhenNoToken(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		receivedAuth = r.Header.Get("Authorization")
 		w.Header().Set("Content-Type", "application/x-gzip")
-		w.Write(tarball)
+		_, _ = w.Write(tarball)
 	}))
 	defer srv.Close()
 
@@ -181,7 +181,7 @@ func TestRetryOn429(t *testing.T) {
 		}
 		// Third call: success
 		w.Header().Set("Content-Type", "application/x-gzip")
-		w.Write(tarball)
+		_, _ = w.Write(tarball)
 	}))
 	defer srv.Close()
 
@@ -207,7 +207,7 @@ func TestRetryOn5xx(t *testing.T) {
 			return
 		}
 		w.Header().Set("Content-Type", "application/x-gzip")
-		w.Write(tarball)
+		_, _ = w.Write(tarball)
 	}))
 	defer srv.Close()
 

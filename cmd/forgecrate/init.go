@@ -70,7 +70,7 @@ func newInitCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			defer os.RemoveAll(srcDir)
+			defer func() { _ = os.RemoveAll(srcDir) }()
 
 			client := gh.Default()
 			if err := client.Download(owner, repo, cfg.Ref, srcDir); err != nil {
@@ -83,7 +83,7 @@ func newInitCmd() *cobra.Command {
 			}
 
 			if legacyPath != "" {
-				os.Remove(legacyPath)
+				_ = os.Remove(legacyPath)
 			}
 
 			fmt.Println("Done.")

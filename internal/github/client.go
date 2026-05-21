@@ -65,12 +65,12 @@ func (c *Client) Download(owner, repo, ref, destDir string) error {
 
 		switch {
 		case resp.StatusCode == http.StatusOK:
-			defer resp.Body.Close()
+			defer func() { _ = resp.Body.Close() }()
 			return extractTarGz(resp.Body, destDir)
 
 		case resp.StatusCode == http.StatusTooManyRequests:
 			reset := resp.Header.Get("X-RateLimit-Reset")
-			resp.Body.Close()
+			_ = resp.Body.Close()
 			if reset != "" {
 				ts, parseErr := strconv.ParseInt(reset, 10, 64)
 				if parseErr == nil {
@@ -84,11 +84,11 @@ func (c *Client) Download(owner, repo, ref, destDir string) error {
 			}
 
 		case resp.StatusCode >= 500:
-			resp.Body.Close()
+			_ = resp.Body.Close()
 			lastErr = fmt.Errorf("server error: %s", resp.Status)
 
 		default:
-			resp.Body.Close()
+			_ = resp.Body.Close()
 			return fmt.Errorf("unexpected status: %s", resp.Status)
 		}
 	}
@@ -155,10 +155,10 @@ func extractTarGz(r io.Reader, destDir string) (err error) {
 			return fmt.Errorf("create %s: %w", dst, err)
 		}
 		if _, err := io.Copy(f, tr); err != nil {
-			f.Close()
+			_ = f.Close()
 			return err
 		}
-		f.Close()
+		_ = f.Close()
 	}
 	return nil
 }

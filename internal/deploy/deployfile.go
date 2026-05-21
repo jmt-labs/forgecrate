@@ -27,13 +27,13 @@ func deployFile(dstPath, rel string, newContent []byte, cfg *config.Config, w io
 
 	// Datei existiert nicht → einfach schreiben
 	if hashDisk == "" {
-		fmt.Fprintf(w, "✅ %s\n", rel)
+		_, _ = fmt.Fprintf(w, "✅ %s\n", rel)
 		return writeAndRecord(dstPath, rel, newContent, hashNew, cfg)
 	}
 
 	// Migration: kein stored hash → einfach überschreiben
 	if !hasStored {
-		fmt.Fprintf(w, "✅ %s\n", rel)
+		_, _ = fmt.Fprintf(w, "✅ %s\n", rel)
 		return writeAndRecord(dstPath, rel, newContent, hashNew, cfg)
 	}
 
@@ -43,39 +43,39 @@ func deployFile(dstPath, rel string, newContent []byte, cfg *config.Config, w io
 	if diskUnchanged {
 		if newSameAsDisk {
 			// Fall 1: unverändert, neue Version identisch → nichts tun
-			fmt.Fprintf(w, "🔵 %s\n", rel)
+			_, _ = fmt.Fprintf(w, "🔵 %s\n", rel)
 			return nil
 		}
 		// Fall 2: unverändert, neue Version verschieden → überschreiben
-		fmt.Fprintf(w, "✅ %s\n", rel)
+		_, _ = fmt.Fprintf(w, "✅ %s\n", rel)
 		return writeAndRecord(dstPath, rel, newContent, hashNew, cfg)
 	}
 
 	// Nutzer hat Datei geändert
 	if newSameAsDisk {
 		// Fall 3: Nutzer hat gleich geändert wie neue Version → nichts tun, aber Hash aktualisieren
-		fmt.Fprintf(w, "🔵 %s\n", rel)
+		_, _ = fmt.Fprintf(w, "🔵 %s\n", rel)
 		cfg.DeployedFiles[rel] = hashDisk
 		return nil
 	}
 
 	// Fall 4: echter Konflikt → prompt
 	diskData, _ := os.ReadFile(dstPath)
-	fmt.Fprintf(w, "\nKONFLIKT: %s\n", rel)
-	fmt.Fprintf(w, "  Deine Version: %s\n", firstLine(diskData))
-	fmt.Fprintf(w, "  Neue Version:  %s\n", firstLine(newContent))
-	fmt.Fprintf(w, "  [o]verwrite / [k]eep (default: keep): ")
+	_, _ = fmt.Fprintf(w, "\nKONFLIKT: %s\n", rel)
+	_, _ = fmt.Fprintf(w, "  Deine Version: %s\n", firstLine(diskData))
+	_, _ = fmt.Fprintf(w, "  Neue Version:  %s\n", firstLine(newContent))
+	_, _ = fmt.Fprintf(w, "  [o]verwrite / [k]eep (default: keep): ")
 
 	scanner := bufio.NewScanner(r)
 	scanner.Scan()
 	answer := strings.TrimSpace(scanner.Text())
 
 	if answer == "o" || answer == "ü" || answer == "u" {
-		fmt.Fprintf(w, "✅ %s  (conflict → replaced)\n", rel)
+		_, _ = fmt.Fprintf(w, "✅ %s  (conflict → replaced)\n", rel)
 		return writeAndRecord(dstPath, rel, newContent, hashNew, cfg)
 	}
 	// behalten: Hash der Nutzer-Version speichern
-	fmt.Fprintf(w, "🔵 %s  (conflict → kept)\n", rel)
+	_, _ = fmt.Fprintf(w, "🔵 %s  (conflict → kept)\n", rel)
 	cfg.DeployedFiles[rel] = hashDisk
 	return nil
 }

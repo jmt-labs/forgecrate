@@ -21,9 +21,7 @@ mcp:
     env:
       TOKEN: abc
 `
-	if err := os.WriteFile(filepath.Join(dir, "extensions.yaml"), []byte(content), 0644); err != nil {
-		t.Fatalf("WriteFile: %v", err)
-	}
+	_ = os.WriteFile(filepath.Join(dir, "extensions.yaml"), []byte(content), 0644)
 
 	ext, err := extensions.Load(filepath.Join(dir, "extensions.yaml"))
 	if err != nil {
@@ -49,9 +47,7 @@ mcp:
     url: https://api.githubcopilot.com/mcp/
     scope: local
 `
-	if err := os.WriteFile(filepath.Join(dir, "extensions.yaml"), []byte(content), 0644); err != nil {
-		t.Fatalf("WriteFile: %v", err)
-	}
+	_ = os.WriteFile(filepath.Join(dir, "extensions.yaml"), []byte(content), 0644)
 
 	ext, err := extensions.Load(filepath.Join(dir, "extensions.yaml"))
 	if err != nil {

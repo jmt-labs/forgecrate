@@ -9,9 +9,7 @@ import (
 func TestListProfiles(t *testing.T) {
 	src := t.TempDir()
 	for _, p := range []string{"backend", "frontend", "fullstack"} {
-		if err := os.MkdirAll(filepath.Join(src, "profiles", p), 0755); err != nil {
-			t.Fatalf("MkdirAll: %v", err)
-		}
+		_ = os.MkdirAll(filepath.Join(src, "profiles", p), 0755)
 	}
 
 	profiles, err := listDirs(filepath.Join(src, "profiles"))
@@ -35,9 +33,7 @@ func TestListProfiles(t *testing.T) {
 func TestListFlavors(t *testing.T) {
 	src := t.TempDir()
 	for _, f := range []string{"tdd", "github", "strict-review"} {
-		if err := os.MkdirAll(filepath.Join(src, "flavors", f), 0755); err != nil {
-			t.Fatalf("MkdirAll: %v", err)
-		}
+		_ = os.MkdirAll(filepath.Join(src, "flavors", f), 0755)
 	}
 
 	flavors, err := listDirs(filepath.Join(src, "flavors"))
