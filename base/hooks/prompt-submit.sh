@@ -9,4 +9,5 @@ else
   echo "Profil: unbekannt | Flavors: keine"
   echo ""
   echo "Pflicht-Skills: brainstorming → tdd → verification-before-completion | debugging bei Bugs"
+  echo "Recherche beim Planen: WebSearch/context7/fetch nutzen — nicht raten"
 fi

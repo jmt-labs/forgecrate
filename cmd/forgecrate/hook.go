@@ -62,5 +62,8 @@ func promptSubmitOutput(dir string) (string, error) {
 	fmt.Fprintf(&sb, "Profil: %s | Flavors: %s\n", profile, flavors)
 	fmt.Fprintln(&sb)
 	fmt.Fprintf(&sb, "Pflicht-Skills: brainstorming → tdd → verification-before-completion | debugging bei Bugs\n")
+	if !cfg.HasFlavor("no-research") {
+		fmt.Fprintf(&sb, "Recherche beim Planen: WebSearch/context7/fetch nutzen — nicht raten\n")
+	}
 	return sb.String(), nil
 }

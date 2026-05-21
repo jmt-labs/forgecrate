@@ -36,7 +36,9 @@
       "Bash(go build:*)",
       "Bash(go vet:*)",
       "Bash(make test:*)",
-      "Bash(make build:*)"
+      "Bash(make build:*)",
+      "WebSearch",
+      "WebFetch"
     ],
     "deny": [
       "Bash(rm -rf:*)",

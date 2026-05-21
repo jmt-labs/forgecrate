@@ -88,6 +88,23 @@ func TestDeployedFilesRoundtrip(t *testing.T) {
 	}
 }
 
+func TestHasFlavor(t *testing.T) {
+	cfg := config.Config{Flavors: []string{"tdd", "strict-review"}}
+	if !cfg.HasFlavor("tdd") {
+		t.Error("expected HasFlavor(tdd) = true")
+	}
+	if !cfg.HasFlavor("strict-review") {
+		t.Error("expected HasFlavor(strict-review) = true")
+	}
+	if cfg.HasFlavor("no-research") {
+		t.Error("expected HasFlavor(no-research) = false")
+	}
+	empty := config.Config{}
+	if empty.HasFlavor("anything") {
+		t.Error("expected HasFlavor on empty config = false")
+	}
+}
+
 func TestDeployedFilesOmittedWhenEmpty(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, ".forgecrate.yaml")
