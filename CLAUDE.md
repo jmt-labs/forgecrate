@@ -124,7 +124,7 @@ Dies ermöglicht einfaches Tracking und verhindert Verwechslungen bei parallelen
 
 ## MCP Server
 
-Vier MCP-Server sind im base layer deklariert und stehen automatisch zur Verfügung.
+Fünf MCP-Server sind im base layer deklariert und stehen automatisch zur Verfügung.
 
 ### GitHub (`github`)
 
@@ -188,6 +188,26 @@ Aktuelle Bibliotheks-Dokumentation direkt aus den Source-Repositories abrufen. A
 **Verwende es NICHT für:** GitHub-Inhalte (→ github MCP), lokale Dateien (→ Read), allgemeine Programmierkonzepte.
 
 **Keine Konfiguration nötig** — wird beim ersten `forgecrate init/update` automatisch als Projekt-MCP-Server eingerichtet.
+
+### Memory-Bank (`memory-bank`)
+
+Strukturiertes, dateibasiertes Projektgedächtnis in `memory-bank/`. Persistiert
+kontextuelles Wissen über Sessions hinweg.
+
+**Schreiben nach:** Projektbeschreibung, erkannter Tech-Stack, Architektur-Entscheidungen,
+aktueller Fokus, offene Fragen.
+
+**Lesen am:** Sessionbeginn, nach Context-Kompaktierung, wenn Kontext zur Projekt-Geschichte
+fehlt.
+
+**Dateien:**
+- `projectbrief.md` — Projektziel und Scope
+- `techContext.md` — Stack, Tools, Constraints
+- `systemPatterns.md` — ADRs und wiederkehrende Muster
+- `activeContext.md` — Aktueller Fokus und Blocker
+- `progress.md` — Fortschritt und nächste Schritte
+
+**Abgrenzung zu `memory`:** `memory` ist graph-basiert und projektübergreifend (`.claude/memory.json`). `memory-bank` ist dateibasiert und repo-spezifisch — ideal für strukturierten Langzeit-Kontext.
 
 ## MCP-Konfiguration: Single Source of Truth
 
