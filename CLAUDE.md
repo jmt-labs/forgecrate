@@ -46,7 +46,7 @@ Ticket-Kommentare immer kurz (ein Satz): Fortschritt, Pfad, oder Ergebnis.
 
 ## Session-Start
 
-Beim Session-Start: `ls HANDOFF.md 2>/dev/null` ausführen. Falls vorhanden: Datei lesen und als Kontext verwenden, dann fragen: „HANDOFF.md gefunden und gelesen. Soll ich sie löschen?"
+Beim Session-Start: memory-bank via MCP lesen um den aktuellen Projektkontext zu verstehen.
 
 ## Verhalten
 
@@ -234,6 +234,10 @@ Die Datei `.mcp.json` wird aus `base/extensions.yaml` generiert — `base/extens
 - Test-Namen beschreiben Verhalten, nicht Implementierung
 - Mocks nur an Systemgrenzen (externe APIs, Datenbanken)
 - Für jeden gefundenen Bug: Regressionstest vor dem Fix
+
+## Projektkontext
+
+Nutze den `memory-bank` MCP-Server um den aktuellen Projektkontext zu lesen.
 <!-- GENERATED:END -->
 
 <!-- CUSTOM:BEGIN -->
