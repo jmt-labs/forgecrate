@@ -2,10 +2,12 @@
 # Erinnerung an Pflicht-Skills — wird bei jeder User-Nachricht ausgegeben.
 # Schlank halten: nur wenige Zeilen, vollständig cached nach erster Ausführung.
 
-PROFILE=$(grep 'profile:' .claude-setup.yaml 2>/dev/null | awk '{print $2}')
-FLAVORS=$(grep -A5 'flavors:' .claude-setup.yaml 2>/dev/null | grep '  -' | awk '{print $2}' | tr '\n' ',' | sed 's/,$//')
-
-echo "## Claude Setup — Aktive Konfiguration"
-echo "Profil: ${PROFILE:-unbekannt} | Flavors: ${FLAVORS:-keine}"
-echo ""
-echo "Pflicht-Skills: brainstorming → tdd → verification-before-completion | debugging bei Bugs"
+if command -v forgecrate >/dev/null 2>&1; then
+  forgecrate hook prompt-submit
+else
+  echo "## forgecrate — Aktive Konfiguration"
+  echo "Profil: unbekannt | Flavors: keine"
+  echo ""
+  echo "Pflicht-Skills: brainstorming → tdd → verification-before-completion | debugging bei Bugs"
+  echo "Recherche beim Planen: WebSearch/context7/fetch nutzen — nicht raten"
+fi
