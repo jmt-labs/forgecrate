@@ -213,6 +213,10 @@ fehlt.
 
 Die Datei `.mcp.json` wird aus `base/extensions.yaml` generiert — `base/extensions.yaml` ist die Quelle der Wahrheit für MCP-Server-Konfigurationen (inkl. Umgebungsvariablen wie `MEMORY_FILE_PATH`, `MEMORY_BANK_ROOT`). Änderungen immer dort vornehmen, nicht direkt in `.mcp.json`.
 
+## Projektkontext
+
+Nutze den `memory-bank` MCP-Server um den aktuellen Projektkontext zu lesen.
+
 ## Backend-Profil
 
 - API-Design: REST-First, klare Fehlercodes, keine unnötige Abstraktion
@@ -234,10 +238,6 @@ Die Datei `.mcp.json` wird aus `base/extensions.yaml` generiert — `base/extens
 - Test-Namen beschreiben Verhalten, nicht Implementierung
 - Mocks nur an Systemgrenzen (externe APIs, Datenbanken)
 - Für jeden gefundenen Bug: Regressionstest vor dem Fix
-
-## Projektkontext
-
-Nutze den `memory-bank` MCP-Server um den aktuellen Projektkontext zu lesen.
 <!-- GENERATED:END -->
 
 <!-- CUSTOM:BEGIN -->

@@ -31,6 +31,16 @@
 | `flavors/` | Flavor-Definitionen (tdd, strict-review, …) |
 | `e2e/` | End-to-End-Tests (brauchen `plugin install superpowers`) |
 
+## Compose-Pipeline
+
+`internal/compose/` ist der Kern des Layering-Systems:
+- `compose.go` — orchestriert die gesamte Pipeline (Markdown, JSON, Skills)
+- `markdown.go` — merged Markdown-Dateien aus mehreren Layers mit CUSTOM-Abschnitts-Schutz
+- `jsonmerge.go` — Deep-Merge für `settings.json` (base → profile → overrides)
+- `skills.go` — kopiert/merged Slash-Commands aus allen Layer-Verzeichnissen
+
+`cmd/forgecrate/` enthält nur dünne Cobra-Commands — alles läuft über `compose.Run(req)`.
+
 ## Externe Abhängigkeiten
 
 - GitHub API (Release-Download via `internal/github/`)

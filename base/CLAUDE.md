@@ -45,7 +45,7 @@ Ticket-Kommentare immer kurz (ein Satz): Fortschritt, Pfad, oder Ergebnis.
 
 ## Session-Start
 
-Beim Session-Start: memory-bank via MCP lesen um den aktuellen Projektkontext zu verstehen.
+Beim Session-Start: memory-bank via MCP lesen um den aktuellen Projektkontext zu verstehen. **Pflicht:** `mcp__memory-bank__memory_bank_read` verwenden — Read-Tool auf memory-bank-Dateien ist verboten.
 
 ## Verhalten
 
@@ -162,9 +162,9 @@ Team-geteilter Projektkontext. Verzeichnis: `./memory-bank/` (versioniert, commi
 - `systemPatterns.md` — Architektur-Entscheidungen, ADRs, Anti-Patterns
 - `techContext.md` — Stack, Tools, technische Constraints
 
-**Schreiben:** Wenn sich Fokus, Fortschritt oder Architektur-Kontext ändert.
+**Schreiben:** Wenn sich Fokus, Fortschritt oder Architektur-Kontext ändert — **ausschließlich** via `mcp__memory-bank__memory_bank_write` oder `mcp__memory-bank__memory_bank_update`. Write-Tool auf memory-bank-Dateien ist verboten.
 
-**Lesen:** Am Session-Start, um den aktuellen Team-Kontext zu verstehen.
+**Lesen:** Am Session-Start und bei Bedarf — **ausschließlich** via `mcp__memory-bank__memory_bank_read`. Read-Tool auf memory-bank-Dateien ist verboten.
 
 **Abgrenzung zu `memory`:** `memory-bank` ist für laufenden Projekt-Kontext (was passiert gerade). `memory` (`.claude/memory.json`) ist für zeitlose Architektur-Entscheidungen mit Begründung.
 
@@ -193,11 +193,11 @@ Aktuelle Bibliotheks-Dokumentation direkt aus den Source-Repositories abrufen. A
 Strukturiertes, dateibasiertes Projektgedächtnis in `memory-bank/`. Persistiert
 kontextuelles Wissen über Sessions hinweg.
 
-**Schreiben nach:** Projektbeschreibung, erkannter Tech-Stack, Architektur-Entscheidungen,
-aktueller Fokus, offene Fragen.
+**Schreiben nach:** Projektbeschreibung, erkannter Tech-Stack, Architektur-Entscheidungen, aktueller Fokus, offene Fragen — **ausschließlich** via `mcp__memory-bank__memory_bank_write` oder `mcp__memory-bank__memory_bank_update`.
 
-**Lesen am:** Sessionbeginn, nach Context-Kompaktierung, wenn Kontext zur Projekt-Geschichte
-fehlt.
+**Lesen am:** Sessionbeginn, nach Context-Kompaktierung, wenn Kontext zur Projekt-Geschichte fehlt — **ausschließlich** via `mcp__memory-bank__memory_bank_read`.
+
+**Direkte Datei-Tools (Read/Write/Edit) auf `memory-bank/`-Dateien sind verboten.**
 
 **Dateien:**
 - `projectbrief.md` — Projektziel und Scope
@@ -214,4 +214,4 @@ Die Datei `.mcp.json` wird aus `base/extensions.yaml` generiert — `base/extens
 
 ## Projektkontext
 
-Nutze den `memory-bank` MCP-Server um den aktuellen Projektkontext zu lesen.
+Nutze den `memory-bank` MCP-Server um den aktuellen Projektkontext zu lesen und zu schreiben. **Pflicht:** Alle Lese- und Schreiboperationen auf `memory-bank/` laufen ausschließlich über die MCP-Tools `mcp__memory-bank__memory_bank_read`, `mcp__memory-bank__memory_bank_write` und `mcp__memory-bank__memory_bank_update`. Das direkte Lesen oder Schreiben via Read/Write/Edit-Datei-Tools ist verboten.
