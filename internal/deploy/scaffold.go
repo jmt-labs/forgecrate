@@ -29,6 +29,8 @@ func scaffoldMemoryBank(sourceDir, destDir string) error {
 		dst := filepath.Join(dstDir, entry.Name())
 		if _, err := os.Stat(dst); err == nil {
 			continue
+		} else if !os.IsNotExist(err) {
+			return fmt.Errorf("stat %s: %w", entry.Name(), err)
 		}
 		if err := copyFile(filepath.Join(srcDir, entry.Name()), dst); err != nil {
 			return fmt.Errorf("scaffold %s: %w", entry.Name(), err)
