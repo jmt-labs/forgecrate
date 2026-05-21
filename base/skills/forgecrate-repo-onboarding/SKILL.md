@@ -38,6 +38,6 @@ Erkundet das Repo nach `forgecrate run` und erstellt einen strukturierten Überb
 
    - **`memory-bank/activeContext.md`** und **`memory-bank/progress.md`** — nicht anfassen, Template bleibt leer.
 
-   Schreibe die Dateien mit den Read/Write-Tools direkt.
+   Lies jede Zieldatei zuerst via `mcp__memory-bank__memory_bank_read`, um bestehende Inhalte zu kennen. Schreibe neue Inhalte via `mcp__memory-bank__memory_bank_write` (vollständiger Ersatz) oder `mcp__memory-bank__memory_bank_update` (gezielte Ergänzung bestehender Abschnitte). Verwende keine Read/Write-Datei-Tools für memory-bank-Operationen.
 
    **Fertigstellung:** Gib aus welche memory-bank-Dateien befüllt wurden — ein Satz je Datei (projectbrief.md, techContext.md, systemPatterns.md). Damit ist der Skill abgeschlossen.
