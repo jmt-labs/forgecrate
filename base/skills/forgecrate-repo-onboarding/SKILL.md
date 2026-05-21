@@ -44,3 +44,24 @@ Erkundet das Repo nach `forgecrate run` und erstellt einen strukturierten Überb
 ```
 
 6. **Übergabe** — zeige den Vorschlag und frage: "Soll ich den GENERATED-Block in `CLAUDE.md` damit ersetzen?"
+
+7. **memory-bank befüllen** — schreibe direkt (keine Rückfrage) auf Basis der Analyse:
+
+   - **`memory-bank/projectbrief.md`** — ersetze die Platzhalter:
+     - *Was ist dieses Projekt?* → Kurze Beschreibung aus README/go.mod/package.json
+     - *Ziele* → Erkannter Mehrwert (CLI-Tool, API, Library, ...)
+     - *Nicht-Ziele* → Was bewusst fehlt (z.B. kein Frontend, kein Auth)
+
+   - **`memory-bank/techContext.md`** — ersetze die Platzhalter:
+     - *Stack* → Sprache + Version, Framework, wichtige Libraries (aus go.mod/package.json/pyproject.toml)
+     - *Tools & Infrastruktur* → Build-, Test-, Lint-Kommandos (aus Makefile/scripts)
+     - *Constraints* → Erkannte Einschränkungen (z.B. Go-Version, Node-Version, kein CGO)
+
+   - **`memory-bank/systemPatterns.md`** — ersetze die Platzhalter:
+     - *Architektur-Entscheidungen* → Erkannte Struktur (z.B. `internal/` für Business-Logik, `cmd/` für Einstiegspunkte)
+     - *Wiederkehrende Muster* → Coding-Conventions aus dem Code (z.B. error wrapping, interface-Design)
+     - *Anti-Patterns* → Lass diesen Abschnitt leer wenn nichts klar erkennbar
+
+   - **`memory-bank/activeContext.md`** und **`memory-bank/progress.md`** — nicht anfassen, Template bleibt leer.
+
+   Schreibe die Dateien mit den Read/Write-Tools direkt. Kein Prompt an den Nutzer.

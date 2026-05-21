@@ -169,6 +169,7 @@ func TestComposeNoResearchFlavorAppended(t *testing.T) {
 	}
 }
 
+
 func writeFile(t *testing.T, base, rel, content string) {
 	t.Helper()
 	path := filepath.Join(base, filepath.FromSlash(rel))
