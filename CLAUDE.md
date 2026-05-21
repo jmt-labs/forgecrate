@@ -46,7 +46,7 @@ Ticket-Kommentare immer kurz (ein Satz): Fortschritt, Pfad, oder Ergebnis.
 
 ## Session-Start
 
-Beim Session-Start: `ls HANDOFF.md 2>/dev/null` ausführen. Falls vorhanden: Datei lesen und als Kontext verwenden, dann fragen: „HANDOFF.md gefunden und gelesen. Soll ich sie löschen?"
+Beim Session-Start: memory-bank via MCP lesen um den aktuellen Projektkontext zu verstehen.
 
 ## Verhalten
 
