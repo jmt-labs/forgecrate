@@ -12,11 +12,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// promptFn wird in Tests durch einen Stub ersetzt, in Production durch huhPrompt.
 type promptFn func(profiles, flavors []string, cur config.Config) (string, []string, error)
 
-// configInteractive liest verfügbare Optionen aus srcDir, ruft prompt auf und
-// schreibt die aktualisierte Konfiguration nach cwd/.forgecrate.yaml.
 func configInteractive(cwd, srcDir string, cfg config.Config, prompt promptFn) (config.Config, error) {
 	profiles, err := listDirs(filepath.Join(srcDir, "profiles"))
 	if err != nil {
@@ -47,7 +44,6 @@ func configInteractive(cwd, srcDir string, cfg config.Config, prompt promptFn) (
 	return cfg, nil
 }
 
-// huhPrompt zeigt einen interaktiven Pfeil-Wizard für Profil und Flavors.
 func huhPrompt(profiles, flavors []string, cur config.Config) (string, []string, error) {
 	newProfile := cur.Profile
 	newFlavors := make([]string, len(cur.Flavors))
@@ -82,8 +78,6 @@ func huhPrompt(profiles, flavors []string, cur config.Config) (string, []string,
 	return newProfile, newFlavors, nil
 }
 
-// newConfigCmd gibt den cobra-Command zurück. Er lädt das Source-Repo,
-// ruft configInteractive auf und deployed anschließend.
 func newConfigCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "config",

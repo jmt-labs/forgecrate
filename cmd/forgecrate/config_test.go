@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"testing"
 
 	"github.com/jmt-labs/forgecrate/internal/config"
@@ -39,14 +40,7 @@ func TestConfigInteractive_WritesUpdatedConfig(t *testing.T) {
 
 	stub := func(profiles, flavors []string, cur config.Config) (string, []string, error) {
 		for _, p := range []string{"backend", "frontend", "fullstack"} {
-			found := false
-			for _, got := range profiles {
-				if got == p {
-					found = true
-					break
-				}
-			}
-			if !found {
+			if !slices.Contains(profiles, p) {
 				t.Errorf("profiles missing %q, got %v", p, profiles)
 			}
 		}
@@ -60,7 +54,7 @@ func TestConfigInteractive_WritesUpdatedConfig(t *testing.T) {
 	if got.Profile != "frontend" {
 		t.Errorf("returned profile = %q, want frontend", got.Profile)
 	}
-	if len(got.Flavors) != 1 || got.Flavors[0] != "strict-review" {
+	if !slices.Equal(got.Flavors, []string{"strict-review"}) {
 		t.Errorf("returned flavors = %v, want [strict-review]", got.Flavors)
 	}
 
@@ -71,7 +65,7 @@ func TestConfigInteractive_WritesUpdatedConfig(t *testing.T) {
 	if written.Profile != "frontend" {
 		t.Errorf("written profile = %q, want frontend", written.Profile)
 	}
-	if len(written.Flavors) != 1 || written.Flavors[0] != "strict-review" {
+	if !slices.Equal(written.Flavors, []string{"strict-review"}) {
 		t.Errorf("written flavors = %v, want [strict-review]", written.Flavors)
 	}
 }
@@ -97,15 +91,11 @@ func TestConfigInteractive_PromptError(t *testing.T) {
 	dir := t.TempDir()
 	srcDir := t.TempDir()
 
-	for _, p := range []string{"backend"} {
-		if err := os.MkdirAll(filepath.Join(srcDir, "profiles", p), 0755); err != nil {
-			t.Fatal(err)
-		}
+	if err := os.MkdirAll(filepath.Join(srcDir, "profiles", "backend"), 0755); err != nil {
+		t.Fatal(err)
 	}
-	for _, f := range []string{"tdd"} {
-		if err := os.MkdirAll(filepath.Join(srcDir, "flavors", f), 0755); err != nil {
-			t.Fatal(err)
-		}
+	if err := os.MkdirAll(filepath.Join(srcDir, "flavors", "tdd"), 0755); err != nil {
+		t.Fatal(err)
 	}
 
 	cfg := config.Config{Profile: "backend"}
