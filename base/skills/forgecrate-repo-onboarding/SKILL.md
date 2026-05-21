@@ -19,33 +19,7 @@ Erkundet das Repo nach `forgecrate run` und erstellt einen strukturierten Überb
 
 4. **Externe Abhängigkeiten** — suche nach Datenbankverbindungen, externen APIs, Message-Queues in Imports und Konfigurationsfiles.
 
-5. **CLAUDE.md-Vorschlag erstellen** — erzeuge Text für den `<!-- GENERATED:BEGIN -->…<!-- GENERATED:END -->`-Block:
-
-```markdown
-## Projekt-Übersicht
-
-**Sprache:** Go 1.24 | **Framework:** — | **Einstiegspunkt:** `cmd/myapp/main.go`
-
-## Struktur
-
-- `internal/` — Business-Logik
-- `internal/deploy/` — Deployment-Pipeline
-- `cmd/` — CLI-Einstiegspunkte
-
-## Workflow
-
-- Build: `go build ./...`
-- Test: `go test ./...`
-- Lint: `golangci-lint run`
-
-## Externe Abhängigkeiten
-
-- GitHub API (gh CLI)
-```
-
-6. **Übergabe** — zeige den Vorschlag und frage: "Soll ich den GENERATED-Block in `CLAUDE.md` damit ersetzen?"
-
-7. **memory-bank befüllen** — schreibe direkt (keine Rückfrage) auf Basis der Analyse:
+5. **memory-bank befüllen** — schreibe direkt (keine Rückfrage) auf Basis der Analyse:
 
    - **`memory-bank/projectbrief.md`** — ersetze die Platzhalter:
      - *Was ist dieses Projekt?* → Kurze Beschreibung aus README/go.mod/package.json
@@ -64,4 +38,5 @@ Erkundet das Repo nach `forgecrate run` und erstellt einen strukturierten Überb
 
    - **`memory-bank/activeContext.md`** und **`memory-bank/progress.md`** — nicht anfassen, Template bleibt leer.
 
-   Schreibe die Dateien mit den Read/Write-Tools direkt. Kein Prompt an den Nutzer.
+   Schreibe die Dateien mit den Read/Write-Tools direkt.
+   Anschließend: kurze Bestätigung ausgeben welche memory-bank-Dateien befüllt wurden (ein Satz je Datei).
