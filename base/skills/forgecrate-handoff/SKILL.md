@@ -4,7 +4,7 @@ Aktualisiert die memory-bank mit dem aktuellen Session-Kontext für AI-Modellwec
 
 ## Ablauf
 
-**Schritt 1 — Daten sammeln (parallel ausführen):**
+**Schritt 1 — Daten sammeln (sequenziell ausführen):**
 
 ```bash
 # Git-Info
@@ -46,7 +46,7 @@ Tool: `memory_bank_write` mit `file_name: "progress.md"` und folgendem Inhalt:
 <Ausgabe von `git log --oneline -10`: je Zeile `<hash>` <message>>
 
 ## Known Issues
-<TODO/FIXME mit file:line — Abschnitt weglassen wenn keine gefunden>
+<TODO/FIXME mit file:line — Abschnitt weglassen wenn keine gefunden> (aus grep-Ausgabe Schritt 1)
 
 ## Was als nächstes kommt
 <Leer lassen — wird manuell gepflegt>
