@@ -24,6 +24,7 @@ func main() {
 	root.AddCommand(newUpdateCmd())
 	root.AddCommand(newListCmd())
 	root.AddCommand(newDescribeCmd())
+	root.AddCommand(newConfigCmd())
 	root.AddCommand(newHookCmd())
 	if err := root.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
