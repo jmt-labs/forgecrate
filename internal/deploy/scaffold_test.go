@@ -11,9 +11,15 @@ func TestScaffoldMemoryBank_CreatesFiles(t *testing.T) {
 	dst := t.TempDir()
 
 	srcMB := filepath.Join(src, "base", "memory-bank")
-	os.MkdirAll(srcMB, 0755)
-	os.WriteFile(filepath.Join(srcMB, "projectbrief.md"), []byte("# Project Brief\n"), 0644)
-	os.WriteFile(filepath.Join(srcMB, "techContext.md"), []byte("# Tech Context\n"), 0644)
+	if err := os.MkdirAll(srcMB, 0755); err != nil {
+		t.Fatalf("MkdirAll: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(srcMB, "projectbrief.md"), []byte("# Project Brief\n"), 0644); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(srcMB, "techContext.md"), []byte("# Tech Context\n"), 0644); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
 
 	if err := scaffoldMemoryBank(src, dst); err != nil {
 		t.Fatalf("scaffoldMemoryBank: %v", err)
@@ -32,12 +38,20 @@ func TestScaffoldMemoryBank_DoesNotOverwriteExisting(t *testing.T) {
 	dst := t.TempDir()
 
 	srcMB := filepath.Join(src, "base", "memory-bank")
-	os.MkdirAll(srcMB, 0755)
-	os.WriteFile(filepath.Join(srcMB, "projectbrief.md"), []byte("template\n"), 0644)
+	if err := os.MkdirAll(srcMB, 0755); err != nil {
+		t.Fatalf("MkdirAll: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(srcMB, "projectbrief.md"), []byte("template\n"), 0644); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
 
 	dstMB := filepath.Join(dst, "memory-bank")
-	os.MkdirAll(dstMB, 0755)
-	os.WriteFile(filepath.Join(dstMB, "projectbrief.md"), []byte("custom content\n"), 0644)
+	if err := os.MkdirAll(dstMB, 0755); err != nil {
+		t.Fatalf("MkdirAll: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(dstMB, "projectbrief.md"), []byte("custom content\n"), 0644); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
 
 	if err := scaffoldMemoryBank(src, dst); err != nil {
 		t.Fatalf("scaffoldMemoryBank: %v", err)
