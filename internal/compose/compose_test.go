@@ -86,6 +86,38 @@ func TestComposeRunSkipsSettingsWhenFlagSet(t *testing.T) {
 	}
 }
 
+func TestComposeNoResearchFlavorAppended(t *testing.T) {
+	src := t.TempDir()
+	dst := t.TempDir()
+
+	writeFile(t, src, "base/CLAUDE.md", "# Base\n## Recherche-Pflicht beim Planen\nPflicht.")
+	writeFile(t, src, "base/.claude/settings.json", `{"permissions":{"allow":["Bash"]}}`)
+	writeFile(t, src, "profiles/backend/CLAUDE.md", "## Backend")
+	writeFile(t, src, "flavors/no-research/CLAUDE.md", "## No-Research-Flavor (Opt-out)\nDeaktiviert.")
+
+	req := compose.Request{
+		SourceDir: src,
+		DestDir:   dst,
+		Profile:   "backend",
+		Flavors:   []string{"no-research"},
+	}
+	if err := compose.Run(req); err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+
+	data, err := os.ReadFile(filepath.Join(dst, "CLAUDE.md"))
+	if err != nil {
+		t.Fatalf("read CLAUDE.md: %v", err)
+	}
+	content := string(data)
+	if !strings.Contains(content, "Recherche-Pflicht beim Planen") {
+		t.Errorf("expected base research mandate in output, got: %s", content)
+	}
+	if !strings.Contains(content, "No-Research-Flavor (Opt-out)") {
+		t.Errorf("expected no-research opt-out block in output, got: %s", content)
+	}
+}
+
 func writeFile(t *testing.T, base, rel, content string) {
 	t.Helper()
 	path := filepath.Join(base, filepath.FromSlash(rel))

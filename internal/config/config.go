@@ -15,6 +15,15 @@ type Config struct {
 	DeployedFiles map[string]string `yaml:"deployed_files,omitempty"`
 }
 
+func (c Config) HasFlavor(name string) bool {
+	for _, f := range c.Flavors {
+		if f == name {
+			return true
+		}
+	}
+	return false
+}
+
 func Read(path string) (Config, error) {
 	f, err := os.Open(path)
 	if err != nil {

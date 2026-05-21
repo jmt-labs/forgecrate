@@ -117,3 +117,41 @@ func TestPromptSubmitOutput_ContainsSkillsLine(t *testing.T) {
 		t.Errorf("expected 'brainstorming' in output, got: %s", out)
 	}
 }
+
+func TestPromptSubmitOutput_ResearchReminderDefault(t *testing.T) {
+	dir := t.TempDir()
+	writeYAML(t, dir, "profile: backend\nflavors:\n  - tdd\n")
+	out, err := promptSubmitOutput(dir)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !strings.Contains(out, "Recherche beim Planen") {
+		t.Errorf("expected research reminder by default, got: %s", out)
+	}
+	if !strings.Contains(out, "WebSearch") {
+		t.Errorf("expected 'WebSearch' in reminder, got: %s", out)
+	}
+}
+
+func TestPromptSubmitOutput_ResearchReminderOptOut(t *testing.T) {
+	dir := t.TempDir()
+	writeYAML(t, dir, "profile: backend\nflavors:\n  - tdd\n  - no-research\n")
+	out, err := promptSubmitOutput(dir)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if strings.Contains(out, "Recherche beim Planen") {
+		t.Errorf("research reminder must NOT appear when no-research flavor is active, got: %s", out)
+	}
+}
+
+func TestPromptSubmitOutput_ResearchReminderMissingConfig(t *testing.T) {
+	dir := t.TempDir()
+	out, err := promptSubmitOutput(dir)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !strings.Contains(out, "Recherche beim Planen") {
+		t.Errorf("expected research reminder when config is missing (default on), got: %s", out)
+	}
+}
