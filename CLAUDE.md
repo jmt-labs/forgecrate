@@ -1,6 +1,3 @@
-<!-- HINWEIS: Diese Datei (Root-CLAUDE.md) wird MANUELL gepflegt und ist kein generierter Output.
-     Sie überschreibt/ergänzt die Inhalte aus base/CLAUDE.md für dieses Repository.
-     base/CLAUDE.md wird bei `forgecrate update` neu generiert; diese Datei bleibt unverändert. -->
 <!-- GENERATED:BEGIN -->
 # Claude-Konfiguration
 
@@ -41,6 +38,10 @@ Beim Session-Start: `ls HANDOFF.md 2>/dev/null` ausführen. Falls vorhanden: Dat
 - YAGNI: keine ungefragten Features
 - Änderungen immer über Branch + PR, nie direkt auf `main`
 
+## Hook-Schutz: Hinweis
+
+Der `pre-tool.sh`-Hook blockt destruktive Bash-Befehle auf `main` (z. B. `git commit`, `git push`, `git reset --hard`, Schreib-Redirectionen). Er ist jedoch **keine alleinige Schutzschicht** — GitHub Branch Protection Rules müssen zusätzlich konfiguriert werden, damit direkte Pushes auch serverseitig verhindert werden.
+
 ## Konfliktbehandlung beim Deploy (`forgecrate update`)
 
 Ein Konflikt entsteht nur, wenn **beides** gleichzeitig zutrifft: die lokale Datei wurde seit dem letzten Deploy geändert, **und** die neue Upstream-Version unterscheidet sich von der lokalen Version. Stimmt die lokale Änderung zufällig mit dem Upstream überein, wird kein Konflikt ausgelöst.
@@ -53,12 +54,14 @@ Das Tool zeigt bei einem echten Konflikt:
 KONFLIKT: .claude/settings.json
   Deine Version: <erste Zeile der lokalen Datei, max. 80 Zeichen>
   Neue Version:  <erste Zeile des Upstream>
-  [o]verwrite / [k]eep (Standard: behalten):
+  [o]verwrite / [k]eep (default: keep):
 ```
 
 **Entscheidung:**
-- `o` (overwrite) — Upstream-Version übernehmen, lokale Änderungen gehen verloren; alternativ `ü` oder `u` (Rückwärtskompatibilität)
-- `k` oder Enter — Lokale Version behalten, Upstream-Update wird übersprungen; der Hash der lokalen Version wird als neue Basis gespeichert — beim nächsten Update entsteht erneut ein Konflikt, falls Upstream sich weiter ändert; alternativ `b` (Rückwärtskompatibilität)
+- `o` — Upstream-Version übernehmen, lokale Änderungen gehen verloren
+- `k` oder Enter — Lokale Version behalten, Upstream-Update wird übersprungen; der Hash der lokalen Version wird als neue Basis gespeichert — beim nächsten Update entsteht erneut ein Konflikt, falls Upstream sich weiter ändert
+- `ü` oder `u` — wie `o` (Backwards-Kompatibilität)
+- `b` — wie `k` (Backwards-Kompatibilität)
 
 **Faustregel:**
 - Für `settings.json` und CLAUDE.md: Overrides in die CUSTOM-Sektion auslagern
@@ -132,6 +135,23 @@ Projektübergreifendes Wissen persistent speichern. Datei: `.claude/memory.json`
 
 **Niemals speichern:** API-Keys, Tokens, Passwörter, temporärer Zwischenstand, Code-Details die direkt aus dem Code lesbar sind.
 
+### Memory Bank (`memory-bank`)
+
+Team-geteilter Projektkontext. Verzeichnis: `./memory-bank/` (versioniert, committed).
+
+**Dateien:**
+- `projectbrief.md` — Was & Warum des Projekts
+- `activeContext.md` — Aktueller Fokus, offene Fragen, Blocker
+- `progress.md` — Was fertig ist, was läuft, was als nächstes kommt
+- `systemPatterns.md` — Architektur-Entscheidungen, ADRs, Anti-Patterns
+- `techContext.md` — Stack, Tools, technische Constraints
+
+**Schreiben:** Wenn sich Fokus, Fortschritt oder Architektur-Kontext ändert.
+
+**Lesen:** Am Session-Start, um den aktuellen Team-Kontext zu verstehen.
+
+**Abgrenzung zu `memory`:** `memory-bank` ist für laufenden Projekt-Kontext (was passiert gerade). `memory` (`.claude/memory.json`) ist für zeitlose Architektur-Entscheidungen mit Begründung.
+
 ### Context Mode (`context-mode`)
 
 Sandboxt Tool-Output automatisch — kein expliziter Aufruf nötig.
@@ -151,6 +171,10 @@ Aktuelle Bibliotheks-Dokumentation direkt aus den Source-Repositories abrufen. A
 **Verwende es NICHT für:** GitHub-Inhalte (→ github MCP), lokale Dateien (→ Read), allgemeine Programmierkonzepte.
 
 **Keine Konfiguration nötig** — wird beim ersten `forgecrate init/update` automatisch als Projekt-MCP-Server eingerichtet.
+
+## MCP-Konfiguration: Single Source of Truth
+
+Die Datei `.mcp.json` wird aus `base/extensions.yaml` generiert — `base/extensions.yaml` ist die Quelle der Wahrheit für MCP-Server-Konfigurationen (inkl. Umgebungsvariablen wie `MEMORY_FILE_PATH`, `MEMORY_BANK_ROOT`). Änderungen immer dort vornehmen, nicht direkt in `.mcp.json`.
 
 ## Backend-Profil
 
