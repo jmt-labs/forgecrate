@@ -14,10 +14,14 @@ import (
 func TestPatchPermissionMode(t *testing.T) {
 	dir := t.TempDir()
 	settingsDir := filepath.Join(dir, ".claude")
-	os.MkdirAll(settingsDir, 0755)
+	if err := os.MkdirAll(settingsDir, 0755); err != nil {
+		t.Fatalf("MkdirAll: %v", err)
+	}
 
 	initial := `{"model":"claude-sonnet-4-6","permissions":{"allow":["Bash"]}}` + "\n"
-	os.WriteFile(filepath.Join(settingsDir, "settings.json"), []byte(initial), 0644)
+	if err := os.WriteFile(filepath.Join(settingsDir, "settings.json"), []byte(initial), 0644); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
 
 	cfg := config.Config{
 		DeployedFiles: map[string]string{".claude/settings.json": "sha256:old"},
@@ -27,9 +31,14 @@ func TestPatchPermissionMode(t *testing.T) {
 		t.Fatalf("PatchPermissionMode: %v", err)
 	}
 
-	data, _ := os.ReadFile(filepath.Join(settingsDir, "settings.json"))
+	data, err := os.ReadFile(filepath.Join(settingsDir, "settings.json"))
+	if err != nil {
+		t.Fatalf("ReadFile: %v", err)
+	}
 	var m map[string]any
-	json.Unmarshal(data, &m)
+	if err := json.Unmarshal(data, &m); err != nil {
+		t.Fatalf("Unmarshal: %v", err)
+	}
 
 	if m["permissionMode"] != "bypass" {
 		t.Errorf("permissionMode: got %v, want bypass", m["permissionMode"])
@@ -45,10 +54,14 @@ func TestPatchPermissionMode(t *testing.T) {
 func TestPatchPermissionModeRemovesKey(t *testing.T) {
 	dir := t.TempDir()
 	settingsDir := filepath.Join(dir, ".claude")
-	os.MkdirAll(settingsDir, 0755)
+	if err := os.MkdirAll(settingsDir, 0755); err != nil {
+		t.Fatalf("MkdirAll: %v", err)
+	}
 
 	initial := `{"permissionMode":"bypass","model":"claude-sonnet-4-6"}` + "\n"
-	os.WriteFile(filepath.Join(settingsDir, "settings.json"), []byte(initial), 0644)
+	if err := os.WriteFile(filepath.Join(settingsDir, "settings.json"), []byte(initial), 0644); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
 
 	cfg := config.Config{}
 	if err := deploy.PatchPermissionMode(dir, "", &cfg); err != nil {

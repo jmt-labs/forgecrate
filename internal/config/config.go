@@ -35,6 +35,15 @@ func (c Config) Validate() error {
 	return nil
 }
 
+func (c Config) HasFlavor(name string) bool {
+	for _, f := range c.Flavors {
+		if f == name {
+			return true
+		}
+	}
+	return false
+}
+
 func Read(path string) (Config, error) {
 	f, err := os.Open(path)
 	if err != nil {
@@ -56,11 +65,11 @@ func Write(path string, cfg Config) error {
 	}
 	enc := yaml.NewEncoder(f)
 	if err := enc.Encode(cfg); err != nil {
-		f.Close()
+		_ = f.Close()
 		return err
 	}
 	if err := enc.Close(); err != nil {
-		f.Close()
+		_ = f.Close()
 		return err
 	}
 	return f.Close()

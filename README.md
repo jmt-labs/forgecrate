@@ -242,6 +242,14 @@ Enables continuous learning across sessions: reads `.claude/GETBETTER.md` at ses
 
 Adds GitHub-specific workflow rules: releases via `gh release create`, CI status checks before tagging, and proactive parallelization for multi-step GitHub tasks.
 
+### `no-research` — Opt-out from research mandate
+
+Disables the default research mandate from the base layer. By default, planning roles
+(Analyst, Tech Lead, Debugger, Reviewer) must use WebSearch / context7 / fetch before
+producing a plan. Enable this flavor for air-gapped repositories, strict compliance
+environments, or projects with purely internal logic where external research is not
+applicable.
+
 ---
 
 ## CLI reference

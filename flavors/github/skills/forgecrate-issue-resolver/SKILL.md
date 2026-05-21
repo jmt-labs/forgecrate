@@ -1,5 +1,5 @@
 ---
-name: issue-resolver
+name: forgecrate-issue-resolver
 description: Use when starting autonomous end-to-end work on a GitHub issue — from first analysis to a merge-ready pull request, without interrupting the user.
 ---
 

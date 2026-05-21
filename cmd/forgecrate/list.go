@@ -19,7 +19,7 @@ func newListCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			defer os.RemoveAll(srcDir)
+			defer func() { _ = os.RemoveAll(srcDir) }()
 
 			fmt.Println("Fetching jmt-labs/forgecrate@main ...")
 			client := gh.Default()

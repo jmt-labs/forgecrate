@@ -77,3 +77,18 @@ import "github.com/jmt-labs/forgecrate/internal/..."
 ## GitHub repository
 
 The repository URL changes to `https://github.com/jmt-labs/forgecrate` after the admin rename step. GitHub automatically redirects `https://github.com/jmt-labs/claude-setup` — existing clone URLs continue to work.
+
+## mem0 → memory-bank (ab Version X.Y)
+
+forgecrate uses `@allpepper/memory-bank-mcp` instead of mem0.
+
+**Manual steps after `forgecrate update`:**
+
+1. Disable mem0 plugin in Claude Code:
+   - Open Claude Code → Settings → Plugins → disable `mem0`
+   - Or in `~/.claude/settings.json`: set `"mem0@mem0-plugins": false`
+
+2. Populate `memory-bank/` files with your project context
+   (Seed files with empty sections are already provided)
+
+**Existing memory.json remains unchanged** — it continues to be used for cross-project architecture decisions.

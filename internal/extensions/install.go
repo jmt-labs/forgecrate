@@ -33,13 +33,13 @@ func (i Installer) Install(ext Extensions) error {
 		if cmdOut, err := cmd.CombinedOutput(); err != nil {
 			msg := string(cmdOut)
 			if strings.Contains(msg, "not found in any configured marketplace") {
-				fmt.Fprintf(out, "❌ plugin:%s  (not found in marketplace)\n", p.Name)
+				_, _ = fmt.Fprintf(out, "❌ plugin:%s  (not found in marketplace)\n", p.Name)
 				return fmt.Errorf("plugin %s not found in marketplace: %w", p.Name, err)
 			}
-			fmt.Fprintf(out, "❌ plugin:%s  (%v)\n", p.Name, err)
+			_, _ = fmt.Fprintf(out, "❌ plugin:%s  (%v)\n", p.Name, err)
 			return fmt.Errorf("plugin install %s: %w", p.Name, err)
 		}
-		fmt.Fprintf(out, "✅ plugin:%s\n", p.Name)
+		_, _ = fmt.Fprintf(out, "✅ plugin:%s\n", p.Name)
 	}
 
 	return nil
