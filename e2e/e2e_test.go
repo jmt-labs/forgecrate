@@ -70,7 +70,9 @@ func TestInitIsIdempotent(t *testing.T) {
 	customized := strings.Replace(string(content),
 		"<!-- CUSTOM:BEGIN -->\n<!-- CUSTOM:END -->",
 		"<!-- CUSTOM:BEGIN -->\n# Mein Custom\n<!-- CUSTOM:END -->", 1)
-	os.WriteFile(claudeMD, []byte(customized), 0644)
+	if err := os.WriteFile(claudeMD, []byte(customized), 0644); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
 
 	if err := deploy.Run(localSource(t), dst, cfg); err != nil {
 		t.Fatalf("second run: %v", err)
@@ -97,9 +99,13 @@ func TestUpdatePreservesOverrides(t *testing.T) {
 	}
 
 	overridesDir := filepath.Join(dst, ".claude", "commands", "overrides")
-	os.MkdirAll(overridesDir, 0755)
+	if err := os.MkdirAll(overridesDir, 0755); err != nil {
+		t.Fatalf("MkdirAll: %v", err)
+	}
 	overrideSkill := filepath.Join(overridesDir, "my-skill.md")
-	os.WriteFile(overrideSkill, []byte("# My Skill"), 0644)
+	if err := os.WriteFile(overrideSkill, []byte("# My Skill"), 0644); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
 
 	if err := deploy.Run(localSource(t), dst, cfg); err != nil {
 		t.Fatalf("update: %v", err)

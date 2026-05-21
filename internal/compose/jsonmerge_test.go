@@ -43,7 +43,9 @@ func TestDeepMergeJSONEmpty(t *testing.T) {
 		t.Fatalf("DeepMergeJSON: %v", err)
 	}
 	var m map[string]any
-	json.Unmarshal([]byte(result), &m)
+	if err := json.Unmarshal([]byte(result), &m); err != nil {
+		t.Fatalf("Unmarshal: %v", err)
+	}
 	if m["a"] != float64(1) {
 		t.Errorf("a: got %v", m["a"])
 	}

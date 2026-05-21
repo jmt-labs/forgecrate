@@ -55,14 +55,26 @@ func TestRunInstallsExtensions(t *testing.T) {
 	argsFile := filepath.Join(claudeDir, "calls.txt")
 	fakeClaude := filepath.Join(claudeDir, "claude")
 	script := fmt.Sprintf("#!/bin/sh\necho \"$@\" >> %s\n", argsFile)
-	os.WriteFile(fakeClaude, []byte(script), 0755)
+	if err := os.WriteFile(fakeClaude, []byte(script), 0755); err != nil {
+		t.Fatalf("WriteFile fakeClaude: %v", err)
+	}
 
 	baseDir := filepath.Join(src, "base")
-	os.MkdirAll(baseDir, 0755)
-	os.WriteFile(filepath.Join(baseDir, "CLAUDE.md"), []byte("<!-- GENERATED:BEGIN -->\n# Claude\n<!-- GENERATED:END -->\n<!-- CUSTOM:BEGIN -->\n<!-- CUSTOM:END -->\n"), 0644)
-	os.MkdirAll(filepath.Join(baseDir, ".claude"), 0755)
-	os.WriteFile(filepath.Join(baseDir, ".claude", "settings.json"), []byte(`{"model":"claude-sonnet-4-6"}`), 0644)
-	os.WriteFile(filepath.Join(baseDir, "extensions.yaml"), []byte("plugins:\n  - name: superpowers\n    source: claude-plugins-official/superpowers\n"), 0644)
+	if err := os.MkdirAll(baseDir, 0755); err != nil {
+		t.Fatalf("MkdirAll baseDir: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(baseDir, "CLAUDE.md"), []byte("<!-- GENERATED:BEGIN -->\n# Claude\n<!-- GENERATED:END -->\n<!-- CUSTOM:BEGIN -->\n<!-- CUSTOM:END -->\n"), 0644); err != nil {
+		t.Fatalf("WriteFile CLAUDE.md: %v", err)
+	}
+	if err := os.MkdirAll(filepath.Join(baseDir, ".claude"), 0755); err != nil {
+		t.Fatalf("MkdirAll .claude: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(baseDir, ".claude", "settings.json"), []byte(`{"model":"claude-sonnet-4-6"}`), 0644); err != nil {
+		t.Fatalf("WriteFile settings.json: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(baseDir, "extensions.yaml"), []byte("plugins:\n  - name: superpowers\n    source: claude-plugins-official/superpowers\n"), 0644); err != nil {
+		t.Fatalf("WriteFile extensions.yaml: %v", err)
+	}
 
 	cfg := config.Config{Profile: "backend"}
 	if err := deploy.RunWithClaude(src, dst, cfg, fakeClaude, io.Discard, strings.NewReader("")); err != nil {
@@ -155,10 +167,18 @@ func TestCopySkillsProfileAndFlavor(t *testing.T) {
 func setupMinimalSource(t *testing.T, src string) {
 	t.Helper()
 	settingsDir := filepath.Join(src, "base", ".claude")
-	os.MkdirAll(settingsDir, 0755)
-	os.WriteFile(filepath.Join(settingsDir, "settings.json"), []byte(`{"model":"claude-sonnet-4-6"}`), 0644)
-	os.MkdirAll(filepath.Join(src, "base"), 0755)
-	os.WriteFile(filepath.Join(src, "base", "CLAUDE.md"), []byte("# Base\n<!-- CUSTOM:BEGIN -->\n<!-- CUSTOM:END -->\n"), 0644)
+	if err := os.MkdirAll(settingsDir, 0755); err != nil {
+		t.Fatalf("MkdirAll: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(settingsDir, "settings.json"), []byte(`{"model":"claude-sonnet-4-6"}`), 0644); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
+	if err := os.MkdirAll(filepath.Join(src, "base"), 0755); err != nil {
+		t.Fatalf("MkdirAll: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(src, "base", "CLAUDE.md"), []byte("# Base\n<!-- CUSTOM:BEGIN -->\n<!-- CUSTOM:END -->\n"), 0644); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
 }
 
 func TestDeployTracksSettingsHash(t *testing.T) {
@@ -234,10 +254,14 @@ func TestDeployConflictIsShown(t *testing.T) {
 
 	// Nutzer ändert die Datei lokal
 	settingsPath := filepath.Join(dst, ".claude", "settings.json")
-	os.WriteFile(settingsPath, []byte(`{"model":"user-modified"}`), 0644)
+	if err := os.WriteFile(settingsPath, []byte(`{"model":"user-modified"}`), 0644); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
 
 	// Upstream bekommt eine andere Änderung
-	os.WriteFile(filepath.Join(src, "base", ".claude", "settings.json"), []byte(`{"model":"upstream-update"}`), 0644)
+	if err := os.WriteFile(filepath.Join(src, "base", ".claude", "settings.json"), []byte(`{"model":"upstream-update"}`), 0644); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
 
 	// Zweiter Deploy: Konflikt erwartet — Nutzer wählt "behalten"
 	cfg2, _ := config.Read(filepath.Join(dst, ".forgecrate.yaml"))
@@ -272,8 +296,12 @@ func TestDeployConflictOverwriteReplacesFile(t *testing.T) {
 	}
 
 	settingsPath := filepath.Join(dst, ".claude", "settings.json")
-	os.WriteFile(settingsPath, []byte(`{"model":"user-modified"}`), 0644)
-	os.WriteFile(filepath.Join(src, "base", ".claude", "settings.json"), []byte(`{"model":"upstream-update"}`), 0644)
+	if err := os.WriteFile(settingsPath, []byte(`{"model":"user-modified"}`), 0644); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(src, "base", ".claude", "settings.json"), []byte(`{"model":"upstream-update"}`), 0644); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
 
 	cfg2, _ := config.Read(filepath.Join(dst, ".forgecrate.yaml"))
 	if err := deploy.RunWithClaude(src, dst, cfg2, "claude", io.Discard, strings.NewReader("ü\n")); err != nil {
@@ -301,8 +329,12 @@ func TestDeployConflictEmptyInputKeepsUserFile(t *testing.T) {
 	}
 
 	settingsPath := filepath.Join(dst, ".claude", "settings.json")
-	os.WriteFile(settingsPath, []byte(`{"model":"user-modified"}`), 0644)
-	os.WriteFile(filepath.Join(src, "base", ".claude", "settings.json"), []byte(`{"model":"upstream-update"}`), 0644)
+	if err := os.WriteFile(settingsPath, []byte(`{"model":"user-modified"}`), 0644); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(src, "base", ".claude", "settings.json"), []byte(`{"model":"upstream-update"}`), 0644); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
 
 	cfg2, _ := config.Read(filepath.Join(dst, ".forgecrate.yaml"))
 	if err := deploy.RunWithClaude(src, dst, cfg2, "claude", io.Discard, strings.NewReader("\n")); err != nil {
