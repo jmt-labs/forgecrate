@@ -43,7 +43,7 @@ Tool: `memory_bank_write` mit `file_name: "progress.md"` und folgendem Inhalt:
 # Progress
 
 ## Recent Activity
-<letzte 5–10 Commits: `<hash>` <message>>
+<Ausgabe von `git log --oneline -10`: je Zeile `<hash>` <message>>
 
 ## Known Issues
 <TODO/FIXME mit file:line — Abschnitt weglassen wenn keine gefunden>
