@@ -29,9 +29,13 @@ func TestSetPermissionModeRoundtrip(t *testing.T) {
 	}
 
 	settingsDir := filepath.Join(dir, ".claude")
-	os.MkdirAll(settingsDir, 0755)
-	os.WriteFile(filepath.Join(settingsDir, "settings.json"),
-		[]byte(`{"model":"claude-sonnet-4-6"}`+"\n"), 0644)
+	if err := os.MkdirAll(settingsDir, 0755); err != nil {
+		t.Fatalf("MkdirAll: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(settingsDir, "settings.json"),
+		[]byte(`{"model":"claude-sonnet-4-6"}`+"\n"), 0644); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
 
 	if err := deploy.PatchPermissionMode(dir, "bypass", &cfg); err != nil {
 		t.Fatalf("PatchPermissionMode: %v", err)

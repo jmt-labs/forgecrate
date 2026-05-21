@@ -6,6 +6,7 @@ flavors:
     - strict-review
     - tdd
 deployed_files:
-    .claude/hooks/pre-tool.sh: sha256:ad5a7932211d43dda7785ce55c5cac38517a11cc5def59ffd41f988690764fed
-    .claude/hooks/prompt-submit.sh: sha256:7d64a6643c4600023fe82eddacc008f770be448d866bb21e7bb70287526e6f01
-    .claude/settings.json: sha256:92aef9f365c8993740ccaa2ff8cdd57b9403f99cc9934d83654591c66101a00f
+    .claude/hooks/pre-tool-test.sh: sha256:3fd062c0d9c7bab72a682d33556e2e20490bb30803d985d693b4d564e9135138
+    .claude/hooks/pre-tool.sh: sha256:759e2ade5b5be8ab43ed6a8a2e2fdecf96a7241a914bd1cffa1871248f93fceb
+    .claude/hooks/prompt-submit.sh: sha256:549ec91e851c61693dbbd52b7c3dcf051cc461bf2218c7c02d0e029558172708
+    .claude/settings.json: sha256:891d6f7baa56f82a94ee2fff1b84396fc82431a9ab4a0feb16f29f2a58527cbe

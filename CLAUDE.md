@@ -15,6 +15,23 @@ Eigene Anpassungen gehören in den CUSTOM-Abschnitt.
 | Debug | `superpowers:systematic-debugging` | MUSS vor Fix aufgerufen werden |
 | Bug gefunden (nach Debug) | `superpowers:test-driven-development` | Regressionstest schreiben, BEVOR der Fix committed wird |
 
+## Recherche-Pflicht beim Planen
+
+Planungs-Rollen (Analyst, Tech Lead, Debugger, Reviewer) MÜSSEN vor jedem Plan mindestens
+ein Recherche-Tool nutzen. Raten ist verboten — Quellen werden im Plan referenziert.
+
+| Frage-Typ | Tool | Beispiele |
+|---|---|---|
+| Library-/Framework-Doku | `context7` | API-Syntax, Migrationen, Versions-Updates |
+| Spezifische URL aus Issue/Ticket | `fetch` MCP | RFCs, MDN, Changelogs |
+| Allgemeine Web-Recherche | `WebSearch` | Best Practices, Vergleiche, aktuelle Probleme |
+
+**Regeln:**
+- Mindestens eine Quelle pro nicht-trivialer Planungsentscheidung
+- Quellen im Plan-Dokument (`docs/superpowers/plans/*.md`) referenzieren
+- Bei reinen mechanischen Tasks (Rename, Typo, einzeiliger Fix) entfällt die Pflicht
+- Deaktivierbar via Flavor `no-research` (siehe `flavors/no-research/`)
+
 ## Entwicklungs-Workflow
 
 Für alle Features, Bugfixes und Änderungen:
@@ -75,15 +92,15 @@ Der Hauptagent kann bei Bedarf eigenständig von diesen Empfehlungen abweichen.
 <!-- Modell-IDs werden zentral in base/models.yaml verwaltet. -->
 <!-- Beim Upgrade: nur base/models.yaml ändern, dann forgecrate update ausführen. -->
 
-| Rolle | Superpowers-Skill | Modell | Effort |
-|---|---|---|---|
-| Analyst / Product Owner | `superpowers:brainstorming` | `claude-opus-4-7` (models.planning) | high |
-| Tech Lead / Architekt | `superpowers:writing-plans` | `claude-opus-4-7` (models.planning) | high |
-| Entwickler | `superpowers:test-driven-development` | `claude-sonnet-4-6` (models.default) | medium |
-| Implementierer (mechanisch) | `superpowers:subagent-driven-development` | `claude-haiku-4-5-20251001` (models.mechanical) | low |
-| Reviewer | `superpowers:requesting-code-review` | `claude-sonnet-4-6` (models.review) | medium |
-| QA / Abschluss | `superpowers:verification-before-completion` | `claude-sonnet-4-6` (models.review) | medium |
-| Debugger | `superpowers:systematic-debugging` | `claude-sonnet-4-6` (models.default) | medium |
+| Rolle | Superpowers-Skill | Modell | Effort | Recherche |
+|---|---|---|---|---|
+| Analyst / Product Owner | `superpowers:brainstorming` | `claude-opus-4-7` (models.planning) | high | Pflicht |
+| Tech Lead / Architekt | `superpowers:writing-plans` | `claude-opus-4-7` (models.planning) | high | Pflicht |
+| Entwickler | `superpowers:test-driven-development` | `claude-sonnet-4-6` (models.default) | medium | optional |
+| Implementierer (mechanisch) | `superpowers:subagent-driven-development` | `claude-haiku-4-5-20251001` (models.mechanical) | low | nein |
+| Reviewer | `superpowers:requesting-code-review` | `claude-sonnet-4-6` (models.review) | medium | Pflicht bei Architektur-Fragen |
+| QA / Abschluss | `superpowers:verification-before-completion` | `claude-sonnet-4-6` (models.review) | medium | nein |
+| Debugger | `superpowers:systematic-debugging` | `claude-sonnet-4-6` (models.default) | medium | Pflicht (CVE, Lib-Issues, Stack-Overflow) |
 
 ## Parallelisierung & Isolation
 
