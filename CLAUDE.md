@@ -234,6 +234,10 @@ Die Datei `.mcp.json` wird aus `base/extensions.yaml` generiert — `base/extens
 - Test-Namen beschreiben Verhalten, nicht Implementierung
 - Mocks nur an Systemgrenzen (externe APIs, Datenbanken)
 - Für jeden gefundenen Bug: Regressionstest vor dem Fix
+
+## Projektkontext
+
+Nutze den `memory-bank` MCP-Server um den aktuellen Projektkontext zu lesen.
 <!-- GENERATED:END -->
 
 <!-- CUSTOM:BEGIN -->

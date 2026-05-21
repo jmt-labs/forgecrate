@@ -2,12 +2,14 @@
 
 ## Stack
 
-- **Sprache:** Go 1.24.2
+- **Sprache:** Go 1.24 | **Einstiegspunkt:** `cmd/forgecrate/main.go`
 - **CLI-Framework:** [Cobra](https://github.com/spf13/cobra) v1.10.2
 - **TUI/Forms:** [Charmbracelet Huh](https://github.com/charmbracelet/huh) v1.0.0 (interaktive Prompts)
 - **YAML-Parsing:** `gopkg.in/yaml.v3`
 - **Hashing:** `github.com/mitchellh/hashstructure/v2` (für Konflikt-Erkennung)
 - **Konfigurationsformat:** `.forgecrate.yaml` im Ziel-Repo
+
+forgecrate installiert eine reproduzierbare Claude Code-Konfiguration in beliebige Git-Repositories. Ein einziges Binary lädt Profile, Flavors, Hooks, Skills und MCP-Server-Definitionen von GitHub und schreibt sie per Layering-System ins Ziel-Repo.
 
 ## Tools & Infrastruktur
 

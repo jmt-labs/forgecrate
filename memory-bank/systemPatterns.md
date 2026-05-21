@@ -16,6 +16,26 @@
 - **Integrationstests bevorzugt:** Tests schreiben in temporäre Verzeichnisse und prüfen Datei-Output, statt Mocks zu verwenden
 - **YAML als Konfigurationsformat:** Sowohl für `.forgecrate.yaml` als auch für Profil/Flavor-Definitionen
 
+## Verzeichnisstruktur
+
+| Pfad | Zweck |
+|---|---|
+| `cmd/forgecrate/` | CLI-Entry-Points (cobra commands) |
+| `internal/config/` | `.forgecrate.yaml` lesen/schreiben |
+| `internal/deploy/` | Profil+Flavor nach Ziel-Repo deployen |
+| `internal/compose/` | Layer-System: Markdown, JSON, Skills zusammenführen |
+| `internal/extensions/` | Plugin/Skill-Installation |
+| `internal/github/` | GitHub-Release-Download |
+| `base/` | Base-Layer: CLAUDE.md-Template, Hooks, Skills |
+| `profiles/` | Profil-Definitionen (backend, frontend, fullstack) |
+| `flavors/` | Flavor-Definitionen (tdd, strict-review, …) |
+| `e2e/` | End-to-End-Tests (brauchen `plugin install superpowers`) |
+
+## Externe Abhängigkeiten
+
+- GitHub API (Release-Download via `internal/github/`)
+- `claude` CLI-Binary (Laufzeit-Dependency für Extensions-Install)
+
 ## Anti-Patterns
 
 - Keine Raw-Queries oder unsichere Shellkonstrukte (kein `exec.Command` mit unkontrollierten Inputs)
