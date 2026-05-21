@@ -30,7 +30,7 @@ mcp:
     command: npx
     args: ["-y", "@allpepper/memory-bank-mcp"]
     env:
-      MEMORY_BANK_ROOT: "./memory-bank"
+      MEMORY_BANK_ROOT: "memory-bank"
 
   - name: context-mode
     command: npx
