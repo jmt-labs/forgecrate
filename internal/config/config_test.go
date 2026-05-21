@@ -119,3 +119,73 @@ func TestDeployedFilesOmittedWhenEmpty(t *testing.T) {
 		t.Error("deployed_files should be omitted when empty")
 	}
 }
+
+func TestPermissionModeRoundtrip(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, ".forgecrate.yaml")
+
+	want := config.Config{
+		Version:        "1.0",
+		Source:         "github.com/jmt-labs/forgecrate",
+		Ref:            "main",
+		Profile:        "backend",
+		Flavors:        []string{"tdd"},
+		PermissionMode: "bypass",
+	}
+
+	if err := config.Write(path, want); err != nil {
+		t.Fatalf("Write: %v", err)
+	}
+
+	got, err := config.Read(path)
+	if err != nil {
+		t.Fatalf("Read: %v", err)
+	}
+
+	if got.PermissionMode != want.PermissionMode {
+		t.Errorf("PermissionMode: got %q, want %q", got.PermissionMode, want.PermissionMode)
+	}
+}
+
+func TestPermissionModeOmittedWhenEmpty(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, ".forgecrate.yaml")
+
+	cfg := config.Config{Version: "1.0", Source: "s", Ref: "r", Profile: "p"}
+	if err := config.Write(path, cfg); err != nil {
+		t.Fatalf("Write: %v", err)
+	}
+
+	data, _ := os.ReadFile(path)
+	if strings.Contains(string(data), "permission_mode") {
+		t.Error("permission_mode should be omitted when empty")
+	}
+}
+
+func TestValidatePermissionMode(t *testing.T) {
+	for _, mode := range []string{"bypass", "plan", "ask", "auto"} {
+		if err := config.ValidatePermissionMode(mode); err != nil {
+			t.Errorf("mode %q should be valid, got %v", mode, err)
+		}
+	}
+	if err := config.ValidatePermissionMode("invalid"); err == nil {
+		t.Error("expected error for invalid mode")
+	}
+}
+
+func TestConfigValidate(t *testing.T) {
+	cfg := config.Config{PermissionMode: "bypass"}
+	if err := cfg.Validate(); err != nil {
+		t.Errorf("valid config: %v", err)
+	}
+
+	cfg.PermissionMode = "bad"
+	if err := cfg.Validate(); err == nil {
+		t.Error("expected error for invalid PermissionMode")
+	}
+
+	cfg.PermissionMode = ""
+	if err := cfg.Validate(); err != nil {
+		t.Errorf("empty PermissionMode should be valid: %v", err)
+	}
+}

@@ -26,6 +26,12 @@ mcp:
     env:
       MEMORY_FILE_PATH: ".claude/memory.json"
 
+  - name: memory-bank
+    command: npx
+    args: ["-y", "@allpepper/memory-bank-mcp"]
+    env:
+      MEMORY_BANK_ROOT: "memory-bank"
+
   - name: context-mode
     command: npx
     args: ["-y", "context-mode"]

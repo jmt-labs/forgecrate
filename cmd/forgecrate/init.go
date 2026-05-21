@@ -14,6 +14,7 @@ import (
 func newInitCmd() *cobra.Command {
 	var profile string
 	var flavors []string
+	var permissionMode string
 
 	cmd := &cobra.Command{
 		Use:     "init",
@@ -53,6 +54,14 @@ func newInitCmd() *cobra.Command {
 			if len(flavors) > 0 {
 				cfg.Flavors = flavors
 			}
+			if cmd.Flags().Changed("permission-mode") {
+				if err := config.ValidatePermissionMode(permissionMode); err != nil {
+					return err
+				}
+				cfg.PermissionMode = permissionMode
+			} else if cfg.PermissionMode == "" {
+				cfg.PermissionMode = "bypass"
+			}
 
 			owner, repo := "jmt-labs", "forgecrate"
 			fmt.Printf("Fetching %s/%s@%s ...\n", owner, repo, cfg.Ref)
@@ -83,5 +92,6 @@ func newInitCmd() *cobra.Command {
 	}
 	cmd.Flags().StringVar(&profile, "profile", "backend", "Profil (backend|frontend|fullstack)")
 	cmd.Flags().StringSliceVar(&flavors, "flavors", nil, "Flavors (tdd,strict-review,minimal)")
+	cmd.Flags().StringVar(&permissionMode, "permission-mode", "", "Agent-Berechtigungsmodus (bypass|plan|ask|auto)")
 	return cmd
 }
