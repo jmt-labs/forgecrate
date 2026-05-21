@@ -11,14 +11,8 @@ import (
 )
 
 func TestConfigInteractive_WritesUpdatedConfig(t *testing.T) {
-	dir := t.TempDir()
 	srcDir := t.TempDir()
 
-	if err := os.WriteFile(filepath.Join(dir, ".forgecrate.yaml"), []byte(
-		"version: \"1.0\"\nsource: github.com/jmt-labs/forgecrate\nref: main\nprofile: backend\nflavors:\n  - tdd\n",
-	), 0644); err != nil {
-		t.Fatal(err)
-	}
 	for _, p := range []string{"backend", "frontend", "fullstack"} {
 		if err := os.MkdirAll(filepath.Join(srcDir, "profiles", p), 0755); err != nil {
 			t.Fatal(err)
@@ -47,7 +41,7 @@ func TestConfigInteractive_WritesUpdatedConfig(t *testing.T) {
 		return "frontend", []string{"strict-review"}, nil
 	}
 
-	got, err := configInteractive(dir, srcDir, cfg, stub)
+	got, err := configInteractive(srcDir, cfg, stub)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -57,21 +51,9 @@ func TestConfigInteractive_WritesUpdatedConfig(t *testing.T) {
 	if !slices.Equal(got.Flavors, []string{"strict-review"}) {
 		t.Errorf("returned flavors = %v, want [strict-review]", got.Flavors)
 	}
-
-	written, err := config.Read(filepath.Join(dir, ".forgecrate.yaml"))
-	if err != nil {
-		t.Fatalf("read back config: %v", err)
-	}
-	if written.Profile != "frontend" {
-		t.Errorf("written profile = %q, want frontend", written.Profile)
-	}
-	if !slices.Equal(written.Flavors, []string{"strict-review"}) {
-		t.Errorf("written flavors = %v, want [strict-review]", written.Flavors)
-	}
 }
 
 func TestConfigInteractive_EmptyProfiles(t *testing.T) {
-	dir := t.TempDir()
 	srcDir := t.TempDir()
 	// Kein profiles/-Verzeichnis im srcDir
 
@@ -81,14 +63,13 @@ func TestConfigInteractive_EmptyProfiles(t *testing.T) {
 		return "", nil, nil
 	}
 
-	_, err := configInteractive(dir, srcDir, cfg, stub)
+	_, err := configInteractive(srcDir, cfg, stub)
 	if err == nil {
 		t.Fatal("expected error for empty profiles, got nil")
 	}
 }
 
 func TestConfigInteractive_PromptError(t *testing.T) {
-	dir := t.TempDir()
 	srcDir := t.TempDir()
 
 	if err := os.MkdirAll(filepath.Join(srcDir, "profiles", "backend"), 0755); err != nil {
@@ -103,7 +84,7 @@ func TestConfigInteractive_PromptError(t *testing.T) {
 		return "", nil, fmt.Errorf("abgebrochen")
 	}
 
-	_, err := configInteractive(dir, srcDir, cfg, stub)
+	_, err := configInteractive(srcDir, cfg, stub)
 	if err == nil {
 		t.Fatal("expected error from prompt, got nil")
 	}

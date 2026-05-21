@@ -14,7 +14,7 @@ import (
 
 type promptFn func(profiles, flavors []string, cur config.Config) (string, []string, error)
 
-func configInteractive(cwd, srcDir string, cfg config.Config, prompt promptFn) (config.Config, error) {
+func configInteractive(srcDir string, cfg config.Config, prompt promptFn) (config.Config, error) {
 	profiles, err := listDirs(filepath.Join(srcDir, "profiles"))
 	if err != nil {
 		return config.Config{}, fmt.Errorf("profile-Liste lesen: %w", err)
@@ -38,9 +38,6 @@ func configInteractive(cwd, srcDir string, cfg config.Config, prompt promptFn) (
 
 	cfg.Profile = newProfile
 	cfg.Flavors = newFlavors
-	if err := config.Write(filepath.Join(cwd, ".forgecrate.yaml"), cfg); err != nil {
-		return config.Config{}, fmt.Errorf("config schreiben: %w", err)
-	}
 	return cfg, nil
 }
 
@@ -109,7 +106,7 @@ func newConfigCmd() *cobra.Command {
 				return fmt.Errorf("download: %w", err)
 			}
 
-			updatedCfg, err := configInteractive(cwd, srcDir, cfg, huhPrompt)
+			updatedCfg, err := configInteractive(srcDir, cfg, huhPrompt)
 			if err != nil {
 				return err
 			}
