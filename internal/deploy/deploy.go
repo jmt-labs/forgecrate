@@ -99,10 +99,15 @@ func fileHash(path string) string {
 }
 
 func installExtensions(sourceDir, destDir string, cfg config.Config, claudeBin string, out io.Writer) error {
+	profileCfg := compose.LoadProfileConfig(sourceDir, cfg.Profile)
+
 	paths := []string{
 		filepath.Join(sourceDir, "base", "extensions.yaml"),
-		filepath.Join(sourceDir, "profiles", cfg.Profile, "extensions.yaml"),
 	}
+	for _, parent := range profileCfg.Extends {
+		paths = append(paths, filepath.Join(sourceDir, "profiles", parent, "extensions.yaml"))
+	}
+	paths = append(paths, filepath.Join(sourceDir, "profiles", cfg.Profile, "extensions.yaml"))
 	for _, flavor := range cfg.Flavors {
 		paths = append(paths, filepath.Join(sourceDir, "flavors", flavor, "extensions.yaml"))
 	}
@@ -127,10 +132,15 @@ func installExtensions(sourceDir, destDir string, cfg config.Config, claudeBin s
 }
 
 func copySkills(sourceDir, destDir string, cfg config.Config, out io.Writer) error {
+	profileCfg := compose.LoadProfileConfig(sourceDir, cfg.Profile)
+
 	dirs := []string{
 		filepath.Join(sourceDir, "base", "skills"),
-		filepath.Join(sourceDir, "profiles", cfg.Profile, "skills"),
 	}
+	for _, parent := range profileCfg.Extends {
+		dirs = append(dirs, filepath.Join(sourceDir, "profiles", parent, "skills"))
+	}
+	dirs = append(dirs, filepath.Join(sourceDir, "profiles", cfg.Profile, "skills"))
 	for _, flavor := range cfg.Flavors {
 		dirs = append(dirs, filepath.Join(sourceDir, "flavors", flavor, "skills"))
 	}

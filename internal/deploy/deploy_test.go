@@ -338,6 +338,40 @@ func TestCopyHooksStatErrorPropagates(t *testing.T) {
 	}
 }
 
+func TestRunInstallsExtensionsFromExtendsProfiles(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("shell script nicht unterstützt auf Windows")
+	}
+	src := t.TempDir()
+	dst := t.TempDir()
+
+	claudeDir := t.TempDir()
+	argsFile := filepath.Join(claudeDir, "calls.txt")
+	fakeClaude := filepath.Join(claudeDir, "claude")
+	script := fmt.Sprintf("#!/bin/sh\necho \"$@\" >> %s\n", argsFile)
+	_ = os.WriteFile(fakeClaude, []byte(script), 0755)
+
+	writeFile(t, src, "base/CLAUDE.md", "<!-- GENERATED:BEGIN -->\n# Base\n<!-- GENERATED:END -->\n<!-- CUSTOM:BEGIN -->\n<!-- CUSTOM:END -->\n")
+	writeFile(t, src, "base/.claude/settings.json", `{"model":"claude-sonnet-4-6"}`)
+	writeFile(t, src, "profiles/backend/extensions.yaml", "plugins:\n  - name: backend-plugin\n    source: backend-plugin\n")
+	writeFile(t, src, "profiles/frontend/extensions.yaml", "plugins:\n  - name: frontend-plugin\n    source: frontend-plugin\n")
+	writeFile(t, src, "profiles/fullstack/profile.yaml", "extends:\n  - backend\n  - frontend\n")
+
+	cfg := config.Config{Profile: "fullstack"}
+	if err := deploy.RunWithClaude(src, dst, cfg, fakeClaude, io.Discard, strings.NewReader("")); err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+
+	data, _ := os.ReadFile(argsFile)
+	calls := string(data)
+	if !strings.Contains(calls, "backend-plugin") {
+		t.Errorf("backend-plugin nicht installiert, calls: %q", calls)
+	}
+	if !strings.Contains(calls, "frontend-plugin") {
+		t.Errorf("frontend-plugin nicht installiert, calls: %q", calls)
+	}
+}
+
 func writeFile(t *testing.T, base, rel, content string) {
 	t.Helper()
 	path := filepath.Join(base, filepath.FromSlash(rel))
