@@ -178,6 +178,66 @@ func TestComposeNoResearchFlavorAppended(t *testing.T) {
 }
 
 
+func TestComposeFullstackExtendsBackendAndFrontend(t *testing.T) {
+	src := t.TempDir()
+	dst := t.TempDir()
+
+	writeFile(t, src, "base/CLAUDE.md", "# Base")
+	writeFile(t, src, "base/.claude/settings.json", `{"permissions":{"allow":[]}}`)
+	writeFile(t, src, "profiles/backend/CLAUDE.md", "## Backend-Profil")
+	writeFile(t, src, "profiles/frontend/CLAUDE.md", "## Frontend-Profil")
+	writeFile(t, src, "profiles/fullstack/CLAUDE.md", "## Fullstack-Profil")
+	writeFile(t, src, "profiles/fullstack/profile.yaml", "extends:\n  - backend\n  - frontend\n")
+
+	req := compose.Request{
+		SourceDir: src,
+		DestDir:   dst,
+		Profile:   "fullstack",
+		Flavors:   []string{},
+	}
+	if err := compose.Run(req); err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+
+	data, err := os.ReadFile(filepath.Join(dst, "CLAUDE.md"))
+	if err != nil {
+		t.Fatalf("CLAUDE.md missing: %v", err)
+	}
+	content := string(data)
+	for _, want := range []string{"# Base", "## Backend-Profil", "## Frontend-Profil", "## Fullstack-Profil"} {
+		if !strings.Contains(content, want) {
+			t.Errorf("CLAUDE.md fehlt %q", want)
+		}
+	}
+}
+
+func TestComposeFullstackExtendsSkills(t *testing.T) {
+	src := t.TempDir()
+	dst := t.TempDir()
+
+	writeFile(t, src, "base/CLAUDE.md", "# Base")
+	writeFile(t, src, "base/.claude/settings.json", `{"permissions":{"allow":[]}}`)
+	writeFile(t, src, "profiles/backend/.claude/commands/db-migration.md", "# DB Migration")
+	writeFile(t, src, "profiles/frontend/.claude/commands/a11y-audit.md", "# A11y Audit")
+	writeFile(t, src, "profiles/fullstack/profile.yaml", "extends:\n  - backend\n  - frontend\n")
+
+	req := compose.Request{
+		SourceDir: src,
+		DestDir:   dst,
+		Profile:   "fullstack",
+		Flavors:   []string{},
+	}
+	if err := compose.Run(req); err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+
+	for _, skill := range []string{"db-migration.md", "a11y-audit.md"} {
+		if _, err := os.Stat(filepath.Join(dst, ".claude", "commands", skill)); err != nil {
+			t.Errorf("skill %s fehlt: %v", skill, err)
+		}
+	}
+}
+
 func writeFile(t *testing.T, base, rel, content string) {
 	t.Helper()
 	path := filepath.Join(base, filepath.FromSlash(rel))

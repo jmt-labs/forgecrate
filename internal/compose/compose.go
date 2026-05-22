@@ -60,13 +60,19 @@ func composeMarkdown(req Request, filename string) error {
 
 func collectMarkdownLayers(req Request, filename string) []string {
 	var layers []string
+	profileCfg := LoadProfileConfig(req.SourceDir, req.Profile)
+
 	candidates := []string{
 		filepath.Join(req.SourceDir, "base", filename),
-		filepath.Join(req.SourceDir, "profiles", req.Profile, filename),
 	}
+	for _, parent := range profileCfg.Extends {
+		candidates = append(candidates, filepath.Join(req.SourceDir, "profiles", parent, filename))
+	}
+	candidates = append(candidates, filepath.Join(req.SourceDir, "profiles", req.Profile, filename))
 	for _, flavor := range req.Flavors {
 		candidates = append(candidates, filepath.Join(req.SourceDir, "flavors", flavor, filename))
 	}
+
 	for _, path := range candidates {
 		data, err := os.ReadFile(path)
 		if err == nil {
@@ -136,10 +142,15 @@ func composeSkills(req Request) error {
 		return fmt.Errorf("mkdir: %w", err)
 	}
 
+	profileCfg := LoadProfileConfig(req.SourceDir, req.Profile)
+
 	srcDirs := []string{
 		filepath.Join(req.SourceDir, "base", ".claude", "commands"),
-		filepath.Join(req.SourceDir, "profiles", req.Profile, ".claude", "commands"),
 	}
+	for _, parent := range profileCfg.Extends {
+		srcDirs = append(srcDirs, filepath.Join(req.SourceDir, "profiles", parent, ".claude", "commands"))
+	}
+	srcDirs = append(srcDirs, filepath.Join(req.SourceDir, "profiles", req.Profile, ".claude", "commands"))
 	for _, flavor := range req.Flavors {
 		srcDirs = append(srcDirs, filepath.Join(req.SourceDir, "flavors", flavor, ".claude", "commands"))
 	}
