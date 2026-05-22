@@ -8,6 +8,25 @@ plugins:
   - name: playwright
     source: playwright
 
+  - name: ui-ux-pro-max-skill
+    source: nextlevelbuilder/ui-ux-pro-max-skill
+    method: marketplace
+
+  - name: interface-design
+    source: Dammyjay93/interface-design
+    method: marketplace
+
+  - name: agent-skills
+    source: vercel-labs/agent-skills
+    method: marketplace
+
+  - name: wondelai-skills
+    source: wondelai/skills
+    method: marketplace
+
+  - name: refactoring-ui-skill
+    source: https://github.com/LovroPodobnik/refactoring-ui-skill
+
 mcp:
   - name: playwright
     command: npx
