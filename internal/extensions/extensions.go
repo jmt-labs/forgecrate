@@ -9,6 +9,7 @@ import (
 type Plugin struct {
 	Name   string `yaml:"name"`
 	Source string `yaml:"source"`
+	Method string `yaml:"method"`
 }
 
 type MCP struct {

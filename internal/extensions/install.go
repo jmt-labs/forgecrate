@@ -28,7 +28,12 @@ func (i Installer) Install(ext Extensions) error {
 	}
 
 	for _, p := range ext.Plugins {
-		cmd := exec.Command(claude, "plugin", "install", "--scope", "project", p.Source)
+		var cmd *exec.Cmd
+		if p.Method == "marketplace" {
+			cmd = exec.Command(claude, "plugin", "marketplace", "add", p.Source)
+		} else {
+			cmd = exec.Command(claude, "plugin", "install", "--scope", "project", p.Source)
+		}
 		cmd.Dir = i.Dir
 		if cmdOut, err := cmd.CombinedOutput(); err != nil {
 			msg := string(cmdOut)
