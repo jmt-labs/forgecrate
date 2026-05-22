@@ -6,7 +6,9 @@
 
 ## Ziel
 
-Ein forgecrate-Skill der bei Bedarf alle Dokumentationsdateien im Repo mit dem aktuellen Code-Stand abgleicht und veraltete Abschnitte direkt aktualisiert. Der Skill arbeitet ohne interaktive Rückfragen durch und liefert am Ende einen kompakten Report.
+Ein forgecrate-Skill der alle Dokumentationsdateien im Repo mit dem aktuellen Code-Stand abgleicht und veraltete Abschnitte direkt aktualisiert. Der Skill arbeitet ohne interaktive Rückfragen durch und liefert am Ende einen kompakten Report.
+
+**Pflicht-Integration:** Der Skill ist Teil der PR-Checkliste (`forgecrate-pr-checklist`) und muss zwingend vor jedem `gh pr create` ausgeführt werden. Er ersetzt den bisherigen manuellen Doku-Check (Punkt 3 in der Checkliste).
 
 ## Scope
 
