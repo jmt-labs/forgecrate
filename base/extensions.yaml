@@ -39,9 +39,3 @@ mcp:
   - name: context7
     command: npx
     args: ["-y", "@upstash/context7-mcp"]
-
-  - name: memory-bank
-    command: npx
-    args: ["-y", "@allpepper/memory-bank-mcp"]
-    env:
-      MEMORY_BANK_ROOT: "memory-bank"

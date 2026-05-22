@@ -16,7 +16,7 @@
 forgecrate init --profile backend --flavors tdd,strict-review
 ```
 
-Claude Code is immediately ready to use: with workflow enforcement, slash-commands, branch protection and five pre-integrated MCP servers — no manual configuration needed.
+Claude Code is immediately ready to use: workflow enforcement, slash-commands, branch protection and six pre-integrated MCP servers — no manual configuration required.
 
 > Part of the jmt-labs toolchain → [forgedeck](https://github.com/jmt-labs/forgedeck)
 
@@ -51,7 +51,9 @@ After `forgecrate init`, the following files are present in the repository:
 | `.claude/settings.json` | Model, hooks, plugins, permissions, MCP servers |
 | `.claude/commands/` | Slash-commands (skills) |
 | `.claude/hooks/` | Pre-tool and UserPromptSubmit hooks |
-| `.forgecrate.yaml` | Deployment state (profile, flavors, file hashes) |
+| `.mcp.json` | Generated MCP server configuration |
+| `memory-bank/` | Structured project memory (read/written via `memory-bank` MCP) |
+| `.forgecrate.yaml` | Deployment state: profile, flavors, permission mode, file hashes |
 
 ---
 
@@ -117,46 +119,47 @@ forgecrate init --profile backend --flavors tdd,strict-review
 forgecrate update
 ```
 
-**3. Switch profile**
+**3. Reconfigure profile and flavors interactively**
 
 ```sh
-forgecrate update --profile fullstack
+forgecrate config
 ```
 
-**4. List available options**
+**4. List or describe available options**
 
 ```sh
-forgecrate list profile    # all profiles
-forgecrate list flavor     # all flavors
+forgecrate list                       # all profiles and flavors
 forgecrate describe profile backend   # details for a profile
+forgecrate describe flavor tdd        # details for a flavor
 ```
 
 ---
 
 ## The layer system
 
-`forgecrate` composes configuration from three stacked layers. Each layer extends or overrides the one below:
+`forgecrate` composes configuration from four stacked layers. Each layer extends or overrides the one below:
 
 ```
-┌─────────────────────────────┐
-│  overrides (local, optional) │  Highest priority — never overwritten
-├─────────────────────────────┤
-│  flavors   (multiple)        │  e.g. tdd + strict-review
-├─────────────────────────────┤
-│  profile   (one)             │  e.g. backend
-├─────────────────────────────┤
-│  base      (always active)   │  Lowest priority — always deployed
-└─────────────────────────────┘
+┌──────────────────────────────────────────────┐
+│  overrides (local, optional)                  │  Highest priority — never overwritten
+├──────────────────────────────────────────────┤
+│  flavors  (multiple, additive)                │  e.g. tdd + strict-review
+├──────────────────────────────────────────────┤
+│  profile  (exactly one)                       │  e.g. backend
+├──────────────────────────────────────────────┤
+│  base     (always active)                     │  Lowest priority — always deployed
+└──────────────────────────────────────────────┘
 ```
 
 **Composition rules:**
 
 | File type | Strategy |
 |---|---|
-| `CLAUDE.md` / `AGENTS.md` | Text blocks from layers are concatenated |
+| `CLAUDE.md` / `AGENTS.md` | Text blocks from layers are concatenated; user-`CUSTOM` blocks are preserved |
 | `.claude/settings.json` | Deep-merge — deeper layers win on conflicts |
 | `.claude/commands/` | Additive copy — later layers overwrite earlier ones |
 | `.claude/hooks/` | Additive copy |
+| `extensions.yaml` (plugins + MCP) | Merged across layers, generates `.mcp.json` |
 
 Layer contents come directly from this repository under `base/`, `profiles/` and `flavors/`.
 
@@ -164,7 +167,7 @@ Layer contents come directly from this repository under `base/`, `profiles/` and
 
 ## Profiles
 
-A profile sets the technical context of the project. Exactly **one** is active per repository.
+A profile sets the technical context of the project. Exactly **one** profile is active per repository.
 
 ### `backend`
 
@@ -174,14 +177,18 @@ Optimized for server applications, REST APIs and database access.
 - Database access: type-safe, exclusively parameterized queries
 - Prefers integration tests over pure unit tests with mocks
 - No ORM magic — explicit queries are more readable
+- Extra skill: `/forgecrate-db-migration`
 
 ### `frontend`
 
 Optimized for component-based UI development.
 
-- Component architecture and state management
-- Accessibility as a first-class requirement
-- Visual regression and snapshot tests
+- Small, focused components with a single responsibility
+- Semantic HTML, ARIA attributes where required (accessibility first)
+- Behavior tests over implementation tests
+- Extra plugins: `frontend-design`, `typescript-lsp`, `playwright`
+- Extra MCP: `playwright` (browser automation)
+- Extra skills: `/accessibility-audit`, `/ui-ux-audit`
 
 ### `fullstack`
 
@@ -190,6 +197,7 @@ Combines backend and frontend context in one profile.
 - Shared types between client and server
 - End-to-end tests across the full stack
 - Clear boundary between API contract and implementation
+- Extra MCP: `playwright`
 
 ---
 
@@ -212,6 +220,8 @@ Rules:
 - Mocks only at system boundaries (external APIs, databases)
 - Before every bug fix: write a regression test
 
+Extra skill: `/forgecrate-test-coverage`.
+
 ### `strict-review` — Mandatory code review
 
 Enforces structured review before every commit:
@@ -221,34 +231,40 @@ Enforces structured review before every commit:
 - PR description contains: what changed, why, how tested
 - Breaking changes are explicitly communicated
 
-### `minimal`
+Extra plugins: `pr-review-toolkit`, `code-simplifier`. Extra skill: `/forgecrate-pr-checklist`.
 
-Only basic workflow enforcement. Suitable for projects that prefer a lightweight start.
+### `minimal` — Lightweight start
 
-### `gitops`
+Adds no extra mandatory skills. Suitable for prototypes, solo projects or early-stage exploration. The base layer remains fully active — `minimal` is purely an explicit "no extras" signal that combines cleanly with other flavors.
 
-For Infrastructure-as-Code and GitOps workflows:
+### `gitops` — Infrastructure-as-Code
 
-- ArgoCD app topology is respected
-- Cluster-wide rules (Kyverno, Gatekeeper, RULES.md) are enforced
-- Deployments exclusively via ArgoCD — no direct `kubectl apply` commands
-- Skill: `/forgecrate-gitops-status` for cluster overview
+For ArgoCD-driven GitOps workflows:
 
-### `getbetter`
+- ArgoCD app topology is loaded on session start; rules from `RULES.md`, Kyverno/OPA `ClusterPolicy` and `Constraint` manifests are enforced
+- Deployments **exclusively** via ArgoCD — direct `kubectl apply`, `helm install/upgrade` etc. are blocked unless explicitly confirmed
+- No `latest` image tags — pinned versions or digests required
+- Extra skill: `/forgecrate-gitops-status` (drift check, policy validation)
 
-Enables continuous learning across sessions: reads `.claude/GETBETTER.md` at session start and saves insights at session end via `/forgecrate-getbetter`.
+### `getbetter` — Continuous learning across sessions
 
-### `github`
+Reads `.claude/GETBETTER.md` at session start and saves insights via
+`/forgecrate-getbetter` at session end. The file collects recurring mistakes,
+patterns that worked well, and project-specific gotchas not visible in the code.
 
-Adds GitHub-specific workflow rules: releases via `gh release create`, CI status checks before tagging, and proactive parallelization for multi-step GitHub tasks.
+### `github` — GitHub-native workflow
+
+Adds GitHub-specific rules: releases via `gh release create`, CI status checks
+before tagging, proactive parallelization for multi-step GitHub tasks. Extra
+skills: `/forgecrate-issue-resolver`, `/forgecrate-github-release`.
 
 ### `no-research` — Opt-out from research mandate
 
-Disables the default research mandate from the base layer. By default, planning roles
-(Analyst, Tech Lead, Debugger, Reviewer) must use WebSearch / context7 / fetch before
-producing a plan. Enable this flavor for air-gapped repositories, strict compliance
-environments, or projects with purely internal logic where external research is not
-applicable.
+Disables the default research mandate from the base layer. By default, planning
+roles (Analyst, Tech Lead, Debugger, Reviewer) must use `WebSearch` / `context7` /
+`fetch` before producing a plan. Enable this flavor for air-gapped repositories,
+strict compliance environments, or projects with purely internal logic where
+external research is not applicable.
 
 ---
 
@@ -267,7 +283,9 @@ forgecrate init [--profile <name>] [--flavors <name,name,...>]
 | `--profile` | `backend` | Active profile |
 | `--flavors` | _(none)_ | Comma-separated list of active flavors |
 
-**Flow:** Download tarball from GitHub → compose layers → write files → create `.forgecrate.yaml`.
+**Flow:** Download tarball from GitHub → compose layers → write files → install plugins and MCP servers via `claude` CLI → create `.forgecrate.yaml`.
+
+The alias `forgecrate run` is accepted for backwards compatibility.
 
 ---
 
@@ -287,25 +305,54 @@ When conflicts exist between local changes and upstream, an interactive prompt a
 
 ---
 
-### `forgecrate list`
+### `forgecrate config`
 
-Lists all available profiles or flavors.
+Reconfigures profile and flavors interactively, then re-runs deploy.
 
 ```sh
-forgecrate list profile
-forgecrate list flavor
+forgecrate config
+```
+
+Opens a TUI selector (powered by [Charmbracelet Huh](https://github.com/charmbracelet/huh)) with the currently active profile and flavors pre-selected. Requires an existing `.forgecrate.yaml` (run `forgecrate init` first).
+
+---
+
+### `forgecrate list`
+
+Lists all available profiles and flavors fetched from the upstream repository.
+
+```sh
+forgecrate list
 ```
 
 ---
 
 ### `forgecrate describe`
 
-Shows a detailed description of a profile or flavor.
+Shows a detailed description of a profile or flavor — prints the layer's `CLAUDE.md` content plus the included skills.
 
 ```sh
 forgecrate describe profile backend
 forgecrate describe flavor tdd
 ```
+
+---
+
+### `forgecrate set-permission-mode`
+
+Sets the Claude Code agent permission mode and patches `.claude/settings.json` accordingly.
+
+```sh
+forgecrate set-permission-mode <bypass|plan|ask|auto>
+```
+
+The setting is persisted to `.forgecrate.yaml` (`permission_mode:` key) and survives the next `forgecrate update`.
+
+---
+
+### `forgecrate hook prompt-submit`
+
+Helper invoked by the `UserPromptSubmit` hook. Prints the active profile, active flavors and the mandatory-skill checklist. You will rarely call this manually — it is wired up by `.claude/hooks/prompt-submit.sh`.
 
 ---
 
@@ -349,18 +396,24 @@ Custom skills in this directory complement the managed commands and are never ov
 
 ## Skills & slash-commands
 
-`forgecrate` deploys a set of predefined skills, available directly in Claude Code as slash-commands:
+`forgecrate` deploys a set of predefined skills, available directly in Claude Code as slash-commands. The set depends on which layers are active.
 
-| Command | Description |
-|---|---|
-| `/forgecrate-advisor` | Analyzes the repo and recommends the right profile + flavors |
-| `/forgecrate-repo-onboarding` | Creates a structured codebase overview for `CLAUDE.md` |
-| `/forgecrate-repo-health` | Finds improvement potential and delivers a prioritized list |
-| `/forgecrate-test-coverage` | Analyzes test coverage and suggests the next concrete test |
-| `/forgecrate-pr-checklist` | Systematic review before `gh pr create` |
-| `/forgecrate-db-migration` | Guides creation and review of a database migration |
-| `/forgecrate-release` | Runs a complete release cycle |
-| `/forgecrate-handoff` | Generates a `HANDOFF.md` with portable project context for AI model switches or session handoffs |
+| Command | Layer | Description |
+|---|---|---|
+| `/forgecrate-advisor` | base | Analyzes the repo and recommends a profile + flavors |
+| `/forgecrate-repo-onboarding` | base | Creates a structured codebase overview for `CLAUDE.md` |
+| `/forgecrate-repo-health` | base | Finds improvement potential and delivers a prioritized list |
+| `/forgecrate-release` | base | Runs a complete release cycle |
+| `/forgecrate-handoff` | base | Generates a portable `HANDOFF.md` for AI model switches or session handoffs |
+| `/forgecrate-db-migration` | profile: `backend` | Guides creation and review of a database migration |
+| `/accessibility-audit` | profile: `frontend` | Static A11y checks per changed file (alt, label, aria-\*) |
+| `/ui-ux-audit` | profile: `frontend` | Deep UI/UX audit with severity grading and auto-created GitHub issues |
+| `/forgecrate-test-coverage` | flavor: `tdd` | Analyzes test coverage and suggests the next concrete test |
+| `/forgecrate-pr-checklist` | flavor: `strict-review` | Systematic review before `gh pr create` |
+| `/forgecrate-issue-resolver` | flavor: `github` | End-to-end resolution of a GitHub issue up to merge-ready PR |
+| `/forgecrate-github-release` | flavor: `github` | Creates a GitHub Release for the latest tag |
+| `/forgecrate-gitops-status` | flavor: `gitops` | Drift check, policy validation, deployment status |
+| `/forgecrate-getbetter` | flavor: `getbetter` | Saves session insights into `.claude/GETBETTER.md` |
 
 Via [Superpowers skills](https://github.com/anthropics/claude-code-superpowers), additional mandatory skills are available and automatically integrated into the development workflow (brainstorming, TDD, code review, debugging).
 
@@ -368,19 +421,22 @@ Via [Superpowers skills](https://github.com/anthropics/claude-code-superpowers),
 
 ## MCP servers
 
-The base configuration includes five pre-integrated MCP servers:
+The base configuration includes six pre-integrated MCP servers. Profiles can add more (e.g. `playwright` for `frontend`/`fullstack`).
 
 | Server | Transport | Purpose |
 |---|---|---|
 | `github` | HTTP (GitHub Copilot) | Issues, PRs, code search, branches, labels |
 | `fetch` | stdio (`npx`) | External web content — docs, RFCs, changelogs |
-| `memory` | stdio (`npx`) | Persistent cross-session knowledge (`.claude/memory.json`) |
+| `memory` | stdio (`npx`) | Persistent cross-project architecture decisions (`.claude/memory.json`) |
+| `memory-bank` | stdio (`npx`) | Repo-specific structured project memory (`memory-bank/*.md`) |
 | `context-mode` | stdio (`npx`) | Automatic context optimization and session history search |
 | `context7` | stdio (`npx`) | Current library documentation directly from source repos |
 
-**Requirement for `github`:** The `GITHUB_PERSONAL_ACCESS_TOKEN` environment variable must be set.
+**Requirement for `github`:** the `GITHUB_PERSONAL_ACCESS_TOKEN` environment variable must be set.
 
-**Requirement for stdio servers:** Node.js / `npx` must be available in PATH.
+**Requirement for stdio servers:** Node.js / `npx` must be available in `PATH`.
+
+The single source of truth for MCP configuration is `base/extensions.yaml` (plus profile/flavor `extensions.yaml`). The deployed `.mcp.json` is generated from these — edit the YAML, then re-run `forgecrate update`.
 
 ---
 
@@ -398,13 +454,15 @@ In that case, an interactive prompt appears:
 KONFLIKT: .claude/settings.json
   Deine Version: { "model": "claude-opus-4-7", ...
   Neue Version:  { "model": "claude-sonnet-4-6", ...
-  [ü]berschreiben / [b]ehalten (Standard: behalten):
+  [o]verwrite / [k]eep (default: keep):
 ```
 
 | Input | Result |
 |---|---|
-| `ü` or `u` | Take upstream version, local changes are lost |
-| `b` or Enter | Keep local version, local hash becomes the new baseline |
+| `o` or `u` / `ü` | Take upstream version; local changes are lost |
+| `k` or `b` or Enter | Keep local version; the local hash becomes the new baseline |
+
+`u`/`ü` and `b` are kept for backwards compatibility with earlier versions.
 
 **Recommendation:** Put custom changes in CUSTOM blocks or override files — then no conflicts arise.
 
@@ -420,45 +478,43 @@ KONFLIKT: .claude/settings.json
 | Hook reference | [docs/hooks.md](docs/hooks.md) |
 | Profiles & flavors (details) | [docs/profiles-flavors.md](docs/profiles-flavors.md) |
 | Development & tests | [docs/development.md](docs/development.md) |
+| ADR: CLAUDE.md ownership | [docs/architecture-decisions/CLAUDE-md-ownership.md](docs/architecture-decisions/CLAUDE-md-ownership.md) |
 | Migration from `claude-setup` | [MIGRATION.md](MIGRATION.md) |
+| Naming rationale | [NAMING.md](NAMING.md) |
+| Changelog | [CHANGELOG.md](CHANGELOG.md) |
 
 ---
 
 ## Development & tests
 
-**Prerequisites:** Go 1.22+, `make`
+**Prerequisites:** Go 1.24+, `make`, optionally `goreleaser` for releases.
 
 ```sh
-# Unit tests
-make test
-
-# End-to-end tests
-make test-e2e
-
-# Code quality check
-make quality
-
-# Build binary locally
-make build
-
-# Release (requires GoReleaser + GitHub token)
-make release
+make test                # Unit + integration tests
+make test-e2e            # End-to-end tests (uses CLAUDE_BIN or a fake binary)
+make quality             # go vet + go build sanity check
+make build               # Build ./forgecrate binary locally
+make check-model-ids     # Enforce: model IDs live only in base/models.yaml
+make check-readme-coverage  # Verify every flavor is mentioned in this README
+make release             # GoReleaser release (requires GitHub token)
+make clean               # Clean build artifacts and test cache
 ```
 
 **Repository structure:**
 
 | Path | Purpose |
 |---|---|
-| `cmd/forgecrate/` | CLI entry point (Cobra) |
+| `cmd/forgecrate/` | CLI entry point (Cobra) — one file per subcommand |
 | `internal/compose/` | Markdown, JSON and skills merge logic |
+| `internal/config/` | `.forgecrate.yaml` read/write, permission-mode validation |
 | `internal/deploy/` | Deployment orchestration and conflict handling |
-| `internal/config/` | `.forgecrate.yaml` read/write |
-| `internal/github/` | GitHub API client (tarball download) |
-| `internal/extensions/` | Claude extension handling |
+| `internal/extensions/` | Plugin and MCP server installation via `claude` CLI |
+| `internal/github/` | GitHub API client (tarball download with retries) |
 | `base/` | Base layer — always deployed |
-| `base/models.yaml` | Canonical model IDs — single source of truth for all agent roles |
-| `profiles/` | Profile layer — one selectable |
-| `flavors/` | Flavor layer — multiple combinable |
+| `base/extensions.yaml` | Single source of truth for plugins + MCP servers |
+| `base/models.yaml` | Canonical Claude model IDs |
+| `profiles/` | Profile layer — exactly one selectable per repo |
+| `flavors/` | Flavor layer — multiple combinable per repo |
 | `e2e/` | End-to-end tests |
 
 Contributions welcome — please open an issue and follow the development workflow from [CLAUDE.md](CLAUDE.md).

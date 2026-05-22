@@ -1,6 +1,6 @@
 # Repo Onboarding
 
-Erkundet das Repo nach `forgecrate run` und erstellt einen strukturierten Überblick für `CLAUDE.md`.
+Erkundet das Repo nach `forgecrate init` und erstellt einen strukturierten Überblick für `CLAUDE.md`.
 
 ## Ablauf
 
