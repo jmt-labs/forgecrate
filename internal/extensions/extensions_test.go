@@ -99,3 +99,27 @@ func TestMergeEmpty(t *testing.T) {
 		t.Errorf("expected empty, got: %+v", merged)
 	}
 }
+
+func TestPluginMethodFieldParsed(t *testing.T) {
+	dir := t.TempDir()
+	content := `
+plugins:
+  - name: ui-ux-pro-max-skill
+    source: nextlevelbuilder/ui-ux-pro-max-skill
+    method: marketplace
+  - name: refactoring-ui
+    source: https://github.com/LovroPodobnik/refactoring-ui-skill
+`
+	_ = os.WriteFile(filepath.Join(dir, "extensions.yaml"), []byte(content), 0644)
+
+	ext, err := extensions.Load(filepath.Join(dir, "extensions.yaml"))
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if ext.Plugins[0].Method != "marketplace" {
+		t.Errorf("expected marketplace, got %q", ext.Plugins[0].Method)
+	}
+	if ext.Plugins[1].Method != "" {
+		t.Errorf("expected empty method, got %q", ext.Plugins[1].Method)
+	}
+}
