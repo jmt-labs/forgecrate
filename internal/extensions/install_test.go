@@ -14,7 +14,9 @@ func TestInstallUsesMarketplaceForMethodMarketplace(t *testing.T) {
 	dir := t.TempDir()
 	fakeClaude := filepath.Join(dir, "claude")
 	script := "#!/bin/sh\necho \"$@\" >> " + filepath.Join(dir, "calls.txt") + "\n"
-	_ = os.WriteFile(fakeClaude, []byte(script), 0755)
+	if err := os.WriteFile(fakeClaude, []byte(script), 0755); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
 
 	ext := extensions.Extensions{
 		Plugins: []extensions.Plugin{
@@ -36,5 +38,36 @@ func TestInstallUsesMarketplaceForMethodMarketplace(t *testing.T) {
 	}
 	if !strings.Contains(callsStr, "plugin install --scope project https://github.com/foo/bar") {
 		t.Errorf("expected install call, got:\n%s", callsStr)
+	}
+}
+
+func TestInstallPluginNotFoundReturnsError(t *testing.T) {
+	dir := t.TempDir()
+	fakeClaude := filepath.Join(dir, "claude")
+	script := "#!/bin/sh\necho 'not found in any configured marketplace'\nexit 1\n"
+	if err := os.WriteFile(fakeClaude, []byte(script), 0755); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
+
+	ext := extensions.Extensions{
+		Plugins: []extensions.Plugin{
+			{Name: "missing", Source: "org/missing", Method: "marketplace"},
+		},
+	}
+
+	installer := extensions.Installer{Claude: fakeClaude, Dir: dir}
+	err := installer.Install(ext)
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+	if !strings.Contains(err.Error(), "not found in marketplace") {
+		t.Errorf("unexpected error: %v", err)
+	}
+}
+
+func TestInstallEmptyPluginsSucceeds(t *testing.T) {
+	installer := extensions.Installer{Claude: "echo"}
+	if err := installer.Install(extensions.Extensions{}); err != nil {
+		t.Fatalf("expected no error, got: %v", err)
 	}
 }
