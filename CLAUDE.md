@@ -4,7 +4,7 @@
 Dieses Repository nutzt eine reproduzierbare forgecrate-Konfiguration. Die hier
 beschriebenen Regeln gelten für alle Agenten (Claude Code, Codex, …) die im Repo
 arbeiten. Die generierten Abschnitte werden bei `forgecrate update` überschrieben —
-eigene Anpassungen gehören in den CUSTOM-Abschnitt am Ende dieser Datei.
+eigene Anpassungen gehören in den CUSTOM-Abschnitt der Root-`CLAUDE.md`.
 
 ## Pflicht-Skills
 
@@ -158,7 +158,7 @@ Läufen.
 
 Sechs MCP-Server sind im base layer deklariert und stehen automatisch zur
 Verfügung. Quelle der Wahrheit ist `base/extensions.yaml` — die Datei `.mcp.json`
-wird daraus generiert.
+wird daraus generiert (siehe [MCP-Konfiguration](#mcp-konfiguration-single-source-of-truth)).
 
 | Server | Transport | Zweck |
 |---|---|---|
@@ -169,7 +169,91 @@ wird daraus generiert.
 | `context-mode` | stdio (`npx`) | Automatisches Context-Budget und Session-History-Suche |
 | `context7` | stdio (`npx`) | Aktuelle Bibliotheks-Dokumentation aus Source-Repos |
 
-Detaillierte Beschreibung jedes Servers: siehe [base/CLAUDE.md](base/CLAUDE.md).
+### GitHub (`github`)
+
+Für alle Operationen mit GitHub: Issues, PRs, Code-Suche, Branches, Checks,
+Labels.
+
+**Verwende es für:** Issues lesen/erstellen/kommentieren, PRs öffnen/reviewen/
+mergen, Code repo-übergreifend suchen, Workflow-Labels setzen.
+
+**Verwende es NICHT für:** Lokale Dateioperationen (→ Read/Edit/Bash), lokale
+Git-Kommandos (→ Bash mit git).
+
+**Voraussetzung:** `GITHUB_PERSONAL_ACCESS_TOKEN` als Umgebungsvariable.
+
+### Fetch (`fetch`)
+
+Externe Webinhalte abrufen: Dokumentation, MDN, RFCs, Changelogs, Release Notes,
+URLs aus Issues.
+
+**Verwende es NICHT für:** GitHub-Inhalte (→ github MCP), lokale Dateien
+(→ Read).
+
+### Memory (`memory`)
+
+Projektübergreifendes Wissen persistent speichern. Datei: `.claude/memory.json`
+(versioniert).
+
+**Schreiben nach:** Architekturentscheidungen, Begründungen für nicht-
+offensichtliche Lösungen, Debugging-Ergebnisse, Brainstorming-Ergebnisse.
+
+**Lesen am:** Sessionbeginn, nach Context-Kompaktierung, wenn unklar warum etwas
+so gebaut wurde.
+
+**Niemals speichern:** API-Keys, Tokens, Passwörter, temporären Zwischenstand,
+Code-Details die direkt aus dem Code lesbar sind.
+
+### Memory-Bank (`memory-bank`)
+
+Repo-spezifischer, strukturierter Projektkontext im Verzeichnis `memory-bank/`
+(versioniert, committed). Persistiert kontextuelles Wissen über Sessions hinweg.
+
+**Dateien:**
+
+- `projectbrief.md` — Projektziel und Scope
+- `techContext.md` — Stack, Tools, technische Constraints
+- `systemPatterns.md` — Architektur-Entscheidungen, ADRs, Anti-Patterns
+- `activeContext.md` — Aktueller Fokus, offene Fragen, Blocker
+- `progress.md` — Was fertig ist, was läuft, was als nächstes kommt
+
+**Lesen** am Session-Start und bei Bedarf — **ausschließlich** via
+`mcp__memory-bank__memory_bank_read`.
+
+**Schreiben** wenn sich Fokus, Fortschritt oder Architektur-Kontext ändert —
+**ausschließlich** via `mcp__memory-bank__memory_bank_write` oder
+`mcp__memory-bank__memory_bank_update`.
+
+> **Direkte Datei-Tools (Read/Write/Edit) auf `memory-bank/`-Dateien sind
+> verboten.**
+
+**Abgrenzung zu `memory`:** `memory-bank` ist repo-spezifisch und dateibasiert —
+ideal für laufenden Projekt-Kontext. `memory` (`.claude/memory.json`) ist
+graph-basiert und projektübergreifend — ideal für zeitlose
+Architektur-Entscheidungen mit Begründung.
+
+### Context-Mode (`context-mode`)
+
+Sandboxt Tool-Output automatisch — kein expliziter Aufruf nötig.
+
+**Explizit aufrufen:**
+
+- `ctx_search` — nach Context-Kompaktierung: relevante Infos aus der
+  Session-History finden (BM25-Suche)
+- `ctx_insight` — Überblick über bisherigen Session-Verlauf
+- `ctx_stats` — gespartes Context-Budget prüfen
+- `ctx_doctor` — bei Problemen mit dem Server
+
+### context7
+
+Aktuelle Bibliotheks-Dokumentation direkt aus den Source-Repositories abrufen.
+
+**Verwende es für:** Aktuelle API-Dokumentation, Versionsmigration,
+Framework-spezifisches Debugging, Changelog-Inhalte — überall wo Trainingsdaten
+veraltet sein könnten.
+
+**Verwende es NICHT für:** GitHub-Inhalte (→ github MCP), lokale Dateien
+(→ Read), allgemeine Programmierkonzepte.
 
 ## MCP-Konfiguration: Single Source of Truth
 
@@ -187,7 +271,7 @@ MCP-Servern (Kommandos, Umgebungsvariablen wie `MEMORY_FILE_PATH` oder
 ## Strict-Review-Flavor
 
 - Vor jedem Commit: `superpowers:requesting-code-review` aufrufen
-- Keine direkten Commits auf `main`/`master`
+- Keine direkten Commits auf main/master
 - PR-Beschreibung enthält: Was, Warum, Wie getestet
 - Breaking Changes werden explizit kommuniziert
 
