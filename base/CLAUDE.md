@@ -39,7 +39,7 @@ Für alle Features, Bugfixes und Änderungen:
 2. **Spec** — Branch anlegen (`git checkout -b feat/<thema>`); Spec in `docs/superpowers/specs/YYYY-MM-DD-<thema>-design.md` schreiben und committen; GitHub-Issue anlegen oder verlinken; Branch-Name im Issue vermerken; Kommentar im Issue: "Spec fertig"
 3. **Plan** — in `docs/superpowers/plans/YYYY-MM-DD-<thema>.md` schreiben und committen; Plan-Pfad im Issue ergänzen; Kommentar: "Plan fertig"
 4. **Implementierung** — nach jedem Task kurzer Kommentar im Issue
-5. **PR & Abschluss** — PR erstellen, Issue im PR-Body verlinken ("Closes #N"); Issue wird erst nach Merge des PR geschlossen (GitHub macht das automatisch)
+5. **PR & Abschluss** — Vor dem PR: memory-bank aktualisieren (`activeContext.md`, `progress.md`) und Inhalt in die PR-Beschreibung einbeziehen. Existiert noch kein memory-bank-Inhalt, zuerst `/forgecrate-repo-onboarding` ausführen. Dann PR erstellen, Issue im PR-Body verlinken ("Closes #N"); Issue wird erst nach Merge des PR geschlossen (GitHub macht das automatisch)
 
 Ticket-Kommentare immer kurz (ein Satz): Fortschritt, Pfad, oder Ergebnis.
 
