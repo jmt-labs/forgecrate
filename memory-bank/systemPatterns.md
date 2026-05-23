@@ -4,18 +4,10 @@
 
 <!-- Wichtige ADRs: Was wurde entschieden und warum? -->
 
-## Wiederkehrende Muster
+### ADR: codegraph-Integration als opt-in Flavor (2026-05-22)
 
-<!-- Patterns die im Projekt konsistent verwendet werden. -->
-
-## Anti-Patterns
-
-<!-- Was soll vermieden werden und warum? -->
-
-## ADR: codegraph-Integration als opt-in Flavor (2026-05-22)
-
-**Kontext:** codegraph ist ein semantischer Code-Knowledge-Graph-MCP-Server (14.3k Stars, MIT).
-Er verspricht ~35% günstigere API-Calls und ~70% weniger Tool-Aufrufe durch direkten
+**Kontext:** codegraph ist ein semantischer Code-Knowledge-Graph-MCP-Server (MIT-Lizenz,
+https://github.com/colbymchenry/codegraph). Er verspricht ~35% günstigere API-Calls und ~70% weniger Tool-Aufrufe durch direkten
 Zugriff auf die Projektstruktur (`codegraph_search`, `codegraph_context`, `codegraph_impact`).
 
 **Entscheidung: Flavor, nicht Base-Layer.**
