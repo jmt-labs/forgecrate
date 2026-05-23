@@ -6,9 +6,5 @@
 
 ## Multiagent & Subagenten
 
-Bei jeder Aufgabe im GitHub-Kontext proaktiv prüfen:
-- Task >1 min oder Ergebnis nicht sofort nötig → `run_in_background: true`
-- Feature-Branch, Multi-File-Änderung, langer Plan → `isolation: "worktree"`
-- Mehrere unabhängige Tasks gleichzeitig → beides kombinieren
-
-Warten ist kein Default — im Zweifelsfall Background nutzen.
+Parallelisierung/Isolation gemäß Base-Layer-Tabelle gelten auch hier — gerade bei
+Issue-Batches proaktiv Background-Mode und Worktrees nutzen.
