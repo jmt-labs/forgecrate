@@ -1,7 +1,19 @@
-# Zentrale Modell-Konfiguration für forgecrate
-# Beim Upgrade: nur diese Datei ändern, dann forgecrate update ausführen
+# Modell-Referenz für forgecrate (menschenlesbar)
+#
+# WICHTIG: Diese Datei wird NICHT von forgecrate-Code gelesen und nicht in
+# Ziel-Repos deployt. Sie ist eine reine Referenz, welche Modell-Version je
+# Rolle gemeint ist — eine zentrale Stelle für den Maintainer beim Versions-Pin.
+#
+# Das tatsächliche Session-Modell wird in base/.claude/settings.json (Feld
+# "model") gesetzt und gilt global (ein Modell pro Session). Für Subagent-
+# Dispatch über das Agent-Tool sind nur die Family-Aliase opus/sonnet/haiku
+# gültig — nicht die datierten IDs unten.
+#
+# Automatische Propagierung aus dieser Datei nach settings.json existiert NICHT
+# (würde Go-Code erfordern; siehe docs/-Backlog). Zum Ändern des laufenden
+# Modells settings.json editieren.
 models:
-  default: claude-sonnet-4-6      # Standard für Implementierung und Review
-  planning: claude-opus-4-7       # Architektur, Brainstorming
-  mechanical: claude-haiku-4-5-20251001  # Einfache, repetitive Tasks
-  review: claude-sonnet-4-6       # Code-Review, QA
+  default: claude-sonnet-4-6             # family: sonnet — Implementierung, Review
+  planning: claude-opus-4-7              # family: opus   — Architektur, Brainstorming
+  mechanical: claude-haiku-4-5-20251001  # family: haiku  — einfache, repetitive Tasks
+  review: claude-sonnet-4-6              # family: sonnet — Code-Review, QA
