@@ -236,13 +236,13 @@ Der MCP-Server läuft lokal (`codegraph serve --mcp`) und stellt folgende Tools 
 | `codegraph_files` | Dateien im Index auflisten |
 | `codegraph_status` | Index-Status prüfen |
 
-### Wann nutzen
+### Pflicht-Regeln
 
-- **Vor jeder nicht-trivialen Änderung**: `codegraph_node` + `codegraph_callers` für betroffene Symbole
-- **Beim Debuggen**: `codegraph_trace` um Aufrufkette nachzuvollziehen
-- **Bei Refactoring**: `codegraph_callers` für Call-Sites + `codegraph_search` für Type-/Import-Referenzen
-- **Code-Suche**: `codegraph_search` statt grep bei konzeptuellen Fragen
-- **Impact-Analyse**: `codegraph_impact` vor größeren Umbauten
+- **Vor jeder nicht-trivialen Änderung MUSS** `codegraph_node` + `codegraph_callers` für betroffene Symbole aufgerufen werden — kein Edit/Write ohne vorherige Codegraph-Abfrage
+- **Beim Debuggen MUSS** `codegraph_trace` die Aufrufkette aufzeigen, bevor ein Fix versucht wird
+- **Bei Refactoring MUSS** `codegraph_callers` für Call-Sites + `codegraph_search` für Type-/Import-Referenzen geprüft werden
+- **Code-Suche**: `codegraph_search` statt grep — grep ist nur erlaubt, wenn codegraph das Ergebnis nicht liefert
+- **Impact-Analyse MUSS** `codegraph_impact` vor größeren Umbauten ausgeführt werden
 
 ### Index-Aktualisierung
 
