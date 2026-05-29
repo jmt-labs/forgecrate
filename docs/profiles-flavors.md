@@ -28,6 +28,7 @@ layer steuert zusätzlich vier Plugins (`superpowers`, `commit-commands`,
 | `getbetter` | Erkenntnisse aus jeder Session in `.claude/GETBETTER.md` festhalten | `/forgecrate-getbetter` | — |
 | `github` | Releases via `gh release create`, CI-Checks vor Tag, proaktive Parallelisierung | `/forgecrate-issue-resolver`, `/forgecrate-github-release` | — |
 | `no-research` | Recherche-Pflicht aus base layer **deaktivieren** (für air-gapped / Compliance-Repos) | — | — |
+| `codegraph` | Semantischer Code-Wissensgraph als lokaler MCP-Server (colbymchenry/codegraph) | — | — |
 
 Skill- und Plugin-Listen kommen aus den jeweiligen
 `flavors/<name>/skills/` bzw. `flavors/<name>/extensions.yaml`.

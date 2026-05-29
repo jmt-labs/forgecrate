@@ -268,21 +268,36 @@ external research is not applicable.
 
 ### `codegraph` — Semantic code knowledge graph
 
-Adds a local [codegraph](https://github.com/schollz/codegraph) MCP server that builds a semantic knowledge graph of the repository. Provides 7 tools for AI agents:
+Adds a local [codegraph](https://github.com/colbymchenry/codegraph) MCP server that builds a semantic knowledge graph of the repository. Provides tools for AI agents:
 
 | Tool | Purpose |
 |---|---|
-| `search_code` | Semantic code search without exact keywords |
-| `get_definition` | Retrieve definition of a symbol (function, type, variable) |
-| `find_references` | Find all usages of a symbol in the repo |
-| `get_call_graph` | Build a call graph for a function |
-| `get_dependencies` | List dependencies of a module/package |
-| `explain_code` | Explain a code section with graph context |
-| `find_similar` | Find similar code patterns across the repo |
+| `codegraph_search` | Semantic code search without exact keywords |
+| `codegraph_node` | Retrieve definition of a symbol (function, type, variable) |
+| `codegraph_callers` / `codegraph_callees` | Find all callers / callees of a symbol |
+| `codegraph_trace` | Trace the call path between two symbols |
+| `codegraph_explore` | Explore dependencies and neighbours of a symbol |
+| `codegraph_context` | Explain a code section with graph context |
+| `codegraph_impact` | Determine the blast radius of a change |
+| `codegraph_files` | List files in the index |
+| `codegraph_status` | Check index status |
 
 The index is updated in the background at session start. The `.codegraph/` directory is automatically added to `.gitignore`.
 
-**Prerequisite:** `codegraph` must be installed (`pip install codegraph`).
+**Prerequisite:** `codegraph` must be installed:
+
+```bash
+# macOS / Linux
+curl -fsSL https://raw.githubusercontent.com/colbymchenry/codegraph/main/install.sh | sh
+
+# Windows (PowerShell)
+irm https://raw.githubusercontent.com/colbymchenry/codegraph/main/install.ps1 | iex
+
+# Alternatively via npm
+npm i -g @colbymchenry/codegraph
+```
+
+Then initialise in the repository: `codegraph init -i`
 
 ---
 
