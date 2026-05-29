@@ -238,6 +238,26 @@ func TestComposeFullstackExtendsSkills(t *testing.T) {
 	}
 }
 
+func TestComposeSettingsMergesFlavorSettings(t *testing.T) {
+	src := t.TempDir()
+	dst := t.TempDir()
+
+	writeFile(t, src, "base/.claude/settings.json", `{"model":"claude-sonnet-4-6"}`)
+	writeFile(t, src, "flavors/myflavor/.claude/settings.json", `{"hooks":{"PostToolUse":[{"hooks":[{"type":"command","command":"echo done"}]}]}}`)
+
+	req := compose.Request{SourceDir: src, DestDir: dst, Profile: "backend", Flavors: []string{"myflavor"}}
+	content, err := compose.ComposeSettings(req)
+	if err != nil {
+		t.Fatalf("ComposeSettings: %v", err)
+	}
+	if !strings.Contains(string(content), "PostToolUse") {
+		t.Errorf("flavor settings not merged: PostToolUse missing in %s", content)
+	}
+	if !strings.Contains(string(content), "claude-sonnet-4-6") {
+		t.Errorf("base settings lost after flavor merge: model missing in %s", content)
+	}
+}
+
 func writeFile(t *testing.T, base, rel, content string) {
 	t.Helper()
 	path := filepath.Join(base, filepath.FromSlash(rel))

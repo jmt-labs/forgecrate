@@ -99,6 +99,16 @@ func ComposeSettings(req Request) ([]byte, error) {
 		}
 	}
 
+	for _, flavor := range req.Flavors {
+		flavorPath := filepath.Join(req.SourceDir, "flavors", flavor, ".claude", "settings.json")
+		if flavorOverride, err := os.ReadFile(flavorPath); err == nil {
+			merged, err = DeepMergeJSON(merged, string(flavorOverride))
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
 	overridePath := filepath.Join(req.DestDir, ".claude", "overrides", "settings.override.json")
 	if override, err := os.ReadFile(overridePath); err == nil {
 		merged, err = DeepMergeJSON(merged, string(override))
