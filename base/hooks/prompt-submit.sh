@@ -5,7 +5,7 @@
 HOOKS_DIR="$(dirname "$0")"
 
 if [ -f "$HOOKS_DIR/session-start.sh" ]; then
-  bash "$HOOKS_DIR/session-start.sh"
+  bash "$HOOKS_DIR/session-start.sh" >/dev/null 2>&1
 fi
 
 if command -v forgecrate >/dev/null 2>&1; then

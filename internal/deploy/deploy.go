@@ -255,14 +255,19 @@ func appendFlavorGitignores(sourceDir, destDir string, cfg config.Config) error 
 	if err != nil && !os.IsNotExist(err) {
 		return fmt.Errorf("read .gitignore: %w", err)
 	}
+	current := string(existing)
 
-	existingLines := make(map[string]struct{})
-	for _, l := range strings.Split(string(existing), "\n") {
-		existingLines[l] = struct{}{}
+	f, err := os.OpenFile(gitignorePath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+	if err != nil {
+		return fmt.Errorf("open .gitignore: %w", err)
 	}
+	defer func() { _ = f.Close() }()
 
-	var toAppend []string
 	for _, flavor := range cfg.Flavors {
+		beginMarker := "# forgecrate:" + flavor + " BEGIN"
+		if strings.Contains(current, beginMarker) {
+			continue
+		}
 		srcPath := filepath.Join(sourceDir, "flavors", flavor, "gitignore.txt")
 		data, err := os.ReadFile(srcPath)
 		if os.IsNotExist(err) {
@@ -271,29 +276,15 @@ func appendFlavorGitignores(sourceDir, destDir string, cfg config.Config) error 
 		if err != nil {
 			return fmt.Errorf("read %s: %w", srcPath, err)
 		}
-		for _, line := range strings.Split(strings.TrimRight(string(data), "\n"), "\n") {
-			if line == "" {
-				continue
-			}
-			if _, exists := existingLines[line]; !exists {
-				toAppend = append(toAppend, line)
-				existingLines[line] = struct{}{}
-			}
+		content := strings.TrimRight(string(data), "\n")
+		if content == "" {
+			continue
 		}
-	}
-
-	if len(toAppend) == 0 {
-		return nil
-	}
-	f, err := os.OpenFile(gitignorePath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
-	if err != nil {
-		return fmt.Errorf("open .gitignore: %w", err)
-	}
-	defer func() { _ = f.Close() }()
-	for _, line := range toAppend {
-		if _, err := fmt.Fprintln(f, line); err != nil {
+		block := beginMarker + "\n" + content + "\n# forgecrate:" + flavor + " END\n"
+		if _, err := fmt.Fprint(f, block); err != nil {
 			return fmt.Errorf("write .gitignore: %w", err)
 		}
+		current += block
 	}
 	return nil
 }

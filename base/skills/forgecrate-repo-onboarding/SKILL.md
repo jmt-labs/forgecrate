@@ -51,6 +51,6 @@ Erkundet das Repo nach `forgecrate init` und erstellt einen strukturierten Über
    **Wenn `codegraph` aktiv:**
    - Prüfe ob `codegraph` installiert ist: `command -v codegraph`
    - Falls nicht installiert: Ausgabe `ℹ️ codegraph-Flavor aktiv, aber codegraph nicht installiert. Installation: pip install codegraph`
-   - Falls installiert und `.codegraph/`-Verzeichnis fehlt: Starte initialen Index-Build im Hintergrund: `codegraph index . &`
-   - Ergänze in `memory-bank/techContext.md` unter dem Stack-Abschnitt: `- codegraph MCP-Server (semantische Code-Suche, 7 Tools)`
+   - Falls installiert und `.codegraph/`-Verzeichnis fehlt: Der Hook baut den Index automatisch beim nächsten Prompt — kein manueller Start nötig.
+   - Ergänze in `techContext.md` den Eintrag `- codegraph MCP-Server (semantische Code-Suche, 7 Tools)` **ausschließlich** via `mcp__memory-bank__memory_bank_update` (direktes Schreiben auf memory-bank-Dateien ist verboten).
    - Nutze `mcp__codegraph__search_code`, `mcp__codegraph__get_definition`, etc. proaktiv während der Analyse in Schritt 1–4 für tiefere Einsichten in Struktur und Muster.

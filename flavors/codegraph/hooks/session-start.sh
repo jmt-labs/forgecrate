@@ -16,6 +16,5 @@ STAMP="/tmp/codegraph-indexed-${HEAD}"
 if [ -f "$STAMP" ]; then
   exit 0
 fi
-touch "$STAMP"
 
-codegraph index "$REPO_ROOT" &>/dev/null &
+{ codegraph index "$REPO_ROOT" && touch "$STAMP"; } >/dev/null 2>&1 &

@@ -394,6 +394,32 @@ func TestCopyFlavorHooksDeployedToHooksDir(t *testing.T) {
 	}
 }
 
+func TestFlavorGitignoreWritesBlockMarkers(t *testing.T) {
+	src := t.TempDir()
+	dst := t.TempDir()
+
+	writeFile(t, src, "base/CLAUDE.md", "<!-- GENERATED:BEGIN -->\n# Base\n<!-- GENERATED:END -->\n<!-- CUSTOM:BEGIN -->\n<!-- CUSTOM:END -->\n")
+	writeFile(t, src, "base/.claude/settings.json", `{}`)
+	writeFile(t, src, "flavors/myflavor/gitignore.txt", ".codegraph/\n")
+
+	cfg := config.Config{Profile: "backend", Flavors: []string{"myflavor"}}
+	if err := deploy.Run(src, dst, cfg); err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+
+	data, err := os.ReadFile(filepath.Join(dst, ".gitignore"))
+	if err != nil {
+		t.Fatalf(".gitignore missing: %v", err)
+	}
+	content := string(data)
+	if !strings.Contains(content, "# forgecrate:myflavor BEGIN") {
+		t.Errorf("begin marker missing in .gitignore: %s", content)
+	}
+	if !strings.Contains(content, "# forgecrate:myflavor END") {
+		t.Errorf("end marker missing in .gitignore: %s", content)
+	}
+}
+
 func TestFlavorGitignoreAppendedToDestGitignore(t *testing.T) {
 	src := t.TempDir()
 	dst := t.TempDir()
@@ -443,13 +469,14 @@ func TestFlavorGitignoreCreatesGitignoreIfMissing(t *testing.T) {
 	}
 }
 
-func TestFlavorGitignoreNotDuplicated(t *testing.T) {
+func TestFlavorGitignoreBlockIdempotentOnRerun(t *testing.T) {
 	src := t.TempDir()
 	dst := t.TempDir()
 
 	writeFile(t, src, "base/CLAUDE.md", "<!-- GENERATED:BEGIN -->\n# Base\n<!-- GENERATED:END -->\n<!-- CUSTOM:BEGIN -->\n<!-- CUSTOM:END -->\n")
 	writeFile(t, src, "base/.claude/settings.json", `{}`)
-	writeFile(t, dst, ".gitignore", ".codegraph/\n")
+	existingBlock := "# forgecrate:myflavor BEGIN\n.codegraph/\n# forgecrate:myflavor END\n"
+	writeFile(t, dst, ".gitignore", existingBlock)
 	writeFile(t, src, "flavors/myflavor/gitignore.txt", ".codegraph/\n")
 
 	cfg := config.Config{Profile: "backend", Flavors: []string{"myflavor"}}
@@ -461,13 +488,13 @@ func TestFlavorGitignoreNotDuplicated(t *testing.T) {
 	if err != nil {
 		t.Fatalf(".gitignore missing: %v", err)
 	}
-	count := strings.Count(string(data), ".codegraph/")
+	count := strings.Count(string(data), "# forgecrate:myflavor BEGIN")
 	if count != 1 {
-		t.Errorf("expected .codegraph/ exactly once, got %d times: %s", count, data)
+		t.Errorf("expected begin marker exactly once, got %d times: %s", count, data)
 	}
 }
 
-func TestFlavorGitignoreNotAddedWhenSubstringOfExistingLine(t *testing.T) {
+func TestFlavorGitignoreBlockAddedEvenIfEntryExistsManually(t *testing.T) {
 	src := t.TempDir()
 	dst := t.TempDir()
 
