@@ -25,7 +25,7 @@ Der MCP-Server läuft lokal (`codegraph serve --mcp`) und stellt 7 Tools bereit:
 
 ### Index-Aktualisierung
 
-Der Index wird automatisch nach jedem Commit aktualisiert (post-commit Hook).
+Der Index wird automatisch bei Session-Start im Hintergrund aktualisiert (einmal pro Commit-Stand).
 Manuell: `codegraph index .` im Repo-Root.
 
 ### Voraussetzung

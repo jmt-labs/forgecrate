@@ -255,7 +255,11 @@ func appendFlavorGitignores(sourceDir, destDir string, cfg config.Config) error 
 	if err != nil && !os.IsNotExist(err) {
 		return fmt.Errorf("read .gitignore: %w", err)
 	}
-	current := string(existing)
+
+	existingLines := make(map[string]struct{})
+	for _, l := range strings.Split(string(existing), "\n") {
+		existingLines[l] = struct{}{}
+	}
 
 	var toAppend []string
 	for _, flavor := range cfg.Flavors {
@@ -271,9 +275,9 @@ func appendFlavorGitignores(sourceDir, destDir string, cfg config.Config) error 
 			if line == "" {
 				continue
 			}
-			if !strings.Contains(current, line) {
+			if _, exists := existingLines[line]; !exists {
 				toAppend = append(toAppend, line)
-				current += line + "\n"
+				existingLines[line] = struct{}{}
 			}
 		}
 	}

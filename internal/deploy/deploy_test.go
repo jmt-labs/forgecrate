@@ -467,6 +467,34 @@ func TestFlavorGitignoreNotDuplicated(t *testing.T) {
 	}
 }
 
+func TestFlavorGitignoreNotAddedWhenSubstringOfExistingLine(t *testing.T) {
+	src := t.TempDir()
+	dst := t.TempDir()
+
+	writeFile(t, src, "base/CLAUDE.md", "<!-- GENERATED:BEGIN -->\n# Base\n<!-- GENERATED:END -->\n<!-- CUSTOM:BEGIN -->\n<!-- CUSTOM:END -->\n")
+	writeFile(t, src, "base/.claude/settings.json", `{}`)
+	writeFile(t, dst, ".gitignore", "vendor/.codegraph/\n")
+	writeFile(t, src, "flavors/myflavor/gitignore.txt", ".codegraph/\n")
+
+	cfg := config.Config{Profile: "backend", Flavors: []string{"myflavor"}}
+	if err := deploy.Run(src, dst, cfg); err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+
+	data, err := os.ReadFile(filepath.Join(dst, ".gitignore"))
+	if err != nil {
+		t.Fatalf(".gitignore missing: %v", err)
+	}
+	content := string(data)
+	lines := strings.Split(strings.TrimRight(content, "\n"), "\n")
+	for _, line := range lines {
+		if line == ".codegraph/" {
+			return
+		}
+	}
+	t.Errorf(".codegraph/ not added as standalone line even though only vendor/.codegraph/ existed: %q", content)
+}
+
 func writeFile(t *testing.T, base, rel, content string) {
 	t.Helper()
 	path := filepath.Join(base, filepath.FromSlash(rel))
