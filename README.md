@@ -266,6 +266,24 @@ roles (Analyst, Tech Lead, Debugger, Reviewer) must use `WebSearch` / `context7`
 strict compliance environments, or projects with purely internal logic where
 external research is not applicable.
 
+### `codegraph` — Semantic code knowledge graph
+
+Adds a local [codegraph](https://github.com/schollz/codegraph) MCP server that builds a semantic knowledge graph of the repository. Provides 7 tools for AI agents:
+
+| Tool | Purpose |
+|---|---|
+| `search_code` | Semantic code search without exact keywords |
+| `get_definition` | Retrieve definition of a symbol (function, type, variable) |
+| `find_references` | Find all usages of a symbol in the repo |
+| `get_call_graph` | Build a call graph for a function |
+| `get_dependencies` | List dependencies of a module/package |
+| `explain_code` | Explain a code section with graph context |
+| `find_similar` | Find similar code patterns across the repo |
+
+The index is updated in the background at session start. The `.codegraph/` directory is automatically added to `.gitignore`.
+
+**Prerequisite:** `codegraph` must be installed (`pip install codegraph`).
+
 ---
 
 ## CLI reference
