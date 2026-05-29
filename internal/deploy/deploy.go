@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/jmt-labs/forgecrate/internal/compose"
 	"github.com/jmt-labs/forgecrate/internal/config"
@@ -60,6 +61,10 @@ func RunWithClaude(sourceDir, destDir string, cfg config.Config, claudeBin strin
 
 	if err := copySkills(sourceDir, destDir, cfg, out); err != nil {
 		return fmt.Errorf("skills: %w", err)
+	}
+
+	if err := appendFlavorGitignores(sourceDir, destDir, cfg); err != nil {
+		return fmt.Errorf("gitignore: %w", err)
 	}
 
 	cfgPath := filepath.Join(destDir, ".forgecrate.yaml")
@@ -239,6 +244,51 @@ func copyHooks(src, dst string, cfg *config.Config, out io.Writer, in io.Reader)
 		}
 		if err := walkHooksDir(flavorHooksDir, dstHooks, cfg, out, in); err != nil {
 			return err
+		}
+	}
+	return nil
+}
+
+func appendFlavorGitignores(sourceDir, destDir string, cfg config.Config) error {
+	gitignorePath := filepath.Join(destDir, ".gitignore")
+	existing, err := os.ReadFile(gitignorePath)
+	if err != nil && !os.IsNotExist(err) {
+		return fmt.Errorf("read .gitignore: %w", err)
+	}
+	current := string(existing)
+
+	var toAppend []string
+	for _, flavor := range cfg.Flavors {
+		srcPath := filepath.Join(sourceDir, "flavors", flavor, "gitignore.txt")
+		data, err := os.ReadFile(srcPath)
+		if os.IsNotExist(err) {
+			continue
+		}
+		if err != nil {
+			return fmt.Errorf("read %s: %w", srcPath, err)
+		}
+		for _, line := range strings.Split(strings.TrimRight(string(data), "\n"), "\n") {
+			if line == "" {
+				continue
+			}
+			if !strings.Contains(current, line) {
+				toAppend = append(toAppend, line)
+				current += line + "\n"
+			}
+		}
+	}
+
+	if len(toAppend) == 0 {
+		return nil
+	}
+	f, err := os.OpenFile(gitignorePath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+	if err != nil {
+		return fmt.Errorf("open .gitignore: %w", err)
+	}
+	defer func() { _ = f.Close() }()
+	for _, line := range toAppend {
+		if _, err := fmt.Fprintln(f, line); err != nil {
+			return fmt.Errorf("write .gitignore: %w", err)
 		}
 	}
 	return nil
