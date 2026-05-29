@@ -9,3 +9,6 @@ coverage.out
 
 # Temporäre Agent-Worktrees (von Claude Code Sub-Agents erstellt)
 .claude/worktrees/
+# forgecrate:codegraph BEGIN
+.codegraph/
+# forgecrate:codegraph END

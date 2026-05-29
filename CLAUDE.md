@@ -215,6 +215,62 @@ Architektur-Entscheidungen mit Begründung.
 - Test-Namen beschreiben Verhalten, nicht Implementierung
 - Mocks nur an Systemgrenzen (externe APIs, Datenbanken)
 - Für jeden gefundenen Bug: Regressionstest vor dem Fix
+
+## Codegraph-Flavor
+
+Dieses Repo nutzt **codegraph** — einen semantischen Code-Wissensgraphen als MCP-Server.
+
+### Was codegraph bietet
+
+Der MCP-Server läuft lokal (`codegraph serve --mcp`) und stellt folgende Tools bereit:
+
+| Tool | Zweck |
+|---|---|
+| `codegraph_search` | Semantische Code-Suche ohne exakte Schlüsselwörter |
+| `codegraph_node` | Definition eines Symbols (Funktion, Typ, Variable) abrufen |
+| `codegraph_callers` / `codegraph_callees` | Alle Aufrufer / Aufgerufenen eines Symbols |
+| `codegraph_trace` | Aufrufpfad zwischen zwei Symbolen nachverfolgen |
+| `codegraph_explore` | Abhängigkeiten und Nachbarn eines Symbols erkunden |
+| `codegraph_context` | Code-Abschnitt mit Graph-Kontext erklären |
+| `codegraph_impact` | Blast-Radius einer Änderung ermitteln |
+| `codegraph_files` | Dateien im Index auflisten |
+| `codegraph_status` | Index-Status prüfen |
+
+### Wann nutzen
+
+- **Vor jeder nicht-trivialen Änderung**: `codegraph_node` + `codegraph_callers` für betroffene Symbole
+- **Beim Debuggen**: `codegraph_trace` um Aufrufkette nachzuvollziehen
+- **Bei Refactoring**: `codegraph_callers` für Call-Sites + `codegraph_search` für Type-/Import-Referenzen
+- **Code-Suche**: `codegraph_search` statt grep bei konzeptuellen Fragen
+- **Impact-Analyse**: `codegraph_impact` vor größeren Umbauten
+
+### Index-Aktualisierung
+
+Der Index wird automatisch bei Session-Start im Hintergrund aktualisiert (einmal pro Commit-Stand).
+Manuell: `codegraph index` im Repo-Root. Erstmalige Initialisierung: `codegraph init -i`.
+
+### Voraussetzung
+
+Installation (einmalig, kein Node.js erforderlich):
+
+```bash
+# macOS / Linux
+curl -fsSL https://raw.githubusercontent.com/colbymchenry/codegraph/main/install.sh | sh
+
+# Windows (PowerShell)
+irm https://raw.githubusercontent.com/colbymchenry/codegraph/main/install.ps1 | iex
+
+# Alternativ via npm
+npm i -g @colbymchenry/codegraph
+```
+
+Danach im Repo initialisieren:
+
+```bash
+codegraph init -i
+```
+
+Der MCP-Server wird über `.mcp.json` automatisch konfiguriert.
 <!-- GENERATED:END -->
 
 <!-- CUSTOM:BEGIN -->

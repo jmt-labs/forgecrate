@@ -5,8 +5,10 @@ profile: backend
 flavors:
     - strict-review
     - tdd
+    - codegraph
 deployed_files:
     .claude/hooks/pre-tool-test.sh: sha256:3fd062c0d9c7bab72a682d33556e2e20490bb30803d985d693b4d564e9135138
     .claude/hooks/pre-tool.sh: sha256:759e2ade5b5be8ab43ed6a8a2e2fdecf96a7241a914bd1cffa1871248f93fceb
-    .claude/hooks/prompt-submit.sh: sha256:549ec91e851c61693dbbd52b7c3dcf051cc461bf2218c7c02d0e029558172708
+    .claude/hooks/prompt-submit.sh: sha256:34251d2681b7c8294cc8080efe96c2292accf7b3c1bdd311ddd1267e41834be7
+    .claude/hooks/session-start.sh: sha256:fba427151d8ae306d422c53a1a3468e69d310fb0b576ca73019552c2ac2386a9
     .claude/settings.json: sha256:891d6f7baa56f82a94ee2fff1b84396fc82431a9ab4a0feb16f29f2a58527cbe
