@@ -7,12 +7,14 @@ import (
 	"strings"
 )
 
+// Installer invokes the claude CLI to install plugins defined in an Extensions set.
 type Installer struct {
 	Claude string
 	Dir    string    // git repo root of the target project
 	Out    io.Writer // progress output; nil = silent
 }
 
+// NewInstaller returns an Installer that uses the "claude" binary on PATH.
 func NewInstaller() Installer {
 	return Installer{Claude: "claude"}
 }

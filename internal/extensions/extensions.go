@@ -6,12 +6,14 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+// Plugin describes a Claude Code plugin to install into the target repo.
 type Plugin struct {
 	Name   string `yaml:"name"`
 	Source string `yaml:"source"`
 	Method string `yaml:"method"`
 }
 
+// MCP describes an MCP server entry to be written into .mcp.json.
 type MCP struct {
 	Name      string            `yaml:"name"`
 	Transport string            `yaml:"transport"`
@@ -21,11 +23,13 @@ type MCP struct {
 	Env       map[string]string `yaml:"env"`
 }
 
+// Extensions holds all plugin and MCP server definitions from one extensions.yaml layer.
 type Extensions struct {
 	Plugins []Plugin `yaml:"plugins"`
 	MCP     []MCP    `yaml:"mcp"`
 }
 
+// Load parses an extensions.yaml file and returns the decoded Extensions.
 func Load(path string) (Extensions, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -38,6 +42,7 @@ func Load(path string) (Extensions, error) {
 	return ext, nil
 }
 
+// Merge combines multiple Extensions layers; first occurrence of a name wins.
 func Merge(layers []Extensions) Extensions {
 	var result Extensions
 	seenPlugin := map[string]bool{}

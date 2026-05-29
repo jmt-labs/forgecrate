@@ -20,12 +20,14 @@ const (
 	maxRetries        = 3
 )
 
+// Client fetches forgecrate release tarballs from the GitHub API with retry logic.
 type Client struct {
 	baseURL    string
 	httpClient *http.Client
 	retryDelay time.Duration
 }
 
+// New returns a Client that targets the given base URL (e.g. for testing).
 func New(baseURL string) *Client {
 	return &Client{
 		baseURL:    baseURL,
@@ -34,6 +36,7 @@ func New(baseURL string) *Client {
 	}
 }
 
+// Default returns a Client preconfigured for the public GitHub API.
 func Default() *Client {
 	return New("https://api.github.com")
 }

@@ -9,6 +9,7 @@ import (
 
 var validPermissionModes = []string{"bypass", "plan", "ask", "auto"}
 
+// Config is the in-memory representation of .forgecrate.yaml.
 type Config struct {
 	Version        string            `yaml:"version"`
 	Source         string            `yaml:"source"`
@@ -19,6 +20,7 @@ type Config struct {
 	DeployedFiles  map[string]string `yaml:"deployed_files,omitempty"`
 }
 
+// ValidatePermissionMode returns an error if mode is not one of: bypass, plan, ask, auto.
 func ValidatePermissionMode(mode string) error {
 	for _, m := range validPermissionModes {
 		if mode == m {
@@ -44,6 +46,7 @@ func (c Config) HasFlavor(name string) bool {
 	return false
 }
 
+// Read decodes a .forgecrate.yaml file at the given path.
 func Read(path string) (Config, error) {
 	f, err := os.Open(path)
 	if err != nil {
@@ -58,6 +61,7 @@ func Read(path string) (Config, error) {
 	return cfg, nil
 }
 
+// Write encodes cfg as YAML and writes it to path, replacing any existing file.
 func Write(path string, cfg Config) error {
 	f, err := os.Create(path)
 	if err != nil {

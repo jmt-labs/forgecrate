@@ -13,8 +13,10 @@ forgecrate init --profile backend --flavors tdd
         │       ├── .claude/commands/       → additive Skill-Kopie
         │       └── .claude/hooks/          → additive Hook-Kopie
         ├── Extensions installieren (internal/extensions)
-        │       ├── Plugins via `claude plugin install <name>`
-        │       └── MCP-Server via `claude mcp add <name>` (Config aus extensions.yaml)
+        │       ├── Plugins via `claude plugin install --scope project <source>`
+        │       │       oder `claude plugin marketplace add <source>` (method: marketplace)
+        │       └── `.mcp.json` aus extensions.yaml generieren (MCP-Server-Konfiguration)
+        ├── memory-bank/ scaffolden (nur fehlende Dateien aus base/memory-bank/ kopieren)
         ├── SHA256-Hashes der deployten Dateien speichern
         ├── .forgecrate.yaml schreiben (profile, flavors, permission_mode, hashes)
         └── Done.

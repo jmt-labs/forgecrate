@@ -62,8 +62,11 @@ sind dünn — sie validieren Argumente und delegieren.
 3. **Deploy** — `internal/deploy` schreibt die komponierten Dateien ins Ziel-Repo,
    speichert SHA256-Hashes in `.forgecrate.yaml`, behandelt Konflikte interaktiv
 4. **Extensions installieren** — `internal/extensions` ruft das `claude`-CLI auf,
-   um Plugins (`claude plugin install`) und MCP-Server (`claude mcp add`) zu
-   registrieren
+   um Plugins zu registrieren (`claude plugin install --scope project` oder
+   `claude plugin marketplace add`) und generiert `.mcp.json` aus `extensions.yaml`
+   für die MCP-Server-Konfiguration
+5. **Memory-Bank scaffolden** — `internal/deploy` befüllt `memory-bank/` mit
+   Template-Dateien aus `base/memory-bank/`; bestehende Dateien bleiben unberührt
 
 ## Querverweise
 
