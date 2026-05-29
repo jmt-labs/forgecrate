@@ -1,0 +1,5 @@
+plugins: []
+mcp:
+  - name: codegraph
+    command: codegraph
+    args: ["serve", "--mcp"]

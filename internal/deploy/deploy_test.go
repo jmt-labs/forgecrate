@@ -372,6 +372,156 @@ func TestRunInstallsExtensionsFromExtendsProfiles(t *testing.T) {
 	}
 }
 
+func TestCopyFlavorHooksDeployedToHooksDir(t *testing.T) {
+	src := t.TempDir()
+	dst := t.TempDir()
+
+	writeFile(t, src, "base/CLAUDE.md", "<!-- GENERATED:BEGIN -->\n# Base\n<!-- GENERATED:END -->\n<!-- CUSTOM:BEGIN -->\n<!-- CUSTOM:END -->\n")
+	writeFile(t, src, "base/.claude/settings.json", `{}`)
+	writeFile(t, src, "base/hooks/pre-tool.sh", "#!/bin/sh\necho base")
+	writeFile(t, src, "flavors/myflavor/hooks/session-start.sh", "#!/bin/sh\necho hello")
+
+	cfg := config.Config{Profile: "backend", Flavors: []string{"myflavor"}}
+	if err := deploy.Run(src, dst, cfg); err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+
+	if _, err := os.Stat(filepath.Join(dst, ".claude", "hooks", "session-start.sh")); err != nil {
+		t.Errorf("flavor hook not copied to .claude/hooks/: %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(dst, ".claude", "hooks", "pre-tool.sh")); err != nil {
+		t.Errorf("base hook missing after flavor hooks added: %v", err)
+	}
+}
+
+func TestFlavorGitignoreWritesBlockMarkers(t *testing.T) {
+	src := t.TempDir()
+	dst := t.TempDir()
+
+	writeFile(t, src, "base/CLAUDE.md", "<!-- GENERATED:BEGIN -->\n# Base\n<!-- GENERATED:END -->\n<!-- CUSTOM:BEGIN -->\n<!-- CUSTOM:END -->\n")
+	writeFile(t, src, "base/.claude/settings.json", `{}`)
+	writeFile(t, src, "flavors/myflavor/gitignore.txt", ".codegraph/\n")
+
+	cfg := config.Config{Profile: "backend", Flavors: []string{"myflavor"}}
+	if err := deploy.Run(src, dst, cfg); err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+
+	data, err := os.ReadFile(filepath.Join(dst, ".gitignore"))
+	if err != nil {
+		t.Fatalf(".gitignore missing: %v", err)
+	}
+	content := string(data)
+	if !strings.Contains(content, "# forgecrate:myflavor BEGIN") {
+		t.Errorf("begin marker missing in .gitignore: %s", content)
+	}
+	if !strings.Contains(content, "# forgecrate:myflavor END") {
+		t.Errorf("end marker missing in .gitignore: %s", content)
+	}
+}
+
+func TestFlavorGitignoreAppendedToDestGitignore(t *testing.T) {
+	src := t.TempDir()
+	dst := t.TempDir()
+
+	writeFile(t, src, "base/CLAUDE.md", "<!-- GENERATED:BEGIN -->\n# Base\n<!-- GENERATED:END -->\n<!-- CUSTOM:BEGIN -->\n<!-- CUSTOM:END -->\n")
+	writeFile(t, src, "base/.claude/settings.json", `{}`)
+	writeFile(t, dst, ".gitignore", "node_modules/\n")
+	writeFile(t, src, "flavors/myflavor/gitignore.txt", ".codegraph/\n")
+
+	cfg := config.Config{Profile: "backend", Flavors: []string{"myflavor"}}
+	if err := deploy.Run(src, dst, cfg); err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+
+	data, err := os.ReadFile(filepath.Join(dst, ".gitignore"))
+	if err != nil {
+		t.Fatalf(".gitignore missing: %v", err)
+	}
+	content := string(data)
+	if !strings.Contains(content, "node_modules/") {
+		t.Errorf("existing .gitignore content lost: %s", content)
+	}
+	if !strings.Contains(content, ".codegraph/") {
+		t.Errorf("flavor gitignore not appended: %s", content)
+	}
+}
+
+func TestFlavorGitignoreCreatesGitignoreIfMissing(t *testing.T) {
+	src := t.TempDir()
+	dst := t.TempDir()
+
+	writeFile(t, src, "base/CLAUDE.md", "<!-- GENERATED:BEGIN -->\n# Base\n<!-- GENERATED:END -->\n<!-- CUSTOM:BEGIN -->\n<!-- CUSTOM:END -->\n")
+	writeFile(t, src, "base/.claude/settings.json", `{}`)
+	writeFile(t, src, "flavors/myflavor/gitignore.txt", ".codegraph/\n")
+
+	cfg := config.Config{Profile: "backend", Flavors: []string{"myflavor"}}
+	if err := deploy.Run(src, dst, cfg); err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+
+	data, err := os.ReadFile(filepath.Join(dst, ".gitignore"))
+	if err != nil {
+		t.Fatalf(".gitignore not created: %v", err)
+	}
+	if !strings.Contains(string(data), ".codegraph/") {
+		t.Errorf("flavor gitignore not written: %s", data)
+	}
+}
+
+func TestFlavorGitignoreBlockIdempotentOnRerun(t *testing.T) {
+	src := t.TempDir()
+	dst := t.TempDir()
+
+	writeFile(t, src, "base/CLAUDE.md", "<!-- GENERATED:BEGIN -->\n# Base\n<!-- GENERATED:END -->\n<!-- CUSTOM:BEGIN -->\n<!-- CUSTOM:END -->\n")
+	writeFile(t, src, "base/.claude/settings.json", `{}`)
+	existingBlock := "# forgecrate:myflavor BEGIN\n.codegraph/\n# forgecrate:myflavor END\n"
+	writeFile(t, dst, ".gitignore", existingBlock)
+	writeFile(t, src, "flavors/myflavor/gitignore.txt", ".codegraph/\n")
+
+	cfg := config.Config{Profile: "backend", Flavors: []string{"myflavor"}}
+	if err := deploy.Run(src, dst, cfg); err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+
+	data, err := os.ReadFile(filepath.Join(dst, ".gitignore"))
+	if err != nil {
+		t.Fatalf(".gitignore missing: %v", err)
+	}
+	count := strings.Count(string(data), "# forgecrate:myflavor BEGIN")
+	if count != 1 {
+		t.Errorf("expected begin marker exactly once, got %d times: %s", count, data)
+	}
+}
+
+func TestFlavorGitignoreBlockAddedEvenIfEntryExistsManually(t *testing.T) {
+	src := t.TempDir()
+	dst := t.TempDir()
+
+	writeFile(t, src, "base/CLAUDE.md", "<!-- GENERATED:BEGIN -->\n# Base\n<!-- GENERATED:END -->\n<!-- CUSTOM:BEGIN -->\n<!-- CUSTOM:END -->\n")
+	writeFile(t, src, "base/.claude/settings.json", `{}`)
+	writeFile(t, dst, ".gitignore", "vendor/.codegraph/\n")
+	writeFile(t, src, "flavors/myflavor/gitignore.txt", ".codegraph/\n")
+
+	cfg := config.Config{Profile: "backend", Flavors: []string{"myflavor"}}
+	if err := deploy.Run(src, dst, cfg); err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+
+	data, err := os.ReadFile(filepath.Join(dst, ".gitignore"))
+	if err != nil {
+		t.Fatalf(".gitignore missing: %v", err)
+	}
+	content := string(data)
+	lines := strings.Split(strings.TrimRight(content, "\n"), "\n")
+	for _, line := range lines {
+		if line == ".codegraph/" {
+			return
+		}
+	}
+	t.Errorf(".codegraph/ not added as standalone line even though only vendor/.codegraph/ existed: %q", content)
+}
+
 func writeFile(t *testing.T, base, rel, content string) {
 	t.Helper()
 	path := filepath.Join(base, filepath.FromSlash(rel))

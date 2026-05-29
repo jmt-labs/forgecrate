@@ -41,3 +41,16 @@ Erkundet das Repo nach `forgecrate init` und erstellt einen strukturierten Über
    Lies jede Zieldatei zuerst via `mcp__memory-bank__memory_bank_read`, um bestehende Inhalte zu kennen. Schreibe neue Inhalte via `mcp__memory-bank__memory_bank_write` (vollständiger Ersatz) oder `mcp__memory-bank__memory_bank_update` (gezielte Ergänzung bestehender Abschnitte). Verwende keine Read/Write-Datei-Tools für memory-bank-Operationen.
 
    **Fertigstellung:** Gib aus welche memory-bank-Dateien befüllt wurden — ein Satz je Datei (projectbrief.md, techContext.md, systemPatterns.md). Damit ist der Skill abgeschlossen.
+
+6. **Codegraph-Flavor prüfen** — prüfe ob `.forgecrate.yaml` den Flavor `codegraph` enthält:
+
+   ```bash
+   grep -q codegraph .forgecrate.yaml 2>/dev/null && echo "aktiv" || echo "nicht aktiv"
+   ```
+
+   **Wenn `codegraph` aktiv:**
+   - Prüfe ob `codegraph` installiert ist: `command -v codegraph`
+   - Falls nicht installiert: Ausgabe `ℹ️ codegraph-Flavor aktiv, aber codegraph nicht installiert. Installation: pip install codegraph`
+   - Falls installiert und `.codegraph/`-Verzeichnis fehlt: Der Hook baut den Index automatisch beim nächsten Prompt — kein manueller Start nötig.
+   - Ergänze in `techContext.md` den Eintrag `- codegraph MCP-Server (semantische Code-Suche, 7 Tools)` **ausschließlich** via `mcp__memory-bank__memory_bank_update` (direktes Schreiben auf memory-bank-Dateien ist verboten).
+   - Nutze `mcp__codegraph__search_code`, `mcp__codegraph__get_definition`, etc. proaktiv während der Analyse in Schritt 1–4 für tiefere Einsichten in Struktur und Muster.

@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/jmt-labs/forgecrate/internal/compose"
 	"github.com/jmt-labs/forgecrate/internal/config"
@@ -60,6 +61,10 @@ func RunWithClaude(sourceDir, destDir string, cfg config.Config, claudeBin strin
 
 	if err := copySkills(sourceDir, destDir, cfg, out); err != nil {
 		return fmt.Errorf("skills: %w", err)
+	}
+
+	if err := appendFlavorGitignores(sourceDir, destDir, cfg); err != nil {
+		return fmt.Errorf("gitignore: %w", err)
 	}
 
 	cfgPath := filepath.Join(destDir, ".forgecrate.yaml")
@@ -226,6 +231,65 @@ func copyHooks(src, dst string, cfg *config.Config, out io.Writer, in io.Reader)
 		return fmt.Errorf("mkdir hooks: %w", err)
 	}
 
+	if err := walkHooksDir(hooksDir, dstHooks, cfg, out, in); err != nil {
+		return err
+	}
+
+	for _, flavor := range cfg.Flavors {
+		flavorHooksDir := filepath.Join(src, "flavors", flavor, "hooks")
+		if _, err := os.Stat(flavorHooksDir); os.IsNotExist(err) {
+			continue
+		} else if err != nil {
+			return fmt.Errorf("flavor-hooks-Verzeichnis prüfen (%s): %w", flavorHooksDir, err)
+		}
+		if err := walkHooksDir(flavorHooksDir, dstHooks, cfg, out, in); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func appendFlavorGitignores(sourceDir, destDir string, cfg config.Config) error {
+	gitignorePath := filepath.Join(destDir, ".gitignore")
+	existing, err := os.ReadFile(gitignorePath)
+	if err != nil && !os.IsNotExist(err) {
+		return fmt.Errorf("read .gitignore: %w", err)
+	}
+	current := string(existing)
+
+	f, err := os.OpenFile(gitignorePath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+	if err != nil {
+		return fmt.Errorf("open .gitignore: %w", err)
+	}
+	defer func() { _ = f.Close() }()
+
+	for _, flavor := range cfg.Flavors {
+		beginMarker := "# forgecrate:" + flavor + " BEGIN"
+		if strings.Contains(current, beginMarker) {
+			continue
+		}
+		srcPath := filepath.Join(sourceDir, "flavors", flavor, "gitignore.txt")
+		data, err := os.ReadFile(srcPath)
+		if os.IsNotExist(err) {
+			continue
+		}
+		if err != nil {
+			return fmt.Errorf("read %s: %w", srcPath, err)
+		}
+		content := strings.TrimRight(string(data), "\n")
+		if content == "" {
+			continue
+		}
+		block := beginMarker + "\n" + content + "\n# forgecrate:" + flavor + " END\n"
+		if _, err := fmt.Fprint(f, block); err != nil {
+			return fmt.Errorf("write .gitignore: %w", err)
+		}
+		current += block
+	}
+	return nil
+}
+
+func walkHooksDir(hooksDir, dstHooks string, cfg *config.Config, out io.Writer, in io.Reader) error {
 	return filepath.Walk(hooksDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil || info.IsDir() {
 			return err
