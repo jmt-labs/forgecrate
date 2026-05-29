@@ -372,6 +372,28 @@ func TestRunInstallsExtensionsFromExtendsProfiles(t *testing.T) {
 	}
 }
 
+func TestCopyFlavorHooksDeployedToHooksDir(t *testing.T) {
+	src := t.TempDir()
+	dst := t.TempDir()
+
+	writeFile(t, src, "base/CLAUDE.md", "<!-- GENERATED:BEGIN -->\n# Base\n<!-- GENERATED:END -->\n<!-- CUSTOM:BEGIN -->\n<!-- CUSTOM:END -->\n")
+	writeFile(t, src, "base/.claude/settings.json", `{}`)
+	writeFile(t, src, "base/hooks/pre-tool.sh", "#!/bin/sh\necho base")
+	writeFile(t, src, "flavors/myflavor/hooks/session-start.sh", "#!/bin/sh\necho hello")
+
+	cfg := config.Config{Profile: "backend", Flavors: []string{"myflavor"}}
+	if err := deploy.Run(src, dst, cfg); err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+
+	if _, err := os.Stat(filepath.Join(dst, ".claude", "hooks", "session-start.sh")); err != nil {
+		t.Errorf("flavor hook not copied to .claude/hooks/: %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(dst, ".claude", "hooks", "pre-tool.sh")); err != nil {
+		t.Errorf("base hook missing after flavor hooks added: %v", err)
+	}
+}
+
 func writeFile(t *testing.T, base, rel, content string) {
 	t.Helper()
 	path := filepath.Join(base, filepath.FromSlash(rel))

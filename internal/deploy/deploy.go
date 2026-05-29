@@ -226,6 +226,25 @@ func copyHooks(src, dst string, cfg *config.Config, out io.Writer, in io.Reader)
 		return fmt.Errorf("mkdir hooks: %w", err)
 	}
 
+	if err := walkHooksDir(hooksDir, dstHooks, cfg, out, in); err != nil {
+		return err
+	}
+
+	for _, flavor := range cfg.Flavors {
+		flavorHooksDir := filepath.Join(src, "flavors", flavor, "hooks")
+		if _, err := os.Stat(flavorHooksDir); os.IsNotExist(err) {
+			continue
+		} else if err != nil {
+			return fmt.Errorf("flavor-hooks-Verzeichnis prüfen (%s): %w", flavorHooksDir, err)
+		}
+		if err := walkHooksDir(flavorHooksDir, dstHooks, cfg, out, in); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func walkHooksDir(hooksDir, dstHooks string, cfg *config.Config, out io.Writer, in io.Reader) error {
 	return filepath.Walk(hooksDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil || info.IsDir() {
 			return err
