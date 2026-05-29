@@ -4,31 +4,52 @@ Dieses Repo nutzt **codegraph** — einen semantischen Code-Wissensgraphen als M
 
 ### Was codegraph bietet
 
-Der MCP-Server läuft lokal (`codegraph serve --mcp`) und stellt 7 Tools bereit:
+Der MCP-Server läuft lokal (`codegraph serve --mcp`) und stellt folgende Tools bereit:
 
 | Tool | Zweck |
 |---|---|
-| `search_code` | Semantische Code-Suche ohne exakte Schlüsselwörter |
-| `get_definition` | Definition eines Symbols (Funktion, Typ, Variable) abrufen |
-| `find_references` | Alle Verwendungen eines Symbols im Repo finden |
-| `get_call_graph` | Aufrufgraph für eine Funktion erstellen |
-| `get_dependencies` | Abhängigkeiten eines Moduls/Pakets auflisten |
-| `explain_code` | Code-Abschnitt mit Graph-Kontext erklären |
-| `find_similar` | Ähnliche Code-Muster im gesamten Repo finden |
+| `codegraph_search` | Semantische Code-Suche ohne exakte Schlüsselwörter |
+| `codegraph_node` | Definition eines Symbols (Funktion, Typ, Variable) abrufen |
+| `codegraph_callers` / `codegraph_callees` | Alle Aufrufer / Aufgerufenen eines Symbols |
+| `codegraph_trace` | Aufrufpfad zwischen zwei Symbolen nachverfolgen |
+| `codegraph_explore` | Abhängigkeiten und Nachbarn eines Symbols erkunden |
+| `codegraph_context` | Code-Abschnitt mit Graph-Kontext erklären |
+| `codegraph_impact` | Blast-Radius einer Änderung ermitteln |
+| `codegraph_files` | Dateien im Index auflisten |
+| `codegraph_status` | Index-Status prüfen |
 
 ### Wann nutzen
 
-- **Vor jeder nicht-trivialen Änderung**: `get_definition` + `find_references` für betroffene Symbole
-- **Beim Debuggen**: `get_call_graph` um Aufrufkette nachzuvollziehen
-- **Bei Refactoring**: `find_references` sicherstellt vollständige Erfassung aller Verwendungen
-- **Code-Suche**: `search_code` statt grep bei konzeptuellen Fragen
+- **Vor jeder nicht-trivialen Änderung**: `codegraph_node` + `codegraph_callers` für betroffene Symbole
+- **Beim Debuggen**: `codegraph_trace` um Aufrufkette nachzuvollziehen
+- **Bei Refactoring**: `codegraph_callers` für Call-Sites + `codegraph_search` für Type-/Import-Referenzen
+- **Code-Suche**: `codegraph_search` statt grep bei konzeptuellen Fragen
+- **Impact-Analyse**: `codegraph_impact` vor größeren Umbauten
 
 ### Index-Aktualisierung
 
 Der Index wird automatisch bei Session-Start im Hintergrund aktualisiert (einmal pro Commit-Stand).
-Manuell: `codegraph index .` im Repo-Root.
+Manuell: `codegraph index` im Repo-Root. Erstmalige Initialisierung: `codegraph init -i`.
 
 ### Voraussetzung
 
-codegraph muss installiert sein: `pip install codegraph` oder `go install github.com/schollz/codegraph@latest`.
+Installation (einmalig, kein Node.js erforderlich):
+
+```bash
+# macOS / Linux
+curl -fsSL https://raw.githubusercontent.com/colbymchenry/codegraph/main/install.sh | sh
+
+# Windows (PowerShell)
+irm https://raw.githubusercontent.com/colbymchenry/codegraph/main/install.ps1 | iex
+
+# Alternativ via npm
+npm i -g @colbymchenry/codegraph
+```
+
+Danach im Repo initialisieren:
+
+```bash
+codegraph init -i
+```
+
 Der MCP-Server wird über `.mcp.json` automatisch konfiguriert.
