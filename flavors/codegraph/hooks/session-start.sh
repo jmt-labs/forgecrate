@@ -17,4 +17,10 @@ if [ -f "$STAMP" ]; then
   exit 0
 fi
 
-{ codegraph index "$REPO_ROOT" && touch "$STAMP"; } >/dev/null 2>&1 &
+( set -C; : > "$STAMP.lock" ) 2>/dev/null || exit 0
+
+if [ ! -d "$REPO_ROOT/.codegraph" ]; then
+  ( cd "$REPO_ROOT" && codegraph init -i && touch "$STAMP"; rm -f "$STAMP.lock" ) >/dev/null 2>&1 &
+else
+  ( cd "$REPO_ROOT" && codegraph index && touch "$STAMP"; rm -f "$STAMP.lock" ) >/dev/null 2>&1 &
+fi
