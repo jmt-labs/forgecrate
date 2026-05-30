@@ -241,11 +241,18 @@ func TestResearchDecision(t *testing.T) {
 			wantBlock:  false,
 		},
 		{
-			name:       "research before last user turn does not count",
+			name:       "research in an earlier turn of the session still counts",
 			cfg:        cfgWith(),
 			transcript: transcript(userLine(), toolUseLine("WebSearch"), userLine(), textLine("nichts")),
 			toolName:   "MultiEdit",
-			wantBlock:  true,
+			wantBlock:  false,
+		},
+		{
+			name:       "single research early in session unlocks later edits without re-research",
+			cfg:        cfgWith(),
+			transcript: transcript(userLine(), toolUseLine("mcp__context7__query-docs"), userLine(), textLine("egal"), userLine(), textLine("immer noch egal")),
+			toolName:   "Edit",
+			wantBlock:  false,
 		},
 		{
 			name:       "context7 tool_use satisfies requirement",
