@@ -456,6 +456,7 @@ Custom skills in this directory complement the managed commands and are never ov
 | `/forgecrate-test-coverage` | flavor: `tdd` | Analyzes test coverage and suggests the next concrete test |
 | `/forgecrate-pr-checklist` | flavor: `strict-review` | Systematic review before `gh pr create` |
 | `/forgecrate-issue-resolver` | flavor: `github` | End-to-end resolution of a GitHub issue up to merge-ready PR |
+| `/forgecrate-batch-issues` | flavor: `github` | Assigns and resolves up to 5 issues in parallel via sub-agents, one PR each |
 | `/forgecrate-github-release` | flavor: `github` | Creates a GitHub Release for the latest tag |
 | `/forgecrate-gitops-status` | flavor: `gitops` | Drift check, policy validation, deployment status |
 | `/forgecrate-getbetter` | flavor: `getbetter` | Saves session insights into `.claude/GETBETTER.md` |
