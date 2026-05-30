@@ -1,0 +1,6 @@
+# Generierte Skills werden nicht versioniert.
+# Projekt-lokale Skills explizit ausgenommen:
+*
+!.gitignore
+!roadmap-triage/
+!roadmap-triage/**
