@@ -27,7 +27,8 @@ layer steuert zusätzlich vier Plugins (`superpowers`, `commit-commands`,
 | `gitops` | ArgoCD-only Deployments, Kyverno/Gatekeeper/`RULES.md`-Enforcement, keine `latest`-Tags | `/forgecrate-gitops-status` | — |
 | `getbetter` | Erkenntnisse aus jeder Session in `.claude/GETBETTER.md` festhalten | `/forgecrate-getbetter` | — |
 | `github` | Releases via `gh release create`, CI-Checks vor Tag, proaktive Parallelisierung | `/forgecrate-issue-resolver`, `/forgecrate-github-release` | — |
-| `no-research` | Recherche-Pflicht aus base layer **deaktivieren** (für air-gapped / Compliance-Repos) | — | — |
+| `force-research` | Erzwungene Web-Recherche vor jeder Code-Änderung; harter Block zusätzlich für schreibende Bash-Befehle | — | — |
+| `no-research` | Recherche-Pflicht aus base layer **deaktivieren**, inkl. hartem PreToolUse-Block (für air-gapped / Compliance-Repos) | — | — |
 | `codegraph` | Semantischer Code-Wissensgraph als lokaler MCP-Server (colbymchenry/codegraph) | — | — |
 
 Skill- und Plugin-Listen kommen aus den jeweiligen
@@ -39,8 +40,11 @@ Skill- und Plugin-Listen kommen aus den jeweiligen
   `forgecrate update --profile <neu>` oder `forgecrate config`
 - **Flavors sind additiv** — beliebig viele lassen sich kombinieren (z. B.
   `--flavors tdd,strict-review,github`)
-- **`no-research` invertiert** — es entfernt die Recherche-Pflicht aus base.
-  Sinnvoll nur isoliert oder in stark eingeschränkten Umgebungen
+- **`no-research` invertiert** — es entfernt die Recherche-Pflicht aus base und
+  deaktiviert den harten PreToolUse-Block. Sinnvoll nur isoliert oder in stark
+  eingeschränkten Umgebungen. Hat Vorrang vor `force-research`, falls beide aktiv sind
+- **`force-research` verschärft** — erweitert den harten Block zusätzlich auf
+  schreibende Bash-Befehle (`sed -i`, `tee`, `dd of=`, Redirects außerhalb `/tmp`)
 - **`minimal` fügt nichts hinzu** — es ist ein Signal "keine extras". Kombination
   mit anderen Flavors funktioniert problemlos
 
