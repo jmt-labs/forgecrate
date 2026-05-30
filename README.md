@@ -258,11 +258,23 @@ Adds GitHub-specific rules: releases via `gh release create`, CI status checks
 before tagging, proactive parallelization for multi-step GitHub tasks. Extra
 skills: `/forgecrate-issue-resolver`, `/forgecrate-github-release`.
 
+### `force-research` — Enforced web research
+
+Hardens the base layer's research mandate. By default every role must use a research
+tool (`WebSearch` / `WebFetch` / `context7` / `fetch`) before any non-trivial code
+change, enforced by the `pre-tool.sh` hook (`forgecrate hook require-research`):
+`Edit` / `Write` / `MultiEdit` are blocked until a research tool call is present in
+the current turn's transcript. This flavor extends that block to **file-writing Bash
+commands** (`sed -i`, `tee`, `dd of=`, redirects outside `/tmp`), closing the
+"write via shell instead of Edit/Write" loophole. One research call per turn unblocks
+subsequent edits in the same turn.
+
 ### `no-research` — Opt-out from research mandate
 
-Disables the default research mandate from the base layer. By default, planning
-roles (Analyst, Tech Lead, Debugger, Reviewer) must use `WebSearch` / `context7` /
-`fetch` before producing a plan. Enable this flavor for air-gapped repositories,
+Disables the default research mandate from the base layer, **including the hard
+PreToolUse block**: `Edit` / `Write` / `MultiEdit` are no longer bound to a prior
+research call. By default every role must use `WebSearch` / `context7` / `fetch`
+before a non-trivial code change. Enable this flavor for air-gapped repositories,
 strict compliance environments, or projects with purely internal logic where
 external research is not applicable.
 

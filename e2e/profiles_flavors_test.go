@@ -66,6 +66,10 @@ var allFlavors = []flavorCase{
 		expectedSkills:   []string{"gitops-drift-check"},
 		expectedCommands: []string{"forgecrate-gitops-status.md"},
 	},
+	{
+		name:          "force-research",
+		contentMarker: "Force-Research-Flavor",
+	},
 }
 
 func TestAllProfiles(t *testing.T) {

@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/jmt-labs/forgecrate/internal/config"
 )
 
 func writeYAML(t *testing.T, dir, content string) string {
@@ -125,7 +127,7 @@ func TestPromptSubmitOutput_ResearchReminderDefault(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if !strings.Contains(out, "Recherche beim Planen") {
+	if !strings.Contains(out, "Recherche-Pflicht") {
 		t.Errorf("expected research reminder by default, got: %s", out)
 	}
 	if !strings.Contains(out, "WebSearch") {
@@ -140,7 +142,7 @@ func TestPromptSubmitOutput_ResearchReminderOptOut(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if strings.Contains(out, "Recherche beim Planen") {
+	if strings.Contains(out, "Recherche-Pflicht") {
 		t.Errorf("research reminder must NOT appear when no-research flavor is active, got: %s", out)
 	}
 }
@@ -151,7 +153,225 @@ func TestPromptSubmitOutput_ResearchReminderMissingConfig(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if !strings.Contains(out, "Recherche beim Planen") {
+	if !strings.Contains(out, "Recherche-Pflicht") {
 		t.Errorf("expected research reminder when config is missing (default on), got: %s", out)
+	}
+}
+
+// --- require-research / researchDecision ---
+
+func userLine() string {
+	return `{"type":"user","message":{"role":"user","content":"tu etwas"}}`
+}
+
+func toolUseLine(name string) string {
+	return `{"type":"assistant","message":{"role":"assistant","content":[{"type":"tool_use","name":"` + name + `","input":{}}]}}`
+}
+
+func textLine(text string) string {
+	return `{"type":"assistant","message":{"role":"assistant","content":[{"type":"text","text":"` + text + `"}]}}`
+}
+
+func transcript(lines ...string) []byte {
+	return []byte(strings.Join(lines, "\n") + "\n")
+}
+
+func cfgWith(flavors ...string) config.Config {
+	return config.Config{Profile: "backend", Flavors: flavors}
+}
+
+func TestIsResearchTool(t *testing.T) {
+	research := []string{"WebSearch", "WebFetch", "mcp__fetch__fetch", "mcp__context7__query-docs", "mcp__context7__resolve-library-id"}
+	for _, name := range research {
+		if !isResearchTool(name) {
+			t.Errorf("expected %q to be a research tool", name)
+		}
+	}
+	notResearch := []string{"Grep", "Glob", "Read", "Edit", "Bash", "mcp__github__search_code", "mcp__memory__read_graph", ""}
+	for _, name := range notResearch {
+		if isResearchTool(name) {
+			t.Errorf("expected %q NOT to be a research tool", name)
+		}
+	}
+}
+
+func TestResearchDecision(t *testing.T) {
+	tests := []struct {
+		name       string
+		cfg        config.Config
+		transcript []byte
+		toolName   string
+		bashCmd    string
+		wantBlock  bool
+	}{
+		{
+			name:       "no-research flavor disables block",
+			cfg:        cfgWith("no-research"),
+			transcript: transcript(userLine(), textLine("kein Research")),
+			toolName:   "Edit",
+			wantBlock:  false,
+		},
+		{
+			name:       "Read is never blocked",
+			cfg:        cfgWith(),
+			transcript: transcript(userLine(), textLine("kein Research")),
+			toolName:   "Read",
+			wantBlock:  false,
+		},
+		{
+			name:       "Bash without force-research is never blocked",
+			cfg:        cfgWith(),
+			transcript: transcript(userLine(), textLine("kein Research")),
+			toolName:   "Bash",
+			bashCmd:    "sed -i 's/a/b/' file.go",
+			wantBlock:  false,
+		},
+		{
+			name:       "Edit without prior research is blocked",
+			cfg:        cfgWith(),
+			transcript: transcript(userLine(), textLine("kein Research")),
+			toolName:   "Edit",
+			wantBlock:  true,
+		},
+		{
+			name:       "Edit after WebSearch in turn is allowed",
+			cfg:        cfgWith(),
+			transcript: transcript(userLine(), toolUseLine("WebSearch")),
+			toolName:   "Write",
+			wantBlock:  false,
+		},
+		{
+			name:       "research before last user turn does not count",
+			cfg:        cfgWith(),
+			transcript: transcript(userLine(), toolUseLine("WebSearch"), userLine(), textLine("nichts")),
+			toolName:   "MultiEdit",
+			wantBlock:  true,
+		},
+		{
+			name:       "context7 tool_use satisfies requirement",
+			cfg:        cfgWith(),
+			transcript: transcript(userLine(), toolUseLine("mcp__context7__query-docs")),
+			toolName:   "Edit",
+			wantBlock:  false,
+		},
+		{
+			name:       "fetch mcp tool_use satisfies requirement",
+			cfg:        cfgWith(),
+			transcript: transcript(userLine(), toolUseLine("mcp__fetch__fetch")),
+			toolName:   "Edit",
+			wantBlock:  false,
+		},
+		{
+			name:       "force-research blocks writing bash without research",
+			cfg:        cfgWith("force-research"),
+			transcript: transcript(userLine(), textLine("nichts")),
+			toolName:   "Bash",
+			bashCmd:    "sed -i 's/a/b/' file.go",
+			wantBlock:  true,
+		},
+		{
+			name:       "force-research allows writing bash after research",
+			cfg:        cfgWith("force-research"),
+			transcript: transcript(userLine(), toolUseLine("WebSearch")),
+			toolName:   "Bash",
+			bashCmd:    "echo hi > file.go",
+			wantBlock:  false,
+		},
+		{
+			name:       "force-research ignores non-writing bash",
+			cfg:        cfgWith("force-research"),
+			transcript: transcript(userLine(), textLine("nichts")),
+			toolName:   "Bash",
+			bashCmd:    "ls -la",
+			wantBlock:  false,
+		},
+		{
+			name:       "broken jsonl lines mixed with valid research",
+			cfg:        cfgWith(),
+			transcript: []byte("not json\n" + userLine() + "\n{garbage\n" + toolUseLine("WebSearch") + "\n"),
+			toolName:   "Edit",
+			wantBlock:  false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			block, reason := researchDecision(tt.cfg, tt.transcript, tt.toolName, tt.bashCmd)
+			if block != tt.wantBlock {
+				t.Errorf("researchDecision block = %v, want %v (reason: %q)", block, tt.wantBlock, reason)
+			}
+			if block && !strings.Contains(reason, "Recherche") {
+				t.Errorf("expected reason to mention 'Recherche', got: %q", reason)
+			}
+		})
+	}
+}
+
+func TestRequireResearchOutput(t *testing.T) {
+	dir := t.TempDir()
+	noResearch := filepath.Join(dir, "no_research.jsonl")
+	if err := os.WriteFile(noResearch, transcript(userLine(), textLine("ok")), 0644); err != nil {
+		t.Fatal(err)
+	}
+	withResearch := filepath.Join(dir, "with_research.jsonl")
+	if err := os.WriteFile(withResearch, transcript(userLine(), toolUseLine("WebSearch")), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	t.Run("Edit without research blocks", func(t *testing.T) {
+		in := `{"tool_name":"Edit","transcript_path":"` + noResearch + `"}`
+		out := requireResearchOutput(strings.NewReader(in), dir)
+		if !strings.Contains(out, `"permissionDecision":"deny"`) {
+			t.Errorf("expected deny output, got: %q", out)
+		}
+	})
+	t.Run("Edit after research allowed", func(t *testing.T) {
+		in := `{"tool_name":"Edit","transcript_path":"` + withResearch + `"}`
+		if out := requireResearchOutput(strings.NewReader(in), dir); out != "" {
+			t.Errorf("expected empty output, got: %q", out)
+		}
+	})
+	t.Run("missing transcript file fails open", func(t *testing.T) {
+		in := `{"tool_name":"Edit","transcript_path":"` + filepath.Join(dir, "nope.jsonl") + `"}`
+		if out := requireResearchOutput(strings.NewReader(in), dir); out != "" {
+			t.Errorf("expected fail-open empty output for missing transcript, got: %q", out)
+		}
+	})
+	t.Run("empty transcript path fails open", func(t *testing.T) {
+		in := `{"tool_name":"Edit","transcript_path":""}`
+		if out := requireResearchOutput(strings.NewReader(in), dir); out != "" {
+			t.Errorf("expected fail-open empty output for empty path, got: %q", out)
+		}
+	})
+	t.Run("invalid stdin json fails open", func(t *testing.T) {
+		if out := requireResearchOutput(strings.NewReader("{not json"), dir); out != "" {
+			t.Errorf("expected fail-open empty output for invalid json, got: %q", out)
+		}
+	})
+}
+
+func TestBashWrites(t *testing.T) {
+	writing := []string{
+		"sed -i 's/a/b/' f.go",
+		"echo hi > f.go",
+		"echo hi >> f.go",
+		"cat a | tee f.go",
+		"dd if=/dev/zero of=f.bin",
+	}
+	for _, cmd := range writing {
+		if !bashWrites(cmd) {
+			t.Errorf("expected %q to be detected as writing", cmd)
+		}
+	}
+	nonWriting := []string{
+		"ls -la",
+		"git status",
+		"echo hi > /tmp/scratch.txt",
+		"grep foo bar.go",
+	}
+	for _, cmd := range nonWriting {
+		if bashWrites(cmd) {
+			t.Errorf("expected %q NOT to be detected as writing", cmd)
+		}
 	}
 }

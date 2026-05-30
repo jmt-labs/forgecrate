@@ -1,5 +1,30 @@
 #!/usr/bin/env bash
-TOOL="${CLAUDE_TOOL_NAME:-}"
+# PreToolUse-Hook. Erhält das Hook-JSON über stdin (tool_name, tool_input,
+# transcript_path). stdin darf nur einmal gelesen werden — daher in STDIN_JSON puffern
+# und an `forgecrate hook require-research` weiterreichen.
+
+STDIN_JSON=""
+if [ ! -t 0 ]; then
+  STDIN_JSON=$(cat)
+fi
+
+# tool_name aus dem stdin-JSON; Fallback auf die (inoffizielle) Env-Var.
+TOOL=$(printf '%s' "$STDIN_JSON" | sed -n 's/.*"tool_name"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p')
+if [ -z "$TOOL" ]; then
+  TOOL="${CLAUDE_TOOL_NAME:-}"
+fi
+
+# require_research ruft die Go-Binary auf; bei nicht-leerer Ausgabe (deny-JSON)
+# wird diese ausgegeben und der Tool-Aufruf blockiert. Fail-open ohne Binary.
+require_research() {
+  if command -v forgecrate >/dev/null 2>&1; then
+    DECISION=$(printf '%s' "$STDIN_JSON" | forgecrate hook require-research)
+    if [ -n "$DECISION" ]; then
+      printf '%s' "$DECISION"
+      exit 0
+    fi
+  fi
+}
 
 case "$TOOL" in
   Edit|Write|MultiEdit)
@@ -8,12 +33,16 @@ case "$TOOL" in
       printf '{"continue": false, "stopReason": "Direkte Änderungen auf main sind verboten. Branch anlegen: git checkout -b feat/<thema> — dann erst Edit/Write verwenden."}'
       exit 0
     fi
+    require_research
     echo '{"hookSpecificOutput": {"hookEventName": "PreToolUse", "additionalContext": "Branch-Check OK. Stelle sicher: brainstorming und tdd Skills wurden aufgerufen."}}'
     ;;
   Bash)
     BRANCH=$(git branch --show-current 2>/dev/null)
     if [ "$BRANCH" = "main" ] || [ "$BRANCH" = "master" ]; then
-      INPUT="${TOOL_INPUT:-}"
+      INPUT=$(printf '%s' "$STDIN_JSON" | sed -n 's/.*"command"[[:space:]]*:[[:space:]]*"\(.*\)".*/\1/p')
+      if [ -z "$INPUT" ]; then
+        INPUT="${TOOL_INPUT:-}"
+      fi
 
       # git commit direkt auf main
       if echo "$INPUT" | grep -qE '(^|[;&|]|\brun\b)\s*git\s+commit\b'; then
@@ -52,6 +81,8 @@ case "$TOOL" in
       fi
     fi
 
+    # force-research: schreibende Bash-Befehle ohne vorherige Recherche blocken
+    require_research
     echo '{"hookSpecificOutput": {"hookEventName": "PreToolUse", "additionalContext": "Bash-Aufruf. Keine destruktiven Aktionen ohne Bestätigung."}}'
     ;;
 esac
@@ -61,4 +92,6 @@ esac
 # - git push [--force] origin main
 # - git reset --hard
 # - Schreib-Redirectionen (>> / >)
+# Recherche-Block (require-research): Edit/Write/MultiEdit immer, schreibende Bash bei
+# Flavor force-research — bis im aktuellen Turn ein Recherche-Tool genutzt wurde.
 # Hinweis: Dieser Hook ist keine alleinige Schutzschicht. GitHub Branch Protection ergänzen.

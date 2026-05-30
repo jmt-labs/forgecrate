@@ -16,7 +16,7 @@ Wird bei jeder User-Nachricht ausgeführt, bevor Claude den Prompt verarbeitet.
 Profil: backend | Flavors: tdd, strict-review
 
 Pflicht-Skills: brainstorming → tdd → verification-before-completion | debugging bei Bugs
-Recherche beim Planen: WebSearch/context7/fetch nutzen — nicht raten
+Recherche-Pflicht (erzwungen): vor jedem Edit/Write WebSearch/context7/fetch nutzen — nicht raten (Block via pre-tool Hook).
 ```
 
 Die letzte Zeile (Recherche-Pflicht) entfällt automatisch, wenn der Flavor
@@ -24,13 +24,24 @@ Die letzte Zeile (Recherche-Pflicht) entfällt automatisch, wenn der Flavor
 
 ## PreToolUse — `pre-tool.sh`
 
-Wird vor `Bash`, `Edit` und `Write` ausgeführt.
+Wird vor `Bash`, `Edit`, `Write` und `MultiEdit` ausgeführt. Der Hook liest das
+PreToolUse-JSON über **stdin** (inkl. `tool_name`, `tool_input`, `transcript_path`).
 
 **Verhalten:**
 
 - **Blockiert** auf Branch `main`/`master` destruktive Bash-Kommandos:
   `git commit`, `git push`, `git reset --hard`, sowie Schreib-Redirektionen
   (`>`, `>>`) auf versionierte Dateien.
+- **Erzwingt die Recherche-Pflicht** via `forgecrate hook require-research`:
+  `Edit`/`Write`/`MultiEdit` werden **blockiert**, solange nach dem letzten
+  User-Prompt kein assistant-`tool_use` mit einem Recherche-Tool
+  (`WebSearch`, `WebFetch`, `mcp__fetch__*`, `mcp__context7__*`) im Transcript steht.
+  Eine Recherche pro Turn schaltet Folge-Edits frei.
+  - Flavor `no-research` deaktiviert den Block vollständig.
+  - Flavor `force-research` erweitert ihn auf schreibende Bash-Befehle
+    (`sed -i`, `tee`, `dd of=`, Redirects außerhalb `/tmp`).
+  - **Fail-open**: fehlt die Binary, das Transcript oder ist es unparsebar, wird
+    nicht blockiert (verhindert Dauersperren).
 - **Erinnert** kontextabhängig an relevante Pflicht-Skills — z. B. an
   `superpowers:test-driven-development`, wenn Code-Dateien editiert werden.
 
@@ -55,4 +66,5 @@ So bleiben die forgecrate-Hooks aktuell, eigene Logik überlebt Updates.
 ## Quellen
 
 - Hook-Scripts: `base/hooks/prompt-submit.sh`, `base/hooks/pre-tool.sh`
-- Helper-Binary: `cmd/forgecrate/hook.go`
+- Helper-Binary: `cmd/forgecrate/hook.go` (`forgecrate hook prompt-submit`,
+  `forgecrate hook require-research`)
