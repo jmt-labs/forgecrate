@@ -16,7 +16,7 @@ Wird bei jeder User-Nachricht ausgeführt, bevor Claude den Prompt verarbeitet.
 Profil: backend | Flavors: tdd, strict-review
 
 Pflicht-Skills: brainstorming → tdd → verification-before-completion | debugging bei Bugs
-Recherche-Pflicht (erzwungen): vor jedem Edit/Write WebSearch/context7/fetch nutzen — nicht raten (Block via pre-tool Hook).
+Recherche-Pflicht (erzwungen): einmal pro Session vor dem ersten Edit/Write WebSearch/context7/fetch nutzen — nicht raten (Block via pre-tool Hook).
 ```
 
 Die letzte Zeile (Recherche-Pflicht) entfällt automatisch, wenn der Flavor
@@ -33,10 +33,10 @@ PreToolUse-JSON über **stdin** (inkl. `tool_name`, `tool_input`, `transcript_pa
   `git commit`, `git push`, `git reset --hard`, sowie Schreib-Redirektionen
   (`>`, `>>`) auf versionierte Dateien.
 - **Erzwingt die Recherche-Pflicht** via `forgecrate hook require-research`:
-  `Edit`/`Write`/`MultiEdit` werden **blockiert**, solange nach dem letzten
-  User-Prompt kein assistant-`tool_use` mit einem Recherche-Tool
-  (`WebSearch`, `WebFetch`, `mcp__fetch__*`, `mcp__context7__*`) im Transcript steht.
-  Eine Recherche pro Turn schaltet Folge-Edits frei.
+  `Edit`/`Write`/`MultiEdit` werden **blockiert**, solange im gesamten Session-Transcript
+  kein assistant-`tool_use` mit einem Recherche-Tool
+  (`WebSearch`, `WebFetch`, `mcp__fetch__*`, `mcp__context7__*`) steht.
+  Eine Recherche pro Session schaltet alle weiteren Edits frei.
   - Flavor `no-research` deaktiviert den Block vollständig.
   - Flavor `force-research` erweitert ihn auf schreibende Bash-Befehle
     (`sed -i`, `tee`, `dd of=`, Redirects außerhalb `/tmp`).

@@ -73,7 +73,7 @@ func promptSubmitOutput(dir string) (string, error) {
 	fmt.Fprintln(&sb)
 	fmt.Fprintf(&sb, "Pflicht-Skills: brainstorming → tdd → verification-before-completion | debugging bei Bugs\n")
 	if !cfg.HasFlavor("no-research") {
-		fmt.Fprintf(&sb, "Recherche-Pflicht (erzwungen): vor jedem Edit/Write WebSearch/context7/fetch nutzen — nicht raten (Block via pre-tool Hook).\n")
+		fmt.Fprintf(&sb, "Recherche-Pflicht (erzwungen): einmal pro Session vor dem ersten Edit/Write WebSearch/context7/fetch nutzen — nicht raten (Block via pre-tool Hook).\n")
 	}
 	return sb.String(), nil
 }
@@ -81,7 +81,7 @@ func promptSubmitOutput(dir string) (string, error) {
 func newHookRequireResearchCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "require-research",
-		Short: "Blockiert Edit/Write/MultiEdit (und schreibende Bash bei force-research), bis im Turn recherchiert wurde",
+		Short: "Blockiert Edit/Write/MultiEdit (und schreibende Bash bei force-research), bis in der Session recherchiert wurde",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if out := requireResearchOutput(os.Stdin, "."); out != "" {
 				fmt.Print(out)
@@ -91,7 +91,7 @@ func newHookRequireResearchCmd() *cobra.Command {
 	}
 }
 
-const researchBlockMessage = "Recherche-Pflicht: Vor Edit/Write/MultiEdit muss in diesem Turn mindestens ein Recherche-Tool (WebSearch, WebFetch, mcp__fetch__*, mcp__context7__*) genutzt worden sein. Recherchiere zuerst die relevante Doku/Best Practice, dann editiere. Bewusster Verzicht: Flavor no-research aktivieren."
+const researchBlockMessage = "Recherche-Pflicht: Einmal pro Session muss vor Edit/Write/MultiEdit mindestens ein Recherche-Tool (WebSearch, WebFetch, mcp__fetch__*, mcp__context7__*) genutzt worden sein. Recherchiere zuerst die relevante Doku/Best Practice, dann editiere — danach sind weitere Edits der Session frei. Bewusster Verzicht: Flavor no-research aktivieren."
 
 // preToolInput ist das stdin-JSON, das ein PreToolUse-Hook von Claude Code erhält.
 type preToolInput struct {
@@ -165,8 +165,8 @@ func requireResearchOutput(r io.Reader, dir string) string {
 	return string(out)
 }
 
-// researchDecision entscheidet, ob ein Tool-Aufruf blockiert wird, weil im aktuellen
-// User-Turn noch kein Recherche-Tool genutzt wurde. no-research deaktiviert den Block.
+// researchDecision entscheidet, ob ein Tool-Aufruf blockiert wird, weil in der Session
+// noch kein Recherche-Tool genutzt wurde. no-research deaktiviert den Block.
 func researchDecision(cfg config.Config, transcript []byte, toolName, bashCmd string) (bool, string) {
 	if cfg.HasFlavor("no-research") {
 		return false, ""
@@ -183,7 +183,7 @@ func researchDecision(cfg config.Config, transcript []byte, toolName, bashCmd st
 		return false, ""
 	}
 
-	if transcriptHasResearchSinceLastUser(transcript) {
+	if transcriptHasResearchAnywhere(transcript) {
 		return false, ""
 	}
 	return true, researchBlockMessage
@@ -197,15 +197,13 @@ func isResearchTool(name string) bool {
 	return strings.HasPrefix(name, "mcp__fetch__") || strings.HasPrefix(name, "mcp__context7__")
 }
 
-// transcriptHasResearchSinceLastUser prüft, ob nach dem letzten user-Eintrag ein
-// assistant-tool_use mit einem Recherche-Tool vorkommt. Robust gegen kaputte Zeilen.
-func transcriptHasResearchSinceLastUser(transcript []byte) bool {
+// transcriptHasResearchAnywhere prüft, ob irgendwo in der Session (gesamtes
+// Transcript) ein assistant-tool_use mit einem Recherche-Tool vorkommt. Einmal pro
+// Session genügt — Folge-Edits werden nicht erneut geblockt. Robust gegen kaputte Zeilen.
+func transcriptHasResearchAnywhere(transcript []byte) bool {
 	lines := bytes.Split(transcript, []byte("\n"))
-	parsed := make([]transcriptLine, len(lines))
-	valid := make([]bool, len(lines))
-	lastUser := -1
 
-	for i, raw := range lines {
+	for _, raw := range lines {
 		raw = bytes.TrimSpace(raw)
 		if len(raw) == 0 {
 			continue
@@ -214,18 +212,6 @@ func transcriptHasResearchSinceLastUser(transcript []byte) bool {
 		if err := json.Unmarshal(raw, &tl); err != nil {
 			continue
 		}
-		parsed[i] = tl
-		valid[i] = true
-		if tl.Type == "user" || tl.Message.Role == "user" {
-			lastUser = i
-		}
-	}
-
-	for i := lastUser + 1; i < len(lines); i++ {
-		if !valid[i] {
-			continue
-		}
-		tl := parsed[i]
 		if tl.Type != "assistant" && tl.Message.Role != "assistant" {
 			continue
 		}

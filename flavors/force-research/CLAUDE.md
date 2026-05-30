@@ -2,8 +2,8 @@
 
 Dieser Flavor verschärft die ohnehin erzwungene Recherche-Pflicht des base layer:
 
-- Der harte PreToolUse-Block (kein Edit/Write/MultiEdit ohne vorherige Recherche im
-  aktuellen Turn) gilt **zusätzlich für schreibende Bash-Befehle** — auch
+- Der harte PreToolUse-Block (kein Edit/Write/MultiEdit ohne vorherige Recherche
+  einmal pro Session) gilt **zusätzlich für schreibende Bash-Befehle** — auch
   Datei-Schreibzugriffe via Shell (`sed -i`, `tee`, `dd of=`, Redirects außerhalb
   `/tmp`) werden ohne vorherige Recherche blockiert. Damit ist die Umgehung „Datei per
   Shell schreiben statt Edit/Write" geschlossen.

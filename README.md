@@ -263,11 +263,11 @@ skills: `/forgecrate-issue-resolver`, `/forgecrate-github-release`.
 Hardens the base layer's research mandate. By default every role must use a research
 tool (`WebSearch` / `WebFetch` / `context7` / `fetch`) before any non-trivial code
 change, enforced by the `pre-tool.sh` hook (`forgecrate hook require-research`):
-`Edit` / `Write` / `MultiEdit` are blocked until a research tool call is present in
-the current turn's transcript. This flavor extends that block to **file-writing Bash
-commands** (`sed -i`, `tee`, `dd of=`, redirects outside `/tmp`), closing the
-"write via shell instead of Edit/Write" loophole. One research call per turn unblocks
-subsequent edits in the same turn.
+`Edit` / `Write` / `MultiEdit` are blocked until a research tool call is present
+anywhere in the session transcript. This flavor extends that block to **file-writing
+Bash commands** (`sed -i`, `tee`, `dd of=`, redirects outside `/tmp`), closing the
+"write via shell instead of Edit/Write" loophole. One research call per session unblocks
+all subsequent edits in that session.
 
 ### `no-research` — Opt-out from research mandate
 

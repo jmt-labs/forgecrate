@@ -21,7 +21,7 @@ eigene Anpassungen gehören in den CUSTOM-Abschnitt der Root-`CLAUDE.md`.
 mindestens ein Recherche-Tool nutzen — statt aus gelerntem Wissen zu arbeiten. Raten
 ist verboten; Quellen werden referenziert. Dies wird durch den `pre-tool.sh`-Hook
 (`forgecrate hook require-research`) **hart erzwungen**: Edit/Write/MultiEdit werden
-**blockiert**, bis im aktuellen Turn eine Recherche (WebSearch/WebFetch/context7/fetch)
+**blockiert**, bis einmal pro Session eine Recherche (WebSearch/WebFetch/context7/fetch)
 im Transcript nachweisbar ist.
 
 | Frage-Typ | Tool | Beispiele |
@@ -32,8 +32,8 @@ im Transcript nachweisbar ist.
 
 **Regeln:**
 
-- Mindestens eine Quelle pro nicht-trivialer Entscheidung; eine Recherche pro Turn
-  schaltet Folge-Edits desselben Turns frei
+- Mindestens eine Quelle pro nicht-trivialer Entscheidung; eine Recherche pro Session
+  schaltet alle weiteren Edits der Session frei
 - Quellen im Plan-Dokument (`docs/superpowers/plans/*.md`) referenzieren
 - Deaktivierbar via Flavor `no-research` — deaktiviert auch den harten Block
 - Verschärfbar via Flavor `force-research` — blockt zusätzlich schreibende
@@ -82,7 +82,7 @@ zusätzlich konfiguriert werden, damit direkte Pushes auch serverseitig verhinde
 werden.
 
 Derselbe Hook erzwingt die **Recherche-Pflicht** (`forgecrate hook
-require-research`): Edit/Write/MultiEdit werden blockiert, bis im aktuellen Turn ein
+require-research`): Edit/Write/MultiEdit werden blockiert, bis einmal pro Session ein
 Recherche-Tool (WebSearch/WebFetch/`mcp__fetch__*`/`mcp__context7__*`) genutzt wurde.
 Mit Flavor `force-research` gilt der Block zusätzlich für schreibende Bash-Befehle
 (`sed -i`, `tee`, `dd of=`, Redirects außerhalb `/tmp`). Flavor `no-research`
