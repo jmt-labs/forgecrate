@@ -150,7 +150,7 @@ func TestDeployIncludesBaseSkills(t *testing.T) {
 	if err := deploy.Run(localSource(t), dst, cfg); err != nil {
 		t.Fatalf("deploy.Run: %v", err)
 	}
-	skills := []string{"forgecrate-release", "forgecrate-repo-onboarding", "forgecrate-repo-health", "forgecrate-advisor"}
+	skills := []string{"forgecrate-release", "forgecrate-repo-onboarding", "forgecrate-repo-health", "forgecrate-advisor", "forgecrate-catchup"}
 	for _, s := range skills {
 		path := filepath.Join(dst, ".claude", "skills", s, "SKILL.md")
 		if _, err := os.Stat(path); err != nil {
@@ -214,6 +214,7 @@ func TestBaseCommandsDeployed(t *testing.T) {
 		"forgecrate-release.md",
 		"forgecrate-repo-health.md",
 		"forgecrate-repo-onboarding.md",
+		"forgecrate-catchup.md",
 	}
 
 	for _, f := range baseCommands {
