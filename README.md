@@ -450,6 +450,7 @@ Custom skills in this directory complement the managed commands and are never ov
 | `/forgecrate-repo-health` | base | Finds improvement potential and delivers a prioritized list |
 | `/forgecrate-release` | base | Runs a complete release cycle |
 | `/forgecrate-handoff` | base | Generates a portable `HANDOFF.md` for AI model switches or session handoffs |
+| `/forgecrate-catchup` | base | Short digest of recent activity (commits, context, GitHub) over the last N days |
 | `/forgecrate-db-migration` | profile: `backend` | Guides creation and review of a database migration |
 | `/accessibility-audit` | profile: `frontend` | Static A11y checks per changed file (alt, label, aria-\*) |
 | `/ui-ux-audit` | profile: `frontend` | Deep UI/UX audit with severity grading and auto-created GitHub issues |
