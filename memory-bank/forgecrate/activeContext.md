@@ -2,9 +2,15 @@
 
 ## Aktueller Fokus
 
-Memory-Bank-Struktur migriert und Workflow-Regel für PRs ergänzt:
-- `memory-bank/*.md` (flach) → `memory-bank/forgecrate/*.md` (MCP-kompatibel, projectName=forgecrate)
-- `base/CLAUDE.md` + `CLAUDE.md`: Schritt 5 des Entwicklungs-Workflows erweitert — vor jedem PR memory-bank aktualisieren und Inhalt in PR-Beschreibung einbeziehen; bei fehlendem memory-Inhalt zuerst `/forgecrate-repo-onboarding` ausführen
+Validierung von Profil-/Flavor-Namen ergänzt (Branch
+`claude/project-improvement-planning-JVwWc`):
+- Tippfehler wie `--profile backendd` / `--flavors tddd` wurden bisher in
+  `compose` still übersprungen (`if err == nil`) → unvollständige Konfig ohne Fehler.
+- Neu: `deploy.validateSelection` (internal/deploy/validate.go) prüft gegen den
+  tatsächlichen Katalog (profiles/, flavors/) und bricht VOR jedem Schreibvorgang
+  mit klarer Meldung + Levenshtein-„meintest du …?"-Vorschlag ab.
+- Choke-Point: `deploy.RunWithClaude` (deckt init/update/config zugleich ab).
+- Regel: leerer/fehlender Katalog → Prüfung entfällt (für Minimal-Test-Fixtures).
 
 ## Offene Fragen
 
@@ -12,4 +18,5 @@ Memory-Bank-Struktur migriert und Workflow-Regel für PRs ergänzt:
 
 ## Bekannte Blocker
 
-Keine.
+Keine. (e2e-Plugin-Install-Fehler bei Frontend-Plugins sind netz-/sandboxbedingt,
+unabhängig von der Validierung; `make test-e2e` mit Fake-CLAUDE_BIN ist grün.)

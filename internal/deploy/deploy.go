@@ -24,6 +24,9 @@ func RunWithClaude(sourceDir, destDir string, cfg config.Config, claudeBin strin
 	if err := cfg.Validate(); err != nil {
 		return err
 	}
+	if err := validateSelection(sourceDir, cfg); err != nil {
+		return err
+	}
 	req := compose.Request{
 		SourceDir:      sourceDir,
 		DestDir:        destDir,
