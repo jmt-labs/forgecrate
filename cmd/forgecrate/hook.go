@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -253,16 +254,11 @@ func newHookPreToolCmd() *cobra.Command {
 }
 
 func currentBranch() (string, error) {
-	data, err := os.ReadFile(".git/HEAD")
+	out, err := exec.Command("git", "branch", "--show-current").Output()
 	if err != nil {
 		return "", err
 	}
-	s := strings.TrimSpace(string(data))
-	const prefix = "ref: refs/heads/"
-	if strings.HasPrefix(s, prefix) {
-		return strings.TrimPrefix(s, prefix), nil
-	}
-	return s, nil
+	return strings.TrimSpace(string(out)), nil
 }
 
 func isMainBranch(branch string) bool {
@@ -309,13 +305,7 @@ func preToolOutput(branch, toolName, toolInput string) string {
 		if onMain {
 			return `{"continue":false,"stopReason":"Direkte Änderungen auf main sind verboten. Branch anlegen: git checkout -b feat/<thema>"}`
 		}
-		out, _ := json.Marshal(map[string]any{
-			"hookSpecificOutput": map[string]string{
-				"hookEventName":     "PreToolUse",
-				"additionalContext": "Branch-Check OK. Stelle sicher: brainstorming und tdd Skills wurden aufgerufen.",
-			},
-		})
-		return string(out)
+		// require-research übernimmt diese Tools — kein zweiter JSON-Output hier
 	case "Bash":
 		destructive := isDestructiveBash(toolInput)
 		if destructive == "" {
