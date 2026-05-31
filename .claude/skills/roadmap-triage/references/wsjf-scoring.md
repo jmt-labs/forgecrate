@@ -70,7 +70,7 @@ In den Issue-Body schreiben:
 Body editieren + `prio:*`-Label tauschen:
 ```bash
 gh issue edit <nr> --body "..."
-bash .claude/skills/roadmap-triage/roadmap.sh stage-move <nr> <stage>  # falls Stage sich ändert
+./scripts/roadmap.sh stage-move <nr> <stage>  # falls Stage sich ändert
 ```
 
 ## Konsistenz-Regeln
