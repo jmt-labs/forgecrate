@@ -357,6 +357,55 @@ func TestRequireResearchOutput(t *testing.T) {
 	})
 }
 
+// --- preToolOutput ---
+
+func TestPreToolOutput_EditOnMain_Blocked(t *testing.T) {
+	out := preToolOutput("main", "Edit", "")
+	if !strings.Contains(out, `"continue":false`) {
+		t.Errorf("expected continue:false on main, got: %s", out)
+	}
+}
+
+func TestPreToolOutput_EditOnFeatureBranch_Allowed(t *testing.T) {
+	out := preToolOutput("feat/foo", "Edit", "")
+	if strings.Contains(out, `"continue":false`) {
+		t.Errorf("expected no block on feature branch, got: %s", out)
+	}
+}
+
+func TestPreToolOutput_DestructiveBashOnMain_Blocked(t *testing.T) {
+	for _, cmd := range []string{"git reset --hard", "git commit -m msg", "git push origin main", "git push --force", "git clean -f"} {
+		out := preToolOutput("main", "Bash", cmd)
+		if !strings.Contains(out, `"continue":false`) {
+			t.Errorf("cmd %q on main: expected continue:false, got: %s", cmd, out)
+		}
+	}
+}
+
+func TestPreToolOutput_DestructiveBashOnFeatureBranch_Warned(t *testing.T) {
+	for _, cmd := range []string{"git reset --hard", "git commit -m msg", "git push origin main", "git push --force", "git clean -f"} {
+		out := preToolOutput("feat/foo", "Bash", cmd)
+		if strings.Contains(out, `"continue":false`) {
+			t.Errorf("cmd %q on feature branch: must not block, got: %s", cmd, out)
+		}
+		if !strings.Contains(out, "hookSpecificOutput") || !strings.Contains(out, "Warnung") {
+			t.Errorf("cmd %q on feature branch: expected warning in hookSpecificOutput, got: %s", cmd, out)
+		}
+	}
+}
+
+func TestPreToolOutput_SafeBashOnAnyBranch_NoWarning(t *testing.T) {
+	for _, branch := range []string{"main", "feat/foo"} {
+		out := preToolOutput(branch, "Bash", "go test ./...")
+		if strings.Contains(out, `"continue":false`) {
+			t.Errorf("safe bash on %s: must not block, got: %s", branch, out)
+		}
+		if strings.Contains(out, "Warnung") {
+			t.Errorf("safe bash on %s: must not warn, got: %s", branch, out)
+		}
+	}
+}
+
 func TestBashWrites(t *testing.T) {
 	writing := []string{
 		"sed -i 's/a/b/' f.go",
