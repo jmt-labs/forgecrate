@@ -16,11 +16,14 @@ eigene Anpassungen gehören in den CUSTOM-Abschnitt der Root-`CLAUDE.md`.
 | Debug | `superpowers:systematic-debugging` | MUSS vor Fix aufgerufen werden |
 | Bug gefunden (nach Debug) | `superpowers:test-driven-development` | Regressionstest schreiben, BEVOR der Fix committed wird |
 
-## Recherche-Pflicht beim Planen
+## Recherche-Pflicht (erzwungen)
 
-Planungs-Rollen (Analyst, Tech Lead, Debugger, Reviewer) MÜSSEN vor jedem Plan
-mindestens ein Recherche-Tool nutzen. Raten ist verboten — Quellen werden im Plan
-referenziert.
+**Alle** Rollen MÜSSEN vor jeder nicht-trivialen Code-Änderung (Edit/Write/MultiEdit)
+mindestens ein Recherche-Tool nutzen — statt aus gelerntem Wissen zu arbeiten. Raten
+ist verboten; Quellen werden referenziert. Dies wird durch den `pre-tool.sh`-Hook
+(`forgecrate hook require-research`) **hart erzwungen**: Edit/Write/MultiEdit werden
+**blockiert**, bis einmal pro Session eine Recherche (WebSearch/WebFetch/context7/fetch)
+im Transcript nachweisbar ist.
 
 | Frage-Typ | Tool | Beispiele |
 |---|---|---|
@@ -30,10 +33,12 @@ referenziert.
 
 **Regeln:**
 
-- Mindestens eine Quelle pro nicht-trivialer Planungsentscheidung
+- Mindestens eine Quelle pro nicht-trivialer Entscheidung; eine Recherche pro Session
+  schaltet alle weiteren Edits der Session frei
 - Quellen im Plan-Dokument (`docs/superpowers/plans/*.md`) referenzieren
-- Bei rein mechanischen Tasks (Rename, Typo, einzeiliger Fix) entfällt die Pflicht
-- Deaktivierbar via Flavor `no-research`
+- Deaktivierbar via Flavor `no-research` — deaktiviert auch den harten Block
+- Verschärfbar via Flavor `force-research` — blockt zusätzlich schreibende
+  Bash-Befehle (siehe Abschnitt „## Hook-Schutz")
 
 ## Entwicklungs-Workflow
 
@@ -77,6 +82,14 @@ jedoch **keine alleinige Schutzschicht** — GitHub Branch Protection Rules müs
 zusätzlich konfiguriert werden, damit direkte Pushes auch serverseitig verhindert
 werden.
 
+Derselbe Hook erzwingt die **Recherche-Pflicht** (`forgecrate hook
+require-research`): Edit/Write/MultiEdit werden blockiert, bis einmal pro Session ein
+Recherche-Tool (WebSearch/WebFetch/`mcp__fetch__*`/`mcp__context7__*`) genutzt wurde.
+Mit Flavor `force-research` gilt der Block zusätzlich für schreibende Bash-Befehle
+(`sed -i`, `tee`, `dd of=`, Redirects außerhalb `/tmp`). Flavor `no-research`
+deaktiviert den Block vollständig. Bei fehlender Binary, fehlendem oder kaputtem
+Transcript verhält sich der Hook **fail-open** (kein Block).
+
 ## Team-Rollen & Subagent-Konfiguration
 
 Der Hauptagent koordiniert als Team-Lead. Subagenten übernehmen Rollen
@@ -92,11 +105,11 @@ Dispatch eines Subagenten über das Agent-Tool — gültig sind nur die Family-A
 |---|---|---|---|
 | Analyst / Product Owner | `superpowers:brainstorming` | `opus` | Pflicht |
 | Tech Lead / Architekt | `superpowers:writing-plans` | `opus` | Pflicht |
-| Entwickler | `superpowers:test-driven-development` | `sonnet` | optional |
-| Implementierer (mechanisch) | `superpowers:subagent-driven-development` | `haiku` | nein |
-| Reviewer | `superpowers:requesting-code-review` | `sonnet` | Pflicht bei Architektur-Fragen |
-| QA / Abschluss | `superpowers:verification-before-completion` | `sonnet` | nein |
-| Debugger | `superpowers:systematic-debugging` | `sonnet` | Pflicht (CVE, Lib-Issues, Stack-Overflow) |
+| Entwickler | `superpowers:test-driven-development` | `sonnet` | Pflicht |
+| Implementierer (mechanisch) | `superpowers:subagent-driven-development` | `haiku` | Pflicht |
+| Reviewer | `superpowers:requesting-code-review` | `sonnet` | Pflicht |
+| QA / Abschluss | `superpowers:verification-before-completion` | `sonnet` | Pflicht |
+| Debugger | `superpowers:systematic-debugging` | `sonnet` | Pflicht |
 
 ## Parallelisierung & Isolation
 
@@ -201,13 +214,6 @@ Architektur-Entscheidungen mit Begründung.
 - Tests: Integrationstests bevorzugt gegenüber reinen Unit-Tests mit Mocks
 - Kein ORM-Magic: explizite Queries sind verständlicher
 
-## Strict-Review-Flavor
-
-- Vor jedem Commit: `superpowers:requesting-code-review` aufrufen
-- Keine direkten Commits auf main/master
-- PR-Beschreibung enthält: Was, Warum, Wie getestet
-- Breaking Changes werden explizit kommuniziert
-
 ## TDD-Flavor
 
 - Test schreiben → ausführen (muss fehlschlagen) → implementieren → ausführen (muss bestehen) → committen
@@ -271,6 +277,33 @@ codegraph init -i
 ```
 
 Der MCP-Server wird über `.mcp.json` automatisch konfiguriert.
+
+## GitHub-Flavor
+
+- Releases über `gh release create` veröffentlichen (nach `release`-Skill)
+- PR-Templates in `.github/pull_request_template.md` pflegen
+- CI-Status mit `gh run list` prüfen bevor ein Release getaggt wird
+
+## Multiagent & Subagenten
+
+Parallelisierung/Isolation gemäß Base-Layer-Tabelle gelten auch hier — gerade bei
+Issue-Batches proaktiv Background-Mode und Worktrees nutzen.
+
+## Force-Research-Flavor (verschärfte Recherche-Pflicht)
+
+Dieser Flavor verschärft die ohnehin erzwungene Recherche-Pflicht des base layer:
+
+- Der harte PreToolUse-Block (kein Edit/Write/MultiEdit ohne vorherige Recherche
+  einmal pro Session) gilt **zusätzlich für schreibende Bash-Befehle** — auch
+  Datei-Schreibzugriffe via Shell (`sed -i`, `tee`, `dd of=`, Redirects außerhalb
+  `/tmp`) werden ohne vorherige Recherche blockiert. Damit ist die Umgehung „Datei per
+  Shell schreiben statt Edit/Write" geschlossen.
+- Kein impliziter Ausnahmefall. Bewusster Verzicht ausschließlich über den Flavor
+  `no-research`.
+
+Die Durchsetzung liegt vollständig im base-Hook (`pre-tool.sh` →
+`forgecrate hook require-research`); dieser Flavor aktiviert lediglich die
+zusätzliche Bash-Prüfung über die aktive Konfiguration.
 <!-- GENERATED:END -->
 
 <!-- CUSTOM:BEGIN -->
