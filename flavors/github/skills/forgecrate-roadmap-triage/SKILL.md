@@ -1,5 +1,5 @@
 ---
-name: roadmap-triage
+name: forgecrate-roadmap-triage
 description: >-
   Erfasst, klassifiziert, priorisiert und trackt Produktideen als GitHub Issues.
   UNBEDINGT nutzen, sobald ich eine neue Idee, einen Bug, eine Erweiterung oder
@@ -34,7 +34,7 @@ Fehlt `gh` oder fehlt Auth → **sofort stoppen**. Niemals selbst einloggen, kei
 ## Labels einmalig sicherstellen
 
 ```bash
-bash .claude/skills/roadmap-triage/roadmap.sh setup-labels
+bash .claude/skills/forgecrate-roadmap-triage/roadmap.sh setup-labels
 ```
 
 Legt alle `stage:*`, `type:*`, `prio:*` und `dropped` idempotent an. **Einmal vor erstem Einsatz ausführen.**
@@ -43,11 +43,11 @@ Legt alle `stage:*`, `type:*`, `prio:*` und `dropped` idempotent an. **Einmal vo
 
 | Modus | Trigger | Schnellbefehl |
 |---|---|---|
-| **Capture** | Idee/Bug/Feature erwähnt | `bash .claude/skills/roadmap-triage/roadmap.sh capture "<titel>"` |
-| **Triage** | „Backlog aufräumen", Inbox verarbeiten | `bash .claude/skills/roadmap-triage/roadmap.sh inbox` |
-| **Plan Release** | „Release planen", neuer Meilenstein | `bash .claude/skills/roadmap-triage/roadmap.sh backlog-ranked` |
-| **Groom** | „Backlog reviewen", WSJF veraltet | `bash .claude/skills/roadmap-triage/roadmap.sh resurface` |
-| **Status** | „Was liegt an?", „Wie steht's?" | `bash .claude/skills/roadmap-triage/roadmap.sh status` |
+| **Capture** | Idee/Bug/Feature erwähnt | `bash .claude/skills/forgecrate-roadmap-triage/roadmap.sh capture "<titel>"` |
+| **Triage** | „Backlog aufräumen", Inbox verarbeiten | `bash .claude/skills/forgecrate-roadmap-triage/roadmap.sh inbox` |
+| **Plan Release** | „Release planen", neuer Meilenstein | `bash .claude/skills/forgecrate-roadmap-triage/roadmap.sh backlog-ranked` |
+| **Groom** | „Backlog reviewen", WSJF veraltet | `bash .claude/skills/forgecrate-roadmap-triage/roadmap.sh resurface` |
+| **Status** | „Was liegt an?", „Wie steht's?" | `bash .claude/skills/forgecrate-roadmap-triage/roadmap.sh status` |
 
 Detaillierter Ablauf je Modus → [references/modes.md](references/modes.md)
 

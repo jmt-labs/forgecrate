@@ -17,7 +17,7 @@ Issue-Nummer = einzige ID. Kein eigenes Schema.
 
 Stage-Wechsel = altes `stage:*`-Label entfernen, neues setzen:
 ```bash
-bash .claude/skills/roadmap-triage/roadmap.sh stage-move <issue-nr> <neues-stage-label>
+bash .claude/skills/forgecrate-roadmap-triage/roadmap.sh stage-move <issue-nr> <neues-stage-label>
 ```
 
 ## Type-Labels (genau einer pro Issue)
@@ -46,7 +46,7 @@ Macht „beim nächsten Release wieder vorlegen" per `--label` abfragbar:
 ```bash
 gh issue list --label "resurface:v2.0"
 # oder via Script:
-bash .claude/skills/roadmap-triage/roadmap.sh resurface
+bash .claude/skills/forgecrate-roadmap-triage/roadmap.sh resurface
 ```
 
 ## Milestone-Struktur

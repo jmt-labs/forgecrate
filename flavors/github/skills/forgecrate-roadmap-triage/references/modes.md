@@ -7,7 +7,7 @@
 **Ablauf:**
 1. Sofort Issue anlegen — keine Bewertung, kein Verhör:
    ```bash
-   bash .claude/skills/roadmap-triage/roadmap.sh capture "<titel>"
+   bash .claude/skills/forgecrate-roadmap-triage/roadmap.sh capture "<titel>"
    # oder manuell:
    gh issue create \
      --title "<titel>" \
@@ -27,7 +27,7 @@
 **Ablauf je `stage:inbox`-Issue:**
 
 ```bash
-bash .claude/skills/roadmap-triage/roadmap.sh inbox   # alle inbox Issues anzeigen
+bash .claude/skills/forgecrate-roadmap-triage/roadmap.sh inbox   # alle inbox Issues anzeigen
 ```
 
 Für jedes Issue:
@@ -49,7 +49,7 @@ Für jedes Issue:
 
 5. **Stage-Wechsel:** altes `stage:*` entfernen, neues setzen:
    ```bash
-   bash .claude/skills/roadmap-triage/roadmap.sh stage-move <nr> stage:backlog
+   bash .claude/skills/forgecrate-roadmap-triage/roadmap.sh stage-move <nr> stage:backlog
    ```
 
 ---
@@ -70,7 +70,7 @@ Für jedes Issue:
 
 2. **Backlog filtern:**
    ```bash
-   bash .claude/skills/roadmap-triage/roadmap.sh backlog-ranked   # nach WSJF-Score absteigend
+   bash .claude/skills/forgecrate-roadmap-triage/roadmap.sh backlog-ranked   # nach WSJF-Score absteigend
    gh issue list --label "resurface:<tag>"   # fällige Resurface-Items
    ```
 
@@ -80,7 +80,7 @@ Für jedes Issue:
 
 5. **Nach Freigabe:** Items auf `stage:planned` + Milestone setzen:
    ```bash
-   bash .claude/skills/roadmap-triage/roadmap.sh stage-move <nr> stage:planned
+   bash .claude/skills/forgecrate-roadmap-triage/roadmap.sh stage-move <nr> stage:planned
    gh issue edit <nr> --milestone "<milestone-name>"
    ```
 
@@ -101,7 +101,7 @@ Für jedes Issue:
 1. **Veraltete Scores** markieren (> 4 Wochen alt oder abhängige Issues geändert).
 2. **Fällige Resurface-Items** hervorheben:
    ```bash
-   bash .claude/skills/roadmap-triage/roadmap.sh resurface
+   bash .claude/skills/forgecrate-roadmap-triage/roadmap.sh resurface
    ```
 3. **Duplikate schließen:** reason=„not planned", Label `dropped`, Kommentar „Duplikat von #<nr>" — Original bleibt erhalten.
 4. **Issues ohne `type:*`** ergänzen.
@@ -113,7 +113,7 @@ Für jedes Issue:
 **Trigger:** „Was liegt an?", „Wie steht's?", „Milestone-Stand?"
 
 ```bash
-bash .claude/skills/roadmap-triage/roadmap.sh status
+bash .claude/skills/forgecrate-roadmap-triage/roadmap.sh status
 ```
 
 Zeigt:

@@ -2,5 +2,5 @@
 # Projekt-lokale Skills explizit ausgenommen:
 *
 !.gitignore
-!roadmap-triage/
-!roadmap-triage/**
+!forgecrate-roadmap-triage/
+!forgecrate-roadmap-triage/**
