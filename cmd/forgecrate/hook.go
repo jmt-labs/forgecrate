@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -21,6 +22,7 @@ func newHookCmd() *cobra.Command {
 	}
 	hook.AddCommand(newHookPromptSubmitCmd())
 	hook.AddCommand(newHookRequireResearchCmd())
+	hook.AddCommand(newHookPreToolCmd())
 	return hook
 }
 
@@ -226,6 +228,101 @@ func transcriptHasResearchAnywhere(transcript []byte) bool {
 		}
 	}
 	return false
+}
+
+func newHookPreToolCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "pre-tool",
+		Short: "Prüft destruktive Tool-Aufrufe vor der Ausführung",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			data, _ := io.ReadAll(os.Stdin)
+			var in preToolInput
+			_ = json.Unmarshal(data, &in)
+			if in.ToolName == "" {
+				in.ToolName = os.Getenv("CLAUDE_TOOL_NAME")
+			}
+			if in.ToolInput.Command == "" {
+				in.ToolInput.Command = os.Getenv("TOOL_INPUT")
+			}
+			branch, _ := currentBranch()
+			if out := preToolOutput(branch, in.ToolName, in.ToolInput.Command); out != "" {
+				fmt.Print(out)
+			}
+			return nil
+		},
+	}
+}
+
+func currentBranch() (string, error) {
+	out, err := exec.Command("git", "branch", "--show-current").Output()
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(string(out)), nil
+}
+
+func isMainBranch(branch string) bool {
+	return branch == "main" || branch == "master"
+}
+
+var reDestructiveBash = []*regexp.Regexp{
+	regexp.MustCompile(`(^|[;&|]|\brun\b)\s*git\s+commit\b`),
+	regexp.MustCompile(`git\s+push\s+.*(-f\b|--force\b)`),
+	regexp.MustCompile(`git\s+push\b.*\b(main|master)\b`),
+	regexp.MustCompile(`git\s+reset\s+--hard\b`),
+	regexp.MustCompile(`git\s+clean\s+.*-[a-zA-Z]*f`),
+	regexp.MustCompile(`>>?\s*[^/\s][^\s]*`),
+}
+
+func isDestructiveBash(cmd string) string {
+	patterns := []struct {
+		re  *regexp.Regexp
+		msg string
+	}{
+		{reDestructiveBash[0], "git commit"},
+		{reDestructiveBash[1], "git push --force"},
+		{reDestructiveBash[2], "git push ... main/master"},
+		{reDestructiveBash[3], "git reset --hard"},
+		{reDestructiveBash[4], "git clean -f"},
+		{reDestructiveBash[5], "Schreib-Redirektion"},
+	}
+	for _, p := range patterns {
+		if p.re.MatchString(cmd) {
+			if p.msg == "Schreib-Redirektion" && strings.Contains(cmd, "/tmp/") {
+				continue
+			}
+			return p.msg
+		}
+	}
+	return ""
+}
+
+func preToolOutput(branch, toolName, toolInput string) string {
+	onMain := isMainBranch(branch)
+
+	switch toolName {
+	case "Edit", "Write", "MultiEdit":
+		if onMain {
+			return `{"continue":false,"stopReason":"Direkte Änderungen auf main sind verboten. Branch anlegen: git checkout -b feat/<thema>"}`
+		}
+		// require-research übernimmt diese Tools — kein zweiter JSON-Output hier
+	case "Bash":
+		destructive := isDestructiveBash(toolInput)
+		if destructive == "" {
+			return ""
+		}
+		if onMain {
+			return `{"continue":false,"stopReason":"Destruktiver Bash-Befehl auf main verboten: ` + destructive + `"}`
+		}
+		out, _ := json.Marshal(map[string]any{
+			"hookSpecificOutput": map[string]string{
+				"hookEventName":     "PreToolUse",
+				"additionalContext": "Warnung: destruktiver Befehl erkannt (" + destructive + "). Auf Feature-Branches erlaubt, aber mit Bedacht verwenden.",
+			},
+		})
+		return string(out)
+	}
+	return ""
 }
 
 var (
