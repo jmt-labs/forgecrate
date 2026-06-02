@@ -143,7 +143,7 @@ forgecrate-Lauf.
 
 | Server | Transport | Zweck |
 |---|---|---|
-| `github` | HTTP (GitHub Copilot) | Issues, PRs, Code-Suche, Branches, Labels |
+| `github` | stdio (`npx`) | Issues, PRs, Code-Suche, Branches, Labels |
 | `fetch` | stdio (`npx`) | Externe Webinhalte: Docs, RFCs, Changelogs |
 | `memory` | stdio (`npx`) | Projektübergreifende Architektur-Entscheidungen |
 | `memory-bank` | stdio (`npx`) | Repo-spezifischer Projektkontext (laufender Stand) |
