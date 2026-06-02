@@ -325,11 +325,17 @@ func TestRequireResearchOutput(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	t.Run("Edit without research blocks", func(t *testing.T) {
+	t.Run("Edit without research warns", func(t *testing.T) {
 		in := `{"tool_name":"Edit","transcript_path":"` + noResearch + `"}`
 		out := requireResearchOutput(strings.NewReader(in), dir)
-		if !strings.Contains(out, `"permissionDecision":"deny"`) {
-			t.Errorf("expected deny output, got: %q", out)
+		if strings.Contains(out, `"permissionDecision":"deny"`) {
+			t.Errorf("must not deny (warn-only), got: %q", out)
+		}
+		if out == "" {
+			t.Errorf("expected non-empty warning output, got empty")
+		}
+		if !strings.Contains(out, "Recherche") {
+			t.Errorf("expected research warning, got: %q", out)
 		}
 	})
 	t.Run("Edit after research allowed", func(t *testing.T) {
@@ -359,10 +365,13 @@ func TestRequireResearchOutput(t *testing.T) {
 
 // --- preToolOutput ---
 
-func TestPreToolOutput_EditOnMain_Blocked(t *testing.T) {
+func TestPreToolOutput_EditOnMain_Warned(t *testing.T) {
 	out := preToolOutput("main", "Edit", "")
-	if !strings.Contains(out, `"continue":false`) {
-		t.Errorf("expected continue:false on main, got: %s", out)
+	if strings.Contains(out, `"continue":false`) {
+		t.Errorf("must not block on main (warn-only), got: %s", out)
+	}
+	if !strings.Contains(out, "Warnung") {
+		t.Errorf("expected warning in output, got: %s", out)
 	}
 }
 
@@ -373,11 +382,14 @@ func TestPreToolOutput_EditOnFeatureBranch_Allowed(t *testing.T) {
 	}
 }
 
-func TestPreToolOutput_DestructiveBashOnMain_Blocked(t *testing.T) {
+func TestPreToolOutput_DestructiveBashOnMain_Warned(t *testing.T) {
 	for _, cmd := range []string{"git reset --hard", "git commit -m msg", "git push origin main", "git push --force", "git clean -f"} {
 		out := preToolOutput("main", "Bash", cmd)
-		if !strings.Contains(out, `"continue":false`) {
-			t.Errorf("cmd %q on main: expected continue:false, got: %s", cmd, out)
+		if strings.Contains(out, `"continue":false`) {
+			t.Errorf("cmd %q on main: must not block (warn-only), got: %s", cmd, out)
+		}
+		if !strings.Contains(out, "Warnung") {
+			t.Errorf("cmd %q on main: expected warning, got: %s", cmd, out)
 		}
 	}
 }
