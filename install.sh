@@ -33,10 +33,10 @@ else
   API_URL="https://api.github.com/repos/${REPO}/releases/tags/${VERSION}"
 fi
 
-PATTERN="forgecrate-${OS}-${ARCH}"
+PATTERN="forgecrate_.*_${OS}_${ARCH}\.tar\.gz"
 DOWNLOAD_URL=$(curl -fsSL "$API_URL" \
   | grep "browser_download_url" \
-  | grep "$PATTERN" \
+  | grep -E "$PATTERN" \
   | head -1 \
   | cut -d '"' -f 4)
 
@@ -53,14 +53,16 @@ if [ ! -w "$INSTALL_DIR" ]; then
 fi
 
 # Herunterladen und installieren
-TMP=$(mktemp)
-trap 'rm -f "$TMP"' EXIT
+TMPDIR=$(mktemp -d)
+trap 'rm -rf "$TMPDIR"' EXIT
 
 echo "Lade ${DOWNLOAD_URL##*/} herunter..."
-curl -fsSL -o "$TMP" "$DOWNLOAD_URL"
-chmod +x "$TMP"
-mv "$TMP" "$INSTALL_DIR/forgecrate"
+curl -fsSL -o "$TMPDIR/forgecrate.tar.gz" "$DOWNLOAD_URL"
+tar -xzf "$TMPDIR/forgecrate.tar.gz" -C "$TMPDIR"
+chmod +x "$TMPDIR/forgecrate"
+mv "$TMPDIR/forgecrate" "$INSTALL_DIR/forgecrate"
 trap - EXIT
+rm -rf "$TMPDIR"
 
 echo "Installiert: $INSTALL_DIR/forgecrate"
 
