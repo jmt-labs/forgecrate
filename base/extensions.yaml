@@ -13,12 +13,14 @@ plugins:
 
 mcp:
   - name: github
-    transport: http
-    url: https://api.githubcopilot.com/mcp/
+    command: npx
+    args: ["-y", "@modelcontextprotocol/server-github"]
+    env:
+      GITHUB_PERSONAL_ACCESS_TOKEN: "${GITHUB_PERSONAL_ACCESS_TOKEN}"
 
   - name: fetch
     command: npx
-    args: ["-y", "@modelcontextprotocol/server-fetch"]
+    args: ["-y", "mcp-fetch-server"]
 
   - name: memory
     command: npx
