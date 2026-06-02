@@ -1,12 +1,13 @@
 ---
 name: forgecrate-roadmap-triage
 description: >-
-  Erfasst, klassifiziert, priorisiert und trackt Produktideen als GitHub Issues.
-  UNBEDINGT nutzen, sobald ich eine neue Idee, einen Bug, eine Erweiterung oder
-  einen Feature-Wunsch erwähne, oder fragen wie "ist das wichtig?", "gehört das
-  auf die Roadmap?", "Bugfix oder Feature?", "was als nächstes?", "Release
-  planen", "Backlog aufräumen" stelle — auch wenn ich den Skill nicht ausdrücklich
-  nenne. Schützt vor Scope-Creep und sorgt dafür, dass keine Idee verloren geht.
+  PFLICHT nach jedem abgeschlossenen Brainstorming. Bewertet das Ergebnis mit
+  WSJF-Score und K.O.-Kriterien. Entscheidet: "Umsetzbar jetzt" (→ writing-plans)
+  oder "Future Feature" (→ GitHub Issue anlegen). UNBEDINGT nutzen, sobald eine
+  neue Idee, ein Bug, eine Erweiterung oder ein Feature-Wunsch erwähnt wird, oder
+  Fragen wie "ist das wichtig?", "gehört das auf die Roadmap?", "Bugfix oder
+  Feature?", "was als nächstes?", "Release planen", "Backlog aufräumen" gestellt
+  werden — auch wenn der Skill nicht ausdrücklich genannt wird.
 ---
 
 # roadmap-triage
@@ -72,3 +73,43 @@ Vor diesen Aktionen **immer Bestätigung einholen**:
 - Schließen eines Issues
 - Verschieben in den aktiven Meilenstein
 - Anlegen mehrerer Issues auf einmal
+
+## Entscheidung nach Brainstorming
+
+**PFLICHT:** Direkt nach jedem abgeschlossenen `superpowers:brainstorming` diesen
+Entscheidungsbaum durchlaufen. Kein Plan, keine Implementierung ohne dieses Gate.
+
+### K.O.-Kriterien (überwiegen WSJF-Score)
+
+Falls eines zutrifft → sofort **Future Feature**, unabhängig vom Score:
+
+1. **Fehlende Abhängigkeiten** — externes Service, anderes Feature oder Infrastruktur noch nicht fertig
+2. **Scope zu groß** — nicht in einem PR + Review-Zyklus abschließbar (>3 Tage Arbeit)
+3. **Kein definierbarer Nutzer-Impact** — Akzeptanzkriterien nicht formulierbar
+
+### WSJF-Schwelle
+
+- Score ≥ 2.0 **und** kein K.O.-Kriterium → **Umsetzbar jetzt**
+- Score < 2.0 **oder** K.O.-Kriterium → **Future Feature**
+
+### Ausgabe
+
+**Umsetzbar jetzt:**
+```
+✅ Umsetzbar jetzt (WSJF: X.X)
+→ Weiter mit writing-plans
+```
+
+**Future Feature:**
+```
+📋 Future Feature (WSJF: X.X | K.O.: <Grund oder "keines">)
+→ GitHub Issue anlegen mit Label "future-feature"
+→ Kein Plan, keine Implementierung jetzt
+```
+
+### Trigger
+
+Wird aufgerufen:
+- **Pflicht** — direkt nach jedem abgeschlossenen `superpowers:brainstorming`
+- **Automatisch** — wenn eine neue Idee, ein Bug, eine Erweiterung oder Feature-Wunsch erwähnt wird
+- **Auf Anfrage** — bei Fragen wie "ist das wichtig?", "gehört das auf die Roadmap?", "machen wir das?"
