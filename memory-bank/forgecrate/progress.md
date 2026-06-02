@@ -11,13 +11,16 @@
 - Flache memory-bank/*.md Dateien entfernt
 - Validierung von Profil-/Flavor-Namen mit Levenshtein-Vorschlägen
   (internal/deploy/validate.go + validate_test.go); harter Abbruch vor Schreibvorgang
+- codegraph-Flavor vollständig implementiert (#87, #88)
+  - Flavor-Hook-Support in deploy.go, Flavor-Settings-Merge in compose.go
+  - Gitignore-Appending in deploy.go, `flavors/codegraph/` mit allen Dateien
+- PR #114 gemergt: Claude Plugins-Abschnitt in base/CLAUDE.md
 
 ## In Arbeit
 
-- Validierungs-Feature: implementiert + getestet (make test grün, golangci-lint 0 issues),
-  Commit/Push auf Branch claude/project-improvement-planning-JVwWc
+- Workflow-Overhaul (Spec fertig: `docs/superpowers/specs/2026-06-02-workflow-overhaul-design.md`)
 
 ## Nächste Schritte
 
-- Ggf. PR erstellen (auf Wunsch des Nutzers)
-- `forgecrate update` in abhängigen Repos anstoßen, um neue Regeln zu verteilen
+- Implementierungsplan für Workflow-Overhaul erstellen
+- `forgecrate update` in abhängigen Repos anstoßen
