@@ -9,9 +9,29 @@ Autonomer Senior-Entwickler-Workflow: Issue `$ARGUMENTS` end-to-end bearbeiten �
 
 Superpowers-Skills sind **verpflichtende Workflows**, keine Vorschläge. Fortschritt wird als Issue-Kommentare dokumentiert.
 
+## Argumente (`$ARGUMENTS`)
+
+Alle optional, frei kombinierbar:
+
+- Einzelne Issue-Nummer (z. B. `42`) — Standard-Modus, ein Issue
+- `count:N` — N Issues parallel bearbeiten (Default 1, Maximum 5); Auto-Auswahl der nächsten offenen Issues nach Priorität
+- `label:<name>` — nur Issues mit diesem Label berücksichtigen
+- Mehrere Issue-Nummern (z. B. `12 15 18`) — diese Issues parallel bearbeiten
+
+Bei `count > 1` oder mehreren Issue-Nummern:
+1. Issues auswählen/bestätigen
+2. Pro Issue einen isolierten Subagenten via `isolation: "worktree"` + `run_in_background: true` dispatchen
+3. Jeder Subagent führt den vollständigen Issue-Resolver-Workflow aus
+4. Fortschritt wird je Issue als Issue-Kommentar dokumentiert
+
 ---
 
 ## Ablauf
+
+### 0. Research (`forgecrate-research`)
+Vor der Issue-Analyse: `forgecrate-research` aufrufen.
+Thema: betroffene Technologie, Muster oder API aus dem Issue-Kontext.
+Research-Block im Issue-Kommentar `🔍 Research` dokumentieren.
 
 ### 1. Verstehen (`using-superpowers`)
 Issue als Assignee beanspruchen, Status auf „in progress" setzen. Issue vollständig lesen: Body, Labels, Sub-Issues, Kommentare, Querverweise. Betroffene Codepfade analysieren (`git log`, `git blame`, Tests, Patterns).
@@ -69,6 +89,7 @@ PR-Titel: `<type>(<scope>): <beschreibung> (#<issue>)`. PR-Body: Zusammenfassung
 
 | Schritt | Skill |
 |---|---|
+| 0 Research | `forgecrate-research` |
 | 1 Verstehen | `using-superpowers` |
 | 2 Brainstormen | `brainstorming` |
 | 3 Planen | `writing-plans` |
