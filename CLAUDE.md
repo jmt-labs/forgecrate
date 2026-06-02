@@ -165,6 +165,19 @@ Routing-Grenzen (verhindern Falsch-Aufrufe):
 
 `memory` und `memory-bank` haben eigene Pflicht-Regeln — siehe unten.
 
+## Claude Plugins
+
+Vier Plugins werden automatisch via `forgecrate deploy` installiert (`claude plugin install --scope project`).
+
+| Plugin | Zweck |
+|---|---|
+| `superpowers` | Skill-System: Workflows für TDD, Brainstorming, Debugging, Reviews |
+| `commit-commands` | Slash-Commands für standardisierte Commits und PRs |
+| `security-guidance` | Sicherheitshinweise und Best-Practices für Code-Reviews |
+| `claude-md-management` | Verwaltung und Verbesserung von CLAUDE.md-Dateien |
+
+Plugins stellen Slash-Commands und Skills bereit — sie sind nicht über MCP aufrufbar.
+
 ### Memory (`memory`)
 
 Projektübergreifendes Wissen persistent speichern. Datei: `.claude/memory.json`
