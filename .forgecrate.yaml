@@ -10,7 +10,7 @@ flavors:
 permission_mode: bypass
 deployed_files:
     .claude/hooks/pre-tool-test.sh: sha256:3fd062c0d9c7bab72a682d33556e2e20490bb30803d985d693b4d564e9135138
-    .claude/hooks/pre-tool.sh: sha256:7838cea90bc502e4df43ceaabafd7352af179e4ba9a02c2bf36b09c8195bbf62
+    .claude/hooks/pre-tool.sh: sha256:df6aacd3a9aa6dd52c76b90f6e693fe1ed73839016bf87b92b8f9ad4fb2ad076
     .claude/hooks/prompt-submit.sh: sha256:34251d2681b7c8294cc8080efe96c2292accf7b3c1bdd311ddd1267e41834be7
     .claude/hooks/session-start.sh: sha256:fba427151d8ae306d422c53a1a3468e69d310fb0b576ca73019552c2ac2386a9
     .claude/settings.json: sha256:ad82eea2d04fa4c3564feda461d555e2c19c9eea9ba76efe0f72cf8f889df8ec
