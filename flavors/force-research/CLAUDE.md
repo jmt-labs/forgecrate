@@ -1,12 +1,12 @@
 ## Force-Research-Flavor (verschärfte Recherche-Pflicht)
 
-Dieser Flavor verschärft die ohnehin erzwungene Recherche-Pflicht des base layer:
+Dieser Flavor verschärft die Recherche-Empfehlung des base layer:
 
-- Der harte PreToolUse-Block (kein Edit/Write/MultiEdit ohne vorherige Recherche
+- Die Recherche-Warnung (kein Edit/Write/MultiEdit ohne vorherige Recherche
   einmal pro Session) gilt **zusätzlich für schreibende Bash-Befehle** — auch
   Datei-Schreibzugriffe via Shell (`sed -i`, `tee`, `dd of=`, Redirects außerhalb
-  `/tmp`) werden ohne vorherige Recherche blockiert. Damit ist die Umgehung „Datei per
-  Shell schreiben statt Edit/Write" geschlossen.
+  `/tmp`) erzeugen ohne vorherige Recherche eine Warnung. Damit ist die Umgehung
+  „Datei per Shell schreiben statt Edit/Write" geschlossen.
 - Kein impliziter Ausnahmefall. Bewusster Verzicht ausschließlich über den Flavor
   `no-research`.
 

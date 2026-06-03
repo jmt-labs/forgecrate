@@ -75,7 +75,7 @@ func promptSubmitOutput(dir string) (string, error) {
 	fmt.Fprintln(&sb)
 	fmt.Fprintf(&sb, "Pflicht-Skills: brainstorming → tdd → verification-before-completion | debugging bei Bugs\n")
 	if !cfg.HasFlavor("no-research") {
-		fmt.Fprintf(&sb, "Recherche-Pflicht (erzwungen): einmal pro Session vor dem ersten Edit/Write WebSearch/context7/fetch nutzen — nicht raten (Block via pre-tool Hook).\n")
+		fmt.Fprintf(&sb, "Recherche-Pflicht: einmal pro Session vor dem ersten Edit/Write WebSearch/context7/fetch nutzen — nicht raten (Warnung via pre-tool Hook).\n")
 	}
 	return sb.String(), nil
 }
@@ -83,7 +83,7 @@ func promptSubmitOutput(dir string) (string, error) {
 func newHookRequireResearchCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "require-research",
-		Short: "Blockiert Edit/Write/MultiEdit (und schreibende Bash bei force-research), bis in der Session recherchiert wurde",
+		Short: "Warnt bei Edit/Write/MultiEdit (und schreibender Bash bei force-research), wenn in der Session noch nicht recherchiert wurde",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if out := requireResearchOutput(os.Stdin, "."); out != "" {
 				fmt.Print(out)
@@ -93,7 +93,7 @@ func newHookRequireResearchCmd() *cobra.Command {
 	}
 }
 
-const researchBlockMessage = "Recherche-Pflicht: Einmal pro Session muss vor Edit/Write/MultiEdit mindestens ein Recherche-Tool (WebSearch, WebFetch, mcp__fetch__*, mcp__context7__*) genutzt worden sein. Recherchiere zuerst die relevante Doku/Best Practice, dann editiere — danach sind weitere Edits der Session frei. Bewusster Verzicht: Flavor no-research aktivieren."
+const researchBlockMessage = "Recherche-Empfehlung: Vor Edit/Write/MultiEdit mindestens ein Recherche-Tool (WebSearch, WebFetch, mcp__fetch__*, mcp__context7__*) nutzen — nicht raten. Einmal pro Session genügt, danach sind weitere Edits frei. Verzicht via Flavor no-research."
 
 // preToolInput ist das stdin-JSON, das ein PreToolUse-Hook von Claude Code erhält.
 type preToolInput struct {
@@ -118,18 +118,8 @@ type contentBlock struct {
 	Name string `json:"name"`
 }
 
-type hookSpecificOutput struct {
-	HookEventName            string `json:"hookEventName"`
-	PermissionDecision       string `json:"permissionDecision"`
-	PermissionDecisionReason string `json:"permissionDecisionReason"`
-}
-
-type hookOutput struct {
-	HookSpecificOutput hookSpecificOutput `json:"hookSpecificOutput"`
-}
-
-// requireResearchOutput liest das PreToolUse-stdin-JSON und gibt bei einem Block das
-// deny-JSON zurück, sonst einen leeren String. Fail-open bei jedem Lesefehler.
+// requireResearchOutput liest das PreToolUse-stdin-JSON und gibt bei fehlender
+// Recherche eine Warnung aus, sonst einen leeren String. Fail-open bei Lesefehlern.
 func requireResearchOutput(r io.Reader, dir string) string {
 	data, err := io.ReadAll(r)
 	if err != nil {
@@ -152,23 +142,24 @@ func requireResearchOutput(r io.Reader, dir string) string {
 		return ""
 	}
 
-	block, reason := researchDecision(cfg, transcript, in.ToolName, in.ToolInput.Command)
-	if !block {
+	warn, reason := researchDecision(cfg, transcript, in.ToolName, in.ToolInput.Command)
+	if !warn {
 		return ""
 	}
-	out, err := json.Marshal(hookOutput{HookSpecificOutput: hookSpecificOutput{
-		HookEventName:            "PreToolUse",
-		PermissionDecision:       "deny",
-		PermissionDecisionReason: reason,
-	}})
+	out, err := json.Marshal(map[string]any{
+		"hookSpecificOutput": map[string]string{
+			"hookEventName":     "PreToolUse",
+			"additionalContext": reason,
+		},
+	})
 	if err != nil {
 		return ""
 	}
 	return string(out)
 }
 
-// researchDecision entscheidet, ob ein Tool-Aufruf blockiert wird, weil in der Session
-// noch kein Recherche-Tool genutzt wurde. no-research deaktiviert den Block.
+// researchDecision entscheidet, ob bei einem Tool-Aufruf eine Recherche-Warnung ausgegeben
+// wird, weil in der Session noch kein Recherche-Tool genutzt wurde. no-research deaktiviert.
 func researchDecision(cfg config.Config, transcript []byte, toolName, bashCmd string) (bool, string) {
 	if cfg.HasFlavor("no-research") {
 		return false, ""
@@ -303,21 +294,29 @@ func preToolOutput(branch, toolName, toolInput string) string {
 	switch toolName {
 	case "Edit", "Write", "MultiEdit":
 		if onMain {
-			return `{"continue":false,"stopReason":"Direkte Änderungen auf main sind verboten. Branch anlegen: git checkout -b feat/<thema>"}`
+			out, _ := json.Marshal(map[string]any{
+				"hookSpecificOutput": map[string]string{
+					"hookEventName":     "PreToolUse",
+					"additionalContext": "Warnung: Direkte Änderungen auf main. Branch anlegen empfohlen: git checkout -b feat/<thema>",
+				},
+			})
+			return string(out)
 		}
-		// require-research übernimmt diese Tools — kein zweiter JSON-Output hier
 	case "Bash":
 		destructive := isDestructiveBash(toolInput)
 		if destructive == "" {
 			return ""
 		}
+		msg := "Warnung: destruktiver Befehl erkannt (" + destructive + ")."
 		if onMain {
-			return `{"continue":false,"stopReason":"Destruktiver Bash-Befehl auf main verboten: ` + destructive + `"}`
+			msg += " Direkt auf main — Branch anlegen empfohlen."
+		} else {
+			msg += " Mit Bedacht verwenden."
 		}
 		out, _ := json.Marshal(map[string]any{
 			"hookSpecificOutput": map[string]string{
 				"hookEventName":     "PreToolUse",
-				"additionalContext": "Warnung: destruktiver Befehl erkannt (" + destructive + "). Auf Feature-Branches erlaubt, aber mit Bedacht verwenden.",
+				"additionalContext": msg,
 			},
 		})
 		return string(out)

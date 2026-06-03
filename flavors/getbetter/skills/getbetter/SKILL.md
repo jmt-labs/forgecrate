@@ -1,12 +1,13 @@
 # GETBETTER
 
-Reflektiert die aktuelle Session und aktualisiert `.claude/GETBETTER.md` mit synthetisierten Erkenntnissen.
+Reflektiert die aktuelle Session und speichert synthetisierte Erkenntnisse im memory MCP.
 
 ## Ablauf
 
 1. **Bestehende Erkenntnisse laden**
 
-   Lies `.claude/GETBETTER.md` mit dem Read-Tool. Falls die Datei nicht existiert, starte mit einer leeren Basis.
+   `mcp__memory__read_graph` aufrufen. Entities vom Typ `session-reflection` auslesen.
+   Falls keine vorhanden: starte mit einer leeren Basis.
 
    Falls keine verwertbare Session-History vorhanden ist (z.B. direkt nach Sessionbeginn oder nach Kompaktierung): kurze Meldung ausgeben und Skill beenden — keine Erkenntnisse erzwingen.
 
@@ -20,29 +21,25 @@ Reflektiert die aktuelle Session und aktualisiert `.claude/GETBETTER.md` mit syn
 
    Formuliere frei — kein starres Format, aber bleib konkret und präzise.
 
-3. **Synthetisieren und schreiben**
+3. **Synthetisieren und speichern**
 
    Führe bestehende und neue Erkenntnisse zusammen:
    - Bestehende Punkte bleiben erhalten; ein Punkt gilt als überholt wenn ein neuer denselben Sachverhalt präziser beschreibt oder ihn explizit widerlegt
    - Überschneidende Punkte werden verdichtet, nicht doppelt geführt
    - Neue Erkenntnisse werden eingearbeitet
 
-   Schreibe das Ergebnis nach `.claude/GETBETTER.md`:
+   `mcp__memory__add_observations` aufrufen mit:
+   - `entityName`: `session-reflection`
+   - `contents`: Liste der synthetisierten Erkenntnisse (je Erkenntnis ein String)
 
-   ```markdown
-   # GETBETTER
-
-   _Letzte Aktualisierung: YYYY-MM-DD_ (ISO 8601, immer das aktuelle Datum einsetzen)
-
-   ## Entscheidungen
-   [synthetisierter Inhalt]
-
-   ## Anti-Patterns
-   [synthetisierter Inhalt]
-
-   ## Was funktioniert
-   [synthetisierter Inhalt]
+   Format pro Erkenntnis:
    ```
+   [YYYY-MM-DD] <Kategorie>: <Erkenntnis in einem Satz>
+   ```
+
+   Kategorien: `workflow`, `tooling`, `pattern`, `mistake`, `decision`.
+
+   Kein GETBETTER.md schreiben — memory MCP ist das einzige Speicherziel.
 
 4. **Bestätigen**
 

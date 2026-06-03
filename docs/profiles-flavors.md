@@ -40,10 +40,10 @@ Skill- und Plugin-Listen kommen aus den jeweiligen
   `forgecrate update --profile <neu>` oder `forgecrate config`
 - **Flavors sind additiv** — beliebig viele lassen sich kombinieren (z. B.
   `--flavors tdd,strict-review,github`)
-- **`no-research` invertiert** — es entfernt die Recherche-Pflicht aus base und
-  deaktiviert den harten PreToolUse-Block. Sinnvoll nur isoliert oder in stark
+- **`no-research` invertiert** — es entfernt die Recherche-Empfehlung aus base und
+  deaktiviert die PreToolUse-Warnung vollständig. Sinnvoll nur isoliert oder in stark
   eingeschränkten Umgebungen. Hat Vorrang vor `force-research`, falls beide aktiv sind
-- **`force-research` verschärft** — erweitert den harten Block zusätzlich auf
+- **`force-research` verschärft** — erweitert die Recherche-Warnung zusätzlich auf
   schreibende Bash-Befehle (`sed -i`, `tee`, `dd of=`, Redirects außerhalb `/tmp`)
 - **`minimal` fügt nichts hinzu** — es ist ein Signal "keine extras". Kombination
   mit anderen Flavors funktioniert problemlos

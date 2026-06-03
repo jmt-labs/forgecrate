@@ -29,19 +29,19 @@ PreToolUse-JSON über **stdin** (inkl. `tool_name`, `tool_input`, `transcript_pa
 
 **Verhalten:**
 
-- **Blockiert** auf Branch `main`/`master` destruktive Bash-Kommandos:
+- **Warnt** auf Branch `main`/`master` bei destruktiven Bash-Kommandos:
   `git commit`, `git push`, `git reset --hard`, sowie Schreib-Redirektionen
   (`>`, `>>`) auf versionierte Dateien.
-- **Erzwingt die Recherche-Pflicht** via `forgecrate hook require-research`:
-  `Edit`/`Write`/`MultiEdit` werden **blockiert**, solange im gesamten Session-Transcript
+- **Warnt bei fehlender Recherche** via `forgecrate hook require-research`:
+  `Edit`/`Write`/`MultiEdit` erzeugen eine Warnung, solange im gesamten Session-Transcript
   kein assistant-`tool_use` mit einem Recherche-Tool
   (`WebSearch`, `WebFetch`, `mcp__fetch__*`, `mcp__context7__*`) steht.
-  Eine Recherche pro Session schaltet alle weiteren Edits frei.
-  - Flavor `no-research` deaktiviert den Block vollständig.
-  - Flavor `force-research` erweitert ihn auf schreibende Bash-Befehle
+  Eine Recherche pro Session schaltet weitere Warnungen für die Session ab.
+  - Flavor `no-research` deaktiviert die Warnung vollständig.
+  - Flavor `force-research` erweitert sie auf schreibende Bash-Befehle
     (`sed -i`, `tee`, `dd of=`, Redirects außerhalb `/tmp`).
   - **Fail-open**: fehlt die Binary, das Transcript oder ist es unparsebar, wird
-    nicht blockiert (verhindert Dauersperren).
+    nicht gewarnt (verhindert Dauerstörungen).
 - **Erinnert** kontextabhängig an relevante Pflicht-Skills — z. B. an
   `superpowers:test-driven-development`, wenn Code-Dateien editiert werden.
 

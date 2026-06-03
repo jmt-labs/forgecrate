@@ -76,19 +76,19 @@ Read-Tool auf `memory-bank/`-Dateien ist verboten.
 
 ## Hook-Schutz: Hinweis
 
-Der `pre-tool.sh`-Hook blockt destruktive Bash-Befehle auf `main` (z. B.
+Der `pre-tool.sh`-Hook **warnt** bei destruktiven Bash-Befehlen auf `main` (z. B.
 `git commit`, `git push`, `git reset --hard`, Schreib-Redirectionen). Er ist
 jedoch **keine alleinige Schutzschicht** — GitHub Branch Protection Rules müssen
 zusätzlich konfiguriert werden, damit direkte Pushes auch serverseitig verhindert
 werden.
 
-Derselbe Hook erzwingt die **Recherche-Pflicht** (`forgecrate hook
-require-research`): Edit/Write/MultiEdit werden blockiert, bis einmal pro Session ein
+Derselbe Hook **warnt** bei fehlender Recherche (`forgecrate hook
+require-research`): Edit/Write/MultiEdit erzeugen eine Warnung, bis einmal pro Session ein
 Recherche-Tool (WebSearch/WebFetch/`mcp__fetch__*`/`mcp__context7__*`) genutzt wurde.
-Mit Flavor `force-research` gilt der Block zusätzlich für schreibende Bash-Befehle
+Mit Flavor `force-research` gilt die Warnung zusätzlich für schreibende Bash-Befehle
 (`sed -i`, `tee`, `dd of=`, Redirects außerhalb `/tmp`). Flavor `no-research`
-deaktiviert den Block vollständig. Bei fehlender Binary, fehlendem oder kaputtem
-Transcript verhält sich der Hook **fail-open** (kein Block).
+deaktiviert die Warnungen vollständig. Bei fehlender Binary, fehlendem oder kaputtem
+Transcript verhält sich der Hook **fail-open** (keine Warnung).
 
 ## Team-Rollen & Subagent-Konfiguration
 
