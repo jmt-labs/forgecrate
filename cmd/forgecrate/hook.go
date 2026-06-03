@@ -118,16 +118,6 @@ type contentBlock struct {
 	Name string `json:"name"`
 }
 
-type hookSpecificOutput struct {
-	HookEventName            string `json:"hookEventName"`
-	PermissionDecision       string `json:"permissionDecision"`
-	PermissionDecisionReason string `json:"permissionDecisionReason"`
-}
-
-type hookOutput struct {
-	HookSpecificOutput hookSpecificOutput `json:"hookSpecificOutput"`
-}
-
 // requireResearchOutput liest das PreToolUse-stdin-JSON und gibt bei fehlender
 // Recherche eine Warnung aus, sonst einen leeren String. Fail-open bei Lesefehlern.
 func requireResearchOutput(r io.Reader, dir string) string {

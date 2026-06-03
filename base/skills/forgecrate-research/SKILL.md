@@ -46,9 +46,14 @@ Tool aufrufen. Bei unklaren Ergebnissen zweites Tool oder verfeinerte Query nutz
 
 Diesen Block im Plan-Dokument referenzieren (`docs/superpowers/plans/*.md`).
 
+## Wann überspringen
+
+Bei rein mechanischen Änderungen ohne fachliche Entscheidung (Rename, Formatierung,
+Typo-Fix, Kommentar entfernen) kann dieser Skill übersprungen werden.
+
 ## Eingebettet in andere Skills
 
-Dieser Skill wird als erster Schritt in folgenden Skills aufgerufen:
+Dieser Skill sollte als erster Schritt in folgenden Skills aufgerufen werden:
 - `superpowers:brainstorming` — vor dem Design
 - `superpowers:test-driven-development` — vor der Implementierung
-- `forgecrate-issue-resolver` — vor der Analyse
+- `forgecrate-issue-resolver` — vor der Analyse (dort verpflichtend als Schritt 0)

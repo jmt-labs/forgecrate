@@ -107,9 +107,3 @@ Falls eines zutrifft → sofort **Future Feature**, unabhängig vom Score:
 → Kein Plan, keine Implementierung jetzt
 ```
 
-### Trigger
-
-Wird aufgerufen:
-- **Pflicht** — direkt nach jedem abgeschlossenen `superpowers:brainstorming`
-- **Automatisch** — wenn eine neue Idee, ein Bug, eine Erweiterung oder Feature-Wunsch erwähnt wird
-- **Auf Anfrage** — bei Fragen wie "ist das wichtig?", "gehört das auf die Roadmap?", "machen wir das?"
