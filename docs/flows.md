@@ -55,6 +55,25 @@ forgecrate config
         └── Done.
 ```
 
+## `forgecrate host-setup`
+
+```
+forgecrate host-setup [--scope host|project] [--yes] [--dry-run] [--skip-prereqs]
+        │
+        ├── Scope auflösen (Flag oder TUI-Select host|project)
+        ├── project: .forgecrate.yaml-Guard; host: kein Repo nötig
+        ├── jmt-labs/forgecrate@ref nach Temp-Dir downloaden
+        ├── extensions.CollectAll: Union über base + ALLE Profile + ALLE Flavors
+        ├── Prerequisites (außer --skip-prereqs):
+        │       ├── claude fehlt → Abbruch
+        │       ├── npx fehlt → Warnung
+        │       └── codegraph fehlt → nach Bestätigung install.sh (host = curl|sh)
+        ├── Plugins: claude plugin install --scope user|project
+        ├── MCP: host → claude mcp add --scope user (idempotent)
+        │        project → .mcp.json schreiben
+        └── Done.
+```
+
 ## `forgecrate set-permission-mode`
 
 ```

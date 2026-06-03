@@ -395,6 +395,28 @@ The setting is persisted to `.forgecrate.yaml` (`permission_mode:` key) and surv
 
 ---
 
+### `forgecrate host-setup`
+
+Prepares a machine for using Claude with forgecrate. Installs the **union** of all plugins and MCP servers declared across `base` + every profile + every flavor, and checks/installs prerequisite binaries.
+
+```sh
+forgecrate host-setup [--scope host|project] [--yes] [--dry-run] [--skip-prereqs] [--ref <ref>]
+```
+
+| Flag | Default | Description |
+|---|---|---|
+| `--scope` | _(interactive prompt)_ | `host` (user-global, all projects) or `project` (this repo only). Empty + TTY ⇒ dropdown. |
+| `--yes` / `-y` | `false` | Non-interactive (CI): no prompts/confirmations. Requires `--scope`. |
+| `--dry-run` | `false` | Print every action that would run; execute nothing. |
+| `--skip-prereqs` | `false` | Skip prerequisite (claude/node/npx/codegraph) detection and installation. |
+| `--ref` | `main` | forgecrate ref to fetch sources from. |
+
+**Scope behavior:** `host` installs plugins via `claude plugin install --scope user` and registers MCP servers via `claude mcp add --scope user` (stored in `~/.claude.json`); `project` uses `--scope project` and writes the repo `.mcp.json`.
+
+> **Note:** `--yes` will execute the official remote codegraph `install.sh` without asking. The command is idempotent — already-installed plugins and already-registered MCP servers are skipped.
+
+---
+
 ### `forgecrate hook prompt-submit`
 
 Helper invoked by the `UserPromptSubmit` hook. Prints the active profile, active flavors and the mandatory-skill checklist. You will rarely call this manually — it is wired up by `.claude/hooks/prompt-submit.sh`.
@@ -451,6 +473,7 @@ Custom skills in this directory complement the managed commands and are never ov
 | `/forgecrate-release` | base | Runs a complete release cycle |
 | `/forgecrate-handoff` | base | Generates a portable `HANDOFF.md` for AI model switches or session handoffs |
 | `/forgecrate-catchup` | base | Short digest of recent activity (commits, context, GitHub) over the last N days |
+| `/forgecrate-host-setup` | base | Prepares a host for forgecrate + Claude — installs all plugins, MCP servers and prerequisites (host-global or per-project) |
 | `/forgecrate-db-migration` | profile: `backend` | Guides creation and review of a database migration |
 | `/accessibility-audit` | profile: `frontend` | Static A11y checks per changed file (alt, label, aria-\*) |
 | `/ui-ux-audit` | profile: `frontend` | Deep UI/UX audit with severity grading and auto-created GitHub issues |
