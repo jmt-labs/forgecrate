@@ -11,19 +11,23 @@ eigene Anpassungen gehören in den CUSTOM-Abschnitt der Root-`CLAUDE.md`.
 | Situation | Skill | Verhalten |
 |---|---|---|
 | Neues Feature / Bug-Fix | `superpowers:brainstorming` | MUSS vor Code aufgerufen werden |
+| Nach Brainstorming | `forgecrate-roadmap-triage` | MUSS aufgerufen werden — entscheidet ob jetzt oder Future Feature |
 | Implementierung | `superpowers:test-driven-development` | MUSS vor Code aufgerufen werden |
+| Vor jeder nicht-trivialen Änderung | `forgecrate-research` | MUSS aufgerufen werden |
 | Vor Commit/PR | `superpowers:verification-before-completion` | MUSS ausgeführt werden |
 | Debug | `superpowers:systematic-debugging` | MUSS vor Fix aufgerufen werden |
 | Bug gefunden (nach Debug) | `superpowers:test-driven-development` | Regressionstest schreiben, BEVOR der Fix committed wird |
+| Session-Start | `mcp__memory__read_graph` | Projektübergreifendes Wissen laden |
+| Architekturentscheidung / Debugging-Ergebnis | `mcp__memory__add_observations` | In memory MCP schreiben |
 
-## Recherche-Pflicht (erzwungen)
+**Codegraph-Pflicht** (wenn codegraph-Flavor aktiv): Vor jeder nicht-trivialen Änderung `codegraph_node` + `codegraph_callers` für betroffene Symbole ausführen — kein Edit/Write ohne vorherige Codegraph-Abfrage.
 
-**Alle** Rollen MÜSSEN vor jeder nicht-trivialen Code-Änderung (Edit/Write/MultiEdit)
-mindestens ein Recherche-Tool nutzen — statt aus gelerntem Wissen zu arbeiten. Raten
-ist verboten; Quellen werden referenziert. Dies wird durch den `pre-tool.sh`-Hook
-(`forgecrate hook require-research`) **hart erzwungen**: Edit/Write/MultiEdit werden
-**blockiert**, bis einmal pro Session eine Recherche (WebSearch/WebFetch/context7/fetch)
-im Transcript nachweisbar ist.
+## Recherche-Pflicht
+
+**Alle** Rollen MÜSSEN vor jeder nicht-trivialen Code-Änderung mindestens ein
+Recherche-Tool nutzen — statt aus gelerntem Wissen zu arbeiten. Raten ist verboten;
+Quellen werden referenziert. Der `pre-tool.sh`-Hook **warnt** bei fehlender Recherche,
+blockiert aber nicht.
 
 | Frage-Typ | Tool | Beispiele |
 |---|---|---|
@@ -34,11 +38,9 @@ im Transcript nachweisbar ist.
 **Regeln:**
 
 - Mindestens eine Quelle pro nicht-trivialer Entscheidung; eine Recherche pro Session
-  schaltet alle weiteren Edits der Session frei
+  schaltet weitere Warnungen für die Session ab
 - Quellen im Plan-Dokument (`docs/superpowers/plans/*.md`) referenzieren
-- Deaktivierbar via Flavor `no-research` — deaktiviert auch den harten Block
-- Verschärfbar via Flavor `force-research` — blockt zusätzlich schreibende
-  Bash-Befehle (siehe Abschnitt „## Hook-Schutz")
+- Deaktivierbar via Flavor `no-research`
 
 ## Entwicklungs-Workflow
 
@@ -52,12 +54,16 @@ Für alle Features, Bugfixes und Änderungen:
 3. **Plan** — in `docs/superpowers/plans/YYYY-MM-DD-<thema>.md` schreiben und
    committen; Plan-Pfad im Issue ergänzen; Kommentar: "Plan fertig"
 4. **Implementierung** — nach jedem Task kurzer Kommentar im Issue
-5. **PR & Abschluss** — Vor dem PR: memory-bank aktualisieren
-   (`activeContext.md`, `progress.md`) und Inhalt in die PR-Beschreibung
-   einbeziehen. Existiert noch kein memory-bank-Inhalt, zuerst
-   `/forgecrate-repo-onboarding` ausführen. Dann PR erstellen, Issue im
-   PR-Body verlinken ("Closes #N"); Issue wird erst nach Merge des PR
-   geschlossen (GitHub macht das automatisch)
+5. **PR & Abschluss** — Vor `gh pr create` diese Sequenz vollständig ausführen:
+   1. `forgecrate-doc-sync` — Doku mit Code abgleichen
+   2. `forgecrate-handoff` — memory-bank aktualisieren (`activeContext.md`, `progress.md`)
+   3. `forgecrate-db-migration` — Migrations-Review
+   4. `accessibility-audit` — A11y-Prüfung
+   5. `ui-ux-audit` — UX-Review
+   6. `forgecrate-pr-checklist` — Abschluss-Checkliste
+
+   Dann PR erstellen, Issue im PR-Body verlinken ("Closes #N").
+   Issue wird nach Merge automatisch geschlossen.
 
 Ticket-Kommentare immer kurz (ein Satz): Fortschritt, Pfad oder Ergebnis.
 
@@ -76,19 +82,14 @@ Read-Tool auf `memory-bank/`-Dateien ist verboten.
 
 ## Hook-Schutz: Hinweis
 
-Der `pre-tool.sh`-Hook **warnt** bei destruktiven Bash-Befehlen auf `main` (z. B.
-`git commit`, `git push`, `git reset --hard`, Schreib-Redirectionen). Er ist
-jedoch **keine alleinige Schutzschicht** — GitHub Branch Protection Rules müssen
-zusätzlich konfiguriert werden, damit direkte Pushes auch serverseitig verhindert
-werden.
+Der `pre-tool.sh`-Hook **warnt** bei destruktiven Bash-Befehlen und fehlender
+Recherche — er blockiert nie. Die Verantwortung liegt beim Agenten: Warnungen
+bewusst wahrnehmen, einschätzen und eine informierte Entscheidung treffen.
 
-Derselbe Hook **warnt** bei fehlender Recherche (`forgecrate hook
-require-research`): Edit/Write/MultiEdit erzeugen eine Warnung, bis einmal pro Session ein
-Recherche-Tool (WebSearch/WebFetch/`mcp__fetch__*`/`mcp__context7__*`) genutzt wurde.
-Mit Flavor `force-research` gilt die Warnung zusätzlich für schreibende Bash-Befehle
-(`sed -i`, `tee`, `dd of=`, Redirects außerhalb `/tmp`). Flavor `no-research`
-deaktiviert die Warnungen vollständig. Bei fehlender Binary, fehlendem oder kaputtem
-Transcript verhält sich der Hook **fail-open** (keine Warnung).
+Für serverseitigen Schutz auf `main`: GitHub Branch Protection Rules konfigurieren.
+
+Bei fehlender Binary, fehlendem oder kaputtem Transcript verhält sich der Hook
+**fail-open** (keine Warnung).
 
 ## Team-Rollen & Subagent-Konfiguration
 
@@ -302,13 +303,13 @@ Issue-Batches proaktiv Background-Mode und Worktrees nutzen.
 
 ## Force-Research-Flavor (verschärfte Recherche-Pflicht)
 
-Dieser Flavor verschärft die ohnehin erzwungene Recherche-Pflicht des base layer:
+Dieser Flavor verschärft die Recherche-Empfehlung des base layer:
 
-- Der harte PreToolUse-Block (kein Edit/Write/MultiEdit ohne vorherige Recherche
+- Die Recherche-Warnung (kein Edit/Write/MultiEdit ohne vorherige Recherche
   einmal pro Session) gilt **zusätzlich für schreibende Bash-Befehle** — auch
   Datei-Schreibzugriffe via Shell (`sed -i`, `tee`, `dd of=`, Redirects außerhalb
-  `/tmp`) werden ohne vorherige Recherche blockiert. Damit ist die Umgehung „Datei per
-  Shell schreiben statt Edit/Write" geschlossen.
+  `/tmp`) erzeugen ohne vorherige Recherche eine Warnung. Damit ist die Umgehung
+  „Datei per Shell schreiben statt Edit/Write" geschlossen.
 - Kein impliziter Ausnahmefall. Bewusster Verzicht ausschließlich über den Flavor
   `no-research`.
 
