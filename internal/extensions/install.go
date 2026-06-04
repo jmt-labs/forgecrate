@@ -29,6 +29,7 @@ func (i Installer) Install(ext Extensions) error {
 		out = io.Discard
 	}
 
+	var warnings []string
 	for _, p := range ext.Plugins {
 		var cmd *exec.Cmd
 		if p.Method == "marketplace" {
@@ -39,16 +40,23 @@ func (i Installer) Install(ext Extensions) error {
 		cmd.Dir = i.Dir
 		if cmdOut, err := cmd.CombinedOutput(); err != nil {
 			msg := string(cmdOut)
+			var reason string
 			if strings.Contains(msg, "not found in any configured marketplace") {
-				_, _ = fmt.Fprintf(out, "❌ plugin:%s  (not found in marketplace)\n", p.Name)
-				return fmt.Errorf("plugin %s not found in marketplace: %w", p.Name, err)
+				reason = "not found in marketplace"
+			} else {
+				reason = err.Error()
 			}
-			_, _ = fmt.Fprintf(out, "❌ plugin:%s  (%v)\n", p.Name, err)
-			return fmt.Errorf("plugin install %s: %w", p.Name, err)
+			_, _ = fmt.Fprintf(out, "⚠️  plugin:%s  (%s) — skipped\n", p.Name, reason)
+			warnings = append(warnings, fmt.Sprintf("plugin:%s (%s)", p.Name, reason))
+			continue
 		}
 		_, _ = fmt.Fprintf(out, "✅ plugin:%s\n", p.Name)
 	}
 
+	if len(warnings) > 0 {
+		_, _ = fmt.Fprintf(out, "Hinweis: %d Plugin(s) konnten nicht installiert werden: %s\n",
+			len(warnings), strings.Join(warnings, ", "))
+	}
 	return nil
 }
 

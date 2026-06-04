@@ -41,7 +41,7 @@ func TestInstallUsesMarketplaceForMethodMarketplace(t *testing.T) {
 	}
 }
 
-func TestInstallPluginNotFoundReturnsError(t *testing.T) {
+func TestInstallPluginNotFoundSkipped(t *testing.T) {
 	dir := t.TempDir()
 	fakeClaude := filepath.Join(dir, "claude")
 	script := "#!/bin/sh\necho 'not found in any configured marketplace'\nexit 1\n"
@@ -49,19 +49,19 @@ func TestInstallPluginNotFoundReturnsError(t *testing.T) {
 		t.Fatalf("WriteFile: %v", err)
 	}
 
+	var buf strings.Builder
 	ext := extensions.Extensions{
 		Plugins: []extensions.Plugin{
 			{Name: "missing", Source: "org/missing", Method: "marketplace"},
 		},
 	}
 
-	installer := extensions.Installer{Claude: fakeClaude, Dir: dir}
-	err := installer.Install(ext)
-	if err == nil {
-		t.Fatal("expected error, got nil")
+	installer := extensions.Installer{Claude: fakeClaude, Dir: dir, Out: &buf}
+	if err := installer.Install(ext); err != nil {
+		t.Fatalf("expected no error (plugin skip), got: %v", err)
 	}
-	if !strings.Contains(err.Error(), "not found in marketplace") {
-		t.Errorf("unexpected error: %v", err)
+	if !strings.Contains(buf.String(), "missing") {
+		t.Errorf("expected warning mentioning plugin name, got: %s", buf.String())
 	}
 }
 
