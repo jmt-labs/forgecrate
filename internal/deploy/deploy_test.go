@@ -547,7 +547,7 @@ func TestRunChecksNodeVersion(t *testing.T) {
 	}
 }
 
-func TestRunInitCodegraphWhenFavorActive(t *testing.T) {
+func TestRunInitCodegraphWhenFlavorActive(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("shell script nicht unterstützt auf Windows")
 	}

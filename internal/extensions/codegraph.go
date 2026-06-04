@@ -14,6 +14,9 @@ func InitCodegraph(destDir string, codegraphBin string, out io.Writer) error {
 	if codegraphBin == "" {
 		codegraphBin = "codegraph"
 	}
+	if out == nil {
+		out = io.Discard
+	}
 
 	binPath, err := exec.LookPath(codegraphBin)
 	if err != nil {

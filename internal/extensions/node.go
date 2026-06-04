@@ -12,7 +12,7 @@ import (
 func CheckNodeVersion(minMajor int) error {
 	out, err := exec.Command("node", "--version").Output()
 	if err != nil {
-		return fmt.Errorf("node nicht gefunden — Node.js %d+ erforderlich (https://nodejs.org)", minMajor)
+		return fmt.Errorf("node nicht gefunden oder nicht ausführbar (%v) — Node.js %d+ erforderlich (https://nodejs.org)", err, minMajor)
 	}
 
 	version := strings.TrimSpace(string(out))
@@ -24,7 +24,7 @@ func CheckNodeVersion(minMajor int) error {
 	}
 
 	if major < minMajor {
-		return fmt.Errorf("node v%s gefunden, aber Node.js %d+ erforderlich (https://nodejs.org)", strings.TrimSpace(string(out)), minMajor)
+		return fmt.Errorf("node v%s gefunden, aber Node.js %d+ erforderlich (https://nodejs.org)", version, minMajor)
 	}
 
 	return nil
