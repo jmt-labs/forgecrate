@@ -71,3 +71,65 @@ func TestInstallEmptyPluginsSucceeds(t *testing.T) {
 		t.Fatalf("expected no error, got: %v", err)
 	}
 }
+
+func TestInstallSkipsAlreadyInstalledPlugin(t *testing.T) {
+	dir := t.TempDir()
+	fakeClaude := filepath.Join(dir, "claude")
+	// plugin list gibt den Plugin-Namen aus -> Install-Command darf nicht aufgerufen werden
+	script := `#!/bin/sh
+if [ "$2" = "list" ]; then
+  echo "already-installed"
+  exit 0
+fi
+echo "$@" >> ` + filepath.Join(dir, "calls.txt") + "\n"
+	if err := os.WriteFile(fakeClaude, []byte(script), 0755); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
+
+	ext := extensions.Extensions{
+		Plugins: []extensions.Plugin{
+			{Name: "already-installed", Source: "https://github.com/foo/bar", Method: ""},
+		},
+	}
+
+	installer := extensions.Installer{Claude: fakeClaude, Dir: dir}
+	if err := installer.Install(ext); err != nil {
+		t.Fatalf("Install: %v", err)
+	}
+
+	calls, _ := os.ReadFile(filepath.Join(dir, "calls.txt"))
+	if strings.Contains(string(calls), "plugin install") {
+		t.Errorf("expected install to be skipped, but got calls: %s", calls)
+	}
+}
+
+func TestInstallRunsInstallWhenPluginNotListed(t *testing.T) {
+	dir := t.TempDir()
+	fakeClaude := filepath.Join(dir, "claude")
+	// plugin list gibt etwas anderes aus -> Install-Command muss aufgerufen werden
+	script := `#!/bin/sh
+if [ "$2" = "list" ]; then
+  echo "some-other-plugin"
+  exit 0
+fi
+echo "$@" >> ` + filepath.Join(dir, "calls.txt") + "\n"
+	if err := os.WriteFile(fakeClaude, []byte(script), 0755); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
+
+	ext := extensions.Extensions{
+		Plugins: []extensions.Plugin{
+			{Name: "new-plugin", Source: "https://github.com/foo/new-plugin", Method: ""},
+		},
+	}
+
+	installer := extensions.Installer{Claude: fakeClaude, Dir: dir}
+	if err := installer.Install(ext); err != nil {
+		t.Fatalf("Install: %v", err)
+	}
+
+	calls, _ := os.ReadFile(filepath.Join(dir, "calls.txt"))
+	if !strings.Contains(string(calls), "plugin install") {
+		t.Errorf("expected install call, got: %s", calls)
+	}
+}

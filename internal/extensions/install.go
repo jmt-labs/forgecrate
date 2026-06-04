@@ -30,6 +30,11 @@ func (i Installer) Install(ext Extensions) error {
 	}
 
 	for _, p := range ext.Plugins {
+		if isPluginInstalled(claude, i.Dir, p.Name) {
+			_, _ = fmt.Fprintf(out, "🔵 plugin:%s  (bereits installiert)\n", p.Name)
+			continue
+		}
+
 		var cmd *exec.Cmd
 		if p.Method == "marketplace" {
 			cmd = exec.Command(claude, "plugin", "marketplace", "add", p.Source)
@@ -50,5 +55,17 @@ func (i Installer) Install(ext Extensions) error {
 	}
 
 	return nil
+}
+
+// isPluginInstalled prüft via "claude plugin list" ob ein Plugin bereits installiert ist.
+// Bei Fehler (claude nicht gefunden etc.) wird false zurückgegeben (fail-open).
+func isPluginInstalled(claude, dir, name string) bool {
+	cmd := exec.Command(claude, "plugin", "list")
+	cmd.Dir = dir
+	out, err := cmd.Output()
+	if err != nil {
+		return false
+	}
+	return strings.Contains(string(out), name)
 }
 
