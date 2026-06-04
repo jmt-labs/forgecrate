@@ -1,6 +1,6 @@
 module github.com/jmt-labs/forgecrate
 
-go 1.24.2
+go 1.25.11
 
 require (
 	github.com/charmbracelet/huh v1.0.0
