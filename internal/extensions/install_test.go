@@ -133,3 +133,34 @@ echo "$@" >> ` + filepath.Join(dir, "calls.txt") + "\n"
 		t.Errorf("expected install call, got: %s", calls)
 	}
 }
+
+func TestInstallDoesNotSkipWhenNameIsSubstring(t *testing.T) {
+	dir := t.TempDir()
+	fakeClaude := filepath.Join(dir, "claude")
+	// plugin list enthält "superpowers-extra" — "superpowers" darf NICHT als installiert gelten
+	script := `#!/bin/sh
+if [ "$2" = "list" ]; then
+  echo "superpowers-extra"
+  exit 0
+fi
+echo "$@" >> ` + filepath.Join(dir, "calls.txt") + "\n"
+	if err := os.WriteFile(fakeClaude, []byte(script), 0755); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
+
+	ext := extensions.Extensions{
+		Plugins: []extensions.Plugin{
+			{Name: "superpowers", Source: "https://github.com/foo/superpowers", Method: ""},
+		},
+	}
+
+	installer := extensions.Installer{Claude: fakeClaude, Dir: dir}
+	if err := installer.Install(ext); err != nil {
+		t.Fatalf("Install: %v", err)
+	}
+
+	calls, _ := os.ReadFile(filepath.Join(dir, "calls.txt"))
+	if !strings.Contains(string(calls), "plugin install") {
+		t.Errorf("superpowers sollte installiert werden, da es nur als Substring (superpowers-extra) vorkam: %s", calls)
+	}
+}

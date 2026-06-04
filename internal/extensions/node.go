@@ -18,10 +18,6 @@ func CheckNodeVersion(minMajor int) error {
 	version := strings.TrimSpace(string(out))
 	version = strings.TrimPrefix(version, "v")
 	parts := strings.SplitN(version, ".", 2)
-	if len(parts) == 0 {
-		return fmt.Errorf("node --version unbekanntes Format: %q", string(out))
-	}
-
 	major, err := strconv.Atoi(parts[0])
 	if err != nil {
 		return fmt.Errorf("node --version unbekanntes Format: %q", string(out))

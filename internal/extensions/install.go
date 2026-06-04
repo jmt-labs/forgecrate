@@ -66,6 +66,11 @@ func isPluginInstalled(claude, dir, name string) bool {
 	if err != nil {
 		return false
 	}
-	return strings.Contains(string(out), name)
+	for _, line := range strings.Split(string(out), "\n") {
+		if strings.TrimSpace(line) == name {
+			return true
+		}
+	}
+	return false
 }
 

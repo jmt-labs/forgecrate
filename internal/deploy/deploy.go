@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/jmt-labs/forgecrate/internal/compose"
@@ -153,7 +154,7 @@ func installExtensions(sourceDir, destDir string, cfg config.Config, claudeBin s
 		return err
 	}
 
-	if strings.Contains(strings.Join(cfg.Flavors, ","), "codegraph") {
+	if slices.Contains(cfg.Flavors, "codegraph") {
 		if err := extensions.InitCodegraph(destDir, codegraphBin(), out); err != nil {
 			return fmt.Errorf("codegraph init: %w", err)
 		}
