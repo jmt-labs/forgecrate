@@ -27,7 +27,7 @@ Der MCP-Server läuft lokal (`codegraph serve --mcp`) und stellt folgende Tools 
 ### Index-Aktualisierung
 
 Der Index wird automatisch bei Session-Start im Hintergrund aktualisiert (einmal pro Commit-Stand).
-Manuell: `codegraph index` im Repo-Root. Erstmalige Initialisierung: `codegraph init -i`.
+Manuell: `codegraph index` im Repo-Root. Erstmalige Initialisierung: `codegraph init -i` (`--index`): legt `.codegraph/` an und baut den Index headless (keine Prompts).
 
 ### Voraussetzung
 
@@ -44,7 +44,7 @@ irm https://raw.githubusercontent.com/colbymchenry/codegraph/main/install.ps1 | 
 npm i -g @colbymchenry/codegraph
 ```
 
-Danach im Repo initialisieren:
+Danach im Repo initialisieren (headless, keine Prompts):
 
 ```bash
 codegraph init -i

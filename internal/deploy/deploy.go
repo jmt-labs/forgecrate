@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/jmt-labs/forgecrate/internal/compose"
@@ -18,6 +19,13 @@ func Run(sourceDir, destDir string, cfg config.Config) error {
 		claudeBin = "claude"
 	}
 	return RunWithClaude(sourceDir, destDir, cfg, claudeBin, os.Stdout, os.Stdin)
+}
+
+func codegraphBin() string {
+	if bin := os.Getenv("CODEGRAPH_BIN"); bin != "" {
+		return bin
+	}
+	return "codegraph"
 }
 
 func RunWithClaude(sourceDir, destDir string, cfg config.Config, claudeBin string, out io.Writer, in io.Reader) error {
@@ -107,6 +115,11 @@ func fileHash(path string) string {
 }
 
 func installExtensions(sourceDir, destDir string, cfg config.Config, claudeBin string, out io.Writer) error {
+	if err := extensions.CheckNodeVersion(18); err != nil {
+		return fmt.Errorf("node-check: %w", err)
+	}
+
+
 	profileCfg := compose.LoadProfileConfig(sourceDir, cfg.Profile)
 
 	paths := []string{
@@ -136,7 +149,18 @@ func installExtensions(sourceDir, destDir string, cfg config.Config, claudeBin s
 	if err := extensions.WriteMCPJson(destDir, merged); err != nil {
 		return fmt.Errorf("write .mcp.json: %w", err)
 	}
-	return extensions.Installer{Claude: claudeBin, Dir: destDir, Out: out}.Install(merged)
+	installer := extensions.Installer{Claude: claudeBin, Dir: destDir, Out: out}
+	if err := installer.Install(merged); err != nil {
+		return err
+	}
+
+	if slices.Contains(cfg.Flavors, "codegraph") {
+		if err := extensions.InitCodegraph(destDir, codegraphBin(), out); err != nil {
+			return fmt.Errorf("codegraph init: %w", err)
+		}
+	}
+
+	return nil
 }
 
 func copySkills(sourceDir, destDir string, cfg config.Config, out io.Writer) error {

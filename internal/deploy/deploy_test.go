@@ -522,6 +522,70 @@ func TestFlavorGitignoreBlockAddedEvenIfEntryExistsManually(t *testing.T) {
 	t.Errorf(".codegraph/ not added as standalone line even though only vendor/.codegraph/ existed: %q", content)
 }
 
+func TestRunChecksNodeVersion(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("shell script nicht unterstützt auf Windows")
+	}
+	src := t.TempDir()
+	dst := t.TempDir()
+
+	// Fake node das eine zu alte Version meldet
+	nodeDir := t.TempDir()
+	fakeNode := filepath.Join(nodeDir, "node")
+	_ = os.WriteFile(fakeNode, []byte("#!/bin/sh\necho 'v14.0.0'\n"), 0755)
+	t.Setenv("PATH", nodeDir)
+
+	setupMinimalSource(t, src)
+	cfg := config.Config{Profile: "backend"}
+
+	err := deploy.Run(src, dst, cfg)
+	if err == nil {
+		t.Fatal("expected error for old node version, got nil")
+	}
+	if !strings.Contains(err.Error(), "node") {
+		t.Errorf("expected node-related error, got: %v", err)
+	}
+}
+
+func TestRunInitCodegraphWhenFlavorActive(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("shell script nicht unterstützt auf Windows")
+	}
+	src := t.TempDir()
+	dst := t.TempDir()
+
+	// Fake claude binary
+	claudeDir := t.TempDir()
+	fakeClaude := filepath.Join(claudeDir, "claude")
+	_ = os.WriteFile(fakeClaude, []byte("#!/bin/sh\necho \"$@\"\n"), 0755)
+
+	// Fake node binary >= 18
+	nodeDir := t.TempDir()
+	fakeNode := filepath.Join(nodeDir, "node")
+	_ = os.WriteFile(fakeNode, []byte("#!/bin/sh\necho 'v22.0.0'\n"), 0755)
+
+	// Fake codegraph binary das calls loggt
+	cgDir := t.TempDir()
+	fakeCG := filepath.Join(cgDir, "codegraph")
+	callsFile := filepath.Join(cgDir, "calls.txt")
+	_ = os.WriteFile(fakeCG, []byte("#!/bin/sh\necho \"$@\" >> "+callsFile+"\n"), 0755)
+	t.Setenv("PATH", nodeDir+":"+cgDir+":"+claudeDir)
+	t.Setenv("CODEGRAPH_BIN", fakeCG)
+
+	writeFile(t, src, "base/CLAUDE.md", "<!-- GENERATED:BEGIN -->\n# Base\n<!-- GENERATED:END -->\n<!-- CUSTOM:BEGIN -->\n<!-- CUSTOM:END -->\n")
+	writeFile(t, src, "base/.claude/settings.json", `{}`)
+
+	cfg := config.Config{Profile: "backend", Flavors: []string{"codegraph"}}
+	if err := deploy.RunWithClaude(src, dst, cfg, fakeClaude, io.Discard, strings.NewReader("")); err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+
+	calls, _ := os.ReadFile(callsFile)
+	if !strings.Contains(string(calls), "init -i") {
+		t.Errorf("expected codegraph init -i call, got: %s", calls)
+	}
+}
+
 func writeFile(t *testing.T, base, rel, content string) {
 	t.Helper()
 	path := filepath.Join(base, filepath.FromSlash(rel))
